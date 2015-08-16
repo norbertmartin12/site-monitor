@@ -1,0 +1,132 @@
+/*
+ * Copyright (c) 2015 Martin Norbert
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.app4life.sitemonitor.activity.fragment;
+
+import android.app.Activity;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import org.app4life.sitemonitor.R;
+import org.app4life.sitemonitor.model.adapter.SiteCallAdapter;
+import org.app4life.sitemonitor.model.bo.SiteSettings;
+import org.app4life.sitemonitor.receiver.NetworkServiceReceiver;
+import org.app4life.sitemonitor.service.NetworkService;
+
+/**
+ * A placeholder fragment containing a simple view.
+ */
+public class SiteSettingsActivityFragment extends TaskFragment implements NetworkServiceReceiver.Listener {
+
+    private CheckBox notificationCheckbox;
+    private TextView hostTextView;
+    private ListView callListView;
+    private View view;
+
+    private Callback callback;
+    private SiteSettings siteSettings;
+    private SiteCallAdapter siteCallAdapter;
+
+    private NetworkServiceReceiver networkServiceReceiver;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            this.callback = (Callback) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException("activity must implements SiteSettingsActivityFragment.Callback");
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        view = inflater.inflate(R.layout.fragment_site_settings, container, false);
+        notificationCheckbox = (CheckBox) view.findViewById(R.id.notificationCheckbox);
+        callListView = (ListView) view.findViewById(R.id.callListView);
+        hostTextView = (TextView) view.findViewById(R.id.hostTextView);
+        updateView();
+        notificationCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                siteSettings.setNotificationEnabled(isChecked);
+                callback.hasChanged(siteSettings);
+            }
+        });
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateView();
+        if (networkServiceReceiver == null && siteCallAdapter != null) {
+            networkServiceReceiver = new NetworkServiceReceiver(this);
+        }
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkServiceReceiver, new IntentFilter(NetworkService.ACTION_SITE_UPDATED));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (networkServiceReceiver != null) {
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(networkServiceReceiver);
+        }
+    }
+
+    private void updateView() {
+        if (siteSettings != null) {
+            hostTextView.setText(siteSettings.getHost());
+            notificationCheckbox.setChecked(siteSettings.isNotificationEnabled());
+            if (siteCallAdapter == null) {
+                siteCallAdapter = new SiteCallAdapter(getActivity(), siteSettings);
+            }
+            callListView.setAdapter(siteCallAdapter);
+        }
+    }
+
+    public void refresh() {
+        siteCallAdapter.notifyDataSetChanged();
+    }
+
+    public void setSiteSettings(SiteSettings siteSettings) {
+        this.siteSettings = siteSettings;
+        updateView();
+    }
+
+    @Override
+    public void onSiteUpdated(SiteSettings siteSettings) {
+        if (siteCallAdapter != null && siteSettings.equals(this.siteSettings)) {
+            siteCallAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onNetworkStateChanged(boolean hasConnectivity) {
+    }
+
+    public interface Callback {
+        void hasChanged(SiteSettings siteSettings);
+    }
+
+}

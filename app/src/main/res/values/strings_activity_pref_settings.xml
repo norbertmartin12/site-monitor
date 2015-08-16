@@ -1,0 +1,57 @@
+<!--
+  ~ Copyright (c) 2015 Martin Norbert
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<resources>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="pref_header_monitoring">Monitoring</string>
+    <string name="pref_title_frequency">Frequency</string>
+    <string-array name="pref_frequency_titles">
+        <item>2 minutes (battery life)</item>
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+    </string-array>
+    <string-array name="pref_frequency_values">
+        <item>2</item>
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+    </string-array>
+
+    <string name="pref_title_boot_start">Start on boot</string>
+    <string name="pref_header_notifications">Notification</string>
+    <string name="pref_title_notification_allowed">Notification</string>
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+    <string name="pref_title_vibrate">Vibrate</string>
+
+    <string name="pref_notification_light_color">Color</string>
+    <string-array name="pref_notification_light_color_titles">
+        <item>White</item>
+        <item>Blue</item>
+        <item>Red</item>
+    </string-array>
+    <string-array name="pref_notification_light_color_values">
+        <item>-1</item>
+        <item>-16776961</item>
+        <item>-65536</item>
+    </string-array>
+
+</resources>

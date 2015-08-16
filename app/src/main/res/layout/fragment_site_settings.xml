@@ -1,0 +1,70 @@
+<!--
+  ~ Copyright (c) 2015 Martin Norbert
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:padding="@dimen/size_small"
+              tools:context="org.app4life.sitemonitor.activity.fragment.SiteSettingsActivityFragment">
+
+    <TextView
+        android:id="@+id/hostTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoLink="web"
+        android:padding="@dimen/size_small"
+        android:text="_host"
+        android:textSize="20sp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="@dimen/size_small"
+            android:text="@string/notifications"
+            android:textSize="16sp"/>
+
+        <CheckBox
+            android:id="@+id/notificationCheckbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/size_tiny"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/siteCallsTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/size_small"
+        android:padding="@dimen/size_small"
+        android:text="@string/last_calls"
+        android:textSize="18sp"/>
+
+    <ListView
+        android:id="@+id/callListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@null"
+        android:padding="@dimen/size_tiny"
+        tools:listitem="@layout/cell_site_call"/>
+
+</LinearLayout>
