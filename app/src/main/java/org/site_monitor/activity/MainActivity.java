@@ -127,7 +127,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
     @Override
     protected void onResume() {
         super.onResume();
-        siteSettingsManager.retrieveSiteSettings(this);
+        siteSettingsManager.refreshData();
         if (networkServiceReceiver == null && listView.getAdapter() != null) {
             networkServiceReceiver = new NetworkServiceReceiver(this);
         }

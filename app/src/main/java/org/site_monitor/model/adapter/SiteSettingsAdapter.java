@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.site_monitor.R;
 import org.site_monitor.activity.SiteSettingsActivity;
@@ -42,7 +41,7 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
     private final SiteSettingsManager siteSettingsManager;
 
     SiteSettingsAdapter(Context context, SiteSettingsManager siteSettingsManager) {
-        super(context, R.layout.cell_site_settings, R.id.nameText, siteSettingsManager.getSiteSettingsSortedList());
+        super(context, R.layout.cell_site_settings, R.id.nameText, siteSettingsManager.getSiteSettingsList());
         this.siteSettingsManager = siteSettingsManager;
         this.inflater = LayoutInflater.from(context);
     }
@@ -50,27 +49,28 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
     private static void updateView(ViewHandler viewHandler) {
         viewHandler.nameTextView.setText(viewHandler.siteSettings.getName());
         List<SiteCall> unmodifiableCalls = viewHandler.siteSettings.getUnmodifiableCalls();
-        int lastCall = unmodifiableCalls.size() - 1;
-        if (lastCall >= 0) {
-            viewHandler.progressBar.setVisibility(View.INVISIBLE);
-            Resources resources = viewHandler.view.getResources();
+        Resources resources = viewHandler.view.getResources();
+        if (!unmodifiableCalls.isEmpty()) {
+            int lastCall = unmodifiableCalls.size() - 1;
             SiteCall siteCall = unmodifiableCalls.get(lastCall);
             if (siteCall.getResult() == NetworkCallResult.SUCCESS) {
                 viewHandler.stateText.setText(R.string.state_success);
                 viewHandler.stateText.setTextColor(resources.getColor(R.color.state_success));
-                viewHandler.stateText.setVisibility(View.VISIBLE);
             } else if (siteCall.getResult() == NetworkCallResult.FAIL) {
                 viewHandler.stateText.setText(R.string.state_unreachable);
                 viewHandler.stateText.setTextColor(resources.getColor(R.color.state_fail));
-                viewHandler.stateText.setVisibility(View.VISIBLE);
             } else {
                 viewHandler.stateText.setText(R.string.state_unknown);
                 viewHandler.stateText.setTextColor(resources.getColor(R.color.state_unknown));
-                viewHandler.stateText.setVisibility(View.VISIBLE);
             }
         } else {
-            viewHandler.stateText.setVisibility(View.INVISIBLE);
+            viewHandler.stateText.setText(R.string.state_1st_connection);
+            viewHandler.stateText.setTextColor(resources.getColor(R.color.state_unknown));
+        }
+        if (viewHandler.siteSettings.isChecking()) {
             viewHandler.progressBar.setVisibility(View.VISIBLE);
+        } else {
+            viewHandler.progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -83,10 +83,6 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (viewHandler.siteSettings.getUnmodifiableCalls().size() == 0) {
-                    Toast.makeText(getContext(), R.string.connecting_site_1st_time, Toast.LENGTH_SHORT).show();
-                    return;
-                }
                 SiteSettingsActivity.start(getContext(), position);
             }
         });

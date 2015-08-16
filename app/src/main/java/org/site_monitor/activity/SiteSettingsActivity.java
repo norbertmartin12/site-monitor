@@ -39,7 +39,7 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
 
     private static final String P_SITE_SETTINGS_ID = "org.site_monitor.activity.SiteSettingsActivity.site";
     private static final String TAG_TASK_FRAGMENT = "site_settings_activity_task_fragment";
-    private SiteSettings siteSetting;
+    private SiteSettings siteSettings;
     private MenuItem syncMenuItem;
     private SiteSettingsActivityFragment siteSettingsFragment;
     private Context context;
@@ -60,16 +60,14 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
             Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
             finish();
         }
-        siteSetting = SiteSettingsManager.instance(this).getSiteSettingsUnmodifiableList().get(index);
+        siteSettings = SiteSettingsManager.instance(this).getSiteSettingsUnmodifiableList().get(index);
         FragmentManager fragmentManager = getSupportFragmentManager();
         siteSettingsFragment = (SiteSettingsActivityFragment) fragmentManager.findFragmentByTag(TAG_TASK_FRAGMENT);
         if (siteSettingsFragment == null) {
             siteSettingsFragment = (SiteSettingsActivityFragment) fragmentManager.findFragmentById(R.id.fragment_site_settings);
         }
-        siteSettingsFragment.setSiteSettings(siteSetting);
-        setTitle(siteSetting.getName());
-
-
+        siteSettingsFragment.setSiteSettings(siteSettings);
+        setTitle(siteSettings.getName());
     }
 
     @Override
@@ -98,8 +96,11 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            new NetworkTask(this, siteSettingsFragment).execute(siteSetting);
-            item.setEnabled(false);
+            if (siteSettings.isChecking()) {
+                return true;
+            }
+            syncMenuItem.setEnabled(false);
+            new NetworkTask(this, siteSettingsFragment).execute(siteSettings);
             return true;
         }
         if (id == R.id.action_rename) {
@@ -107,7 +108,7 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
             builder.setTitle(R.string.action_rename);
             final EditText input = new EditText(context);
             input.setHint(R.string.hint_rename_site);
-            input.setText(siteSetting.getName());
+            input.setText(siteSettings.getName());
             input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
             builder.setView(input);
             builder.setPositiveButton(R.string.action_rename, new DialogInterface.OnClickListener() {
@@ -117,8 +118,8 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
                     if (name.isEmpty()) {
                         name = getString(R.string.no_name);
                     }
-                    siteSetting.setName(name);
-                    setTitle(siteSetting.getName());
+                    siteSettings.setName(name);
+                    setTitle(siteSettings.getName());
                     hasBeenModified = true;
                 }
             });
@@ -136,8 +137,8 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
             builder.setPositiveButton(R.string.action_delete, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    SiteSettingsManager.instance(context).remove(context, siteSetting);
-                    SiteSettingsManager.instance(context).saveSiteSettings(context);
+                    SiteSettingsManager.instance(context).remove(context, siteSettings);
+                    hasBeenModified = true;
                     finish();
                 }
             });
@@ -160,29 +161,24 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
 
     @Override
     public void onPreExecute(NetworkTask task) {
-
     }
 
     @Override
     public void onProgressUpdate(NetworkTask task, Void... percent) {
-
     }
 
     @Override
     public void onPostExecute(NetworkTask task, SiteSettings siteSettings) {
-        if (siteSetting.getHost().equals(siteSettings.getHost())) {
-            siteSettingsFragment.refresh();
-            SiteSettingsManager.instance(this).saveSiteSettings(this);
+        if (this.siteSettings.getHost().equals(siteSettings.getHost())) {
             if (syncMenuItem != null) {
                 syncMenuItem.setEnabled(true);
             }
+            hasBeenModified = true;
         }
     }
 
     @Override
     public void onCancelled(NetworkTask task) {
-
     }
-
 
 }

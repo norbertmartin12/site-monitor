@@ -82,20 +82,21 @@ public class SiteSettingsManager implements Serializable {
     }
 
     public void add(Context context, SiteSettings siteSettings) {
+        siteSettingsList.add(siteSettings);
+        Collections.sort(siteSettingsList);
         if (siteSettingsAdapter != null) {
-            siteSettingsAdapter.add(siteSettings);
-        } else {
-            siteSettingsList.add(siteSettings);
+            siteSettingsAdapter.notifyDataSetChanged();
         }
         startAlarmIfNeeded(context);
     }
 
     public void remove(Context context, SiteSettings siteSettings) {
+        siteSettingsList.remove(siteSettings);
+        Collections.sort(siteSettingsList);
         if (siteSettingsAdapter != null) {
-            siteSettingsAdapter.remove(siteSettings);
-        } else {
-            siteSettingsList.remove(siteSettings);
+            siteSettingsAdapter.notifyDataSetChanged();
         }
+        stopAlarmIfNeeded(context);
     }
 
     public void saveSiteSettings(Context context) {
@@ -107,7 +108,7 @@ public class SiteSettingsManager implements Serializable {
         }
     }
 
-    public void retrieveSiteSettings(Context context) {
+    private void retrieveSiteSettings(Context context) {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         String json = defaultSharedPreferences.getString(PrefSettingsActivity.JSON_SITE_SETTINGS, "");
         List<SiteSettings> retrievedList = null;
@@ -117,20 +118,25 @@ public class SiteSettingsManager implements Serializable {
         } else {
             retrievedList = new ArrayList<SiteSettings>();
         }
-        this.siteSettingsList.clear();
-        this.siteSettingsList.addAll(retrievedList);
+        siteSettingsList.clear();
+        siteSettingsList.addAll(retrievedList);
+        Collections.sort(siteSettingsList);
         if (this.siteSettingsAdapter != null) {
             this.siteSettingsAdapter.notifyDataSetChanged();
         }
     }
 
-
-    List<SiteSettings> getSiteSettingsSortedList() {
-        //Collections.sort(siteSettingsList);
+    List<SiteSettings> getSiteSettingsList() {
         return siteSettingsList;
     }
 
     public boolean contains(SiteSettings siteSettings) {
         return siteSettingsList.contains(siteSettings);
+    }
+
+    public void refreshData() {
+        if (this.siteSettingsAdapter != null) {
+            this.siteSettingsAdapter.notifyDataSetChanged();
+        }
     }
 }

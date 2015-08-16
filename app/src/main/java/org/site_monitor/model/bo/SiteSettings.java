@@ -36,6 +36,8 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
     @Expose
     private List<SiteCall> calls = new ArrayList<>();
 
+    private boolean isChecking;
+
     public SiteSettings(String host, boolean isNotificationEnabled) {
         this.host = host;
         this.name = host;
@@ -68,6 +70,14 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
 
     public void add(SiteCall siteCall) {
         calls.add(siteCall);
+    }
+
+    public boolean isChecking() {
+        return isChecking;
+    }
+
+    public void setIsChecking(boolean isChecking) {
+        this.isChecking = isChecking;
     }
 
     @Override

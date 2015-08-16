@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.site_monitor.R;
@@ -41,6 +42,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     private CheckBox notificationCheckbox;
     private TextView hostTextView;
     private ListView callListView;
+    private ProgressBar progressBar;
     private View view;
 
     private Callback callback;
@@ -65,7 +67,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         notificationCheckbox = (CheckBox) view.findViewById(R.id.notificationCheckbox);
         callListView = (ListView) view.findViewById(R.id.callListView);
         hostTextView = (TextView) view.findViewById(R.id.hostTextView);
-        updateView();
+        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
         notificationCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -73,6 +75,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
                 callback.hasChanged(siteSettings);
             }
         });
+
         return view;
     }
 
@@ -96,17 +99,19 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
 
     private void updateView() {
         if (siteSettings != null) {
-            hostTextView.setText(siteSettings.getHost());
-            notificationCheckbox.setChecked(siteSettings.isNotificationEnabled());
             if (siteCallAdapter == null) {
                 siteCallAdapter = new SiteCallAdapter(getActivity(), siteSettings);
+                callListView.setAdapter(siteCallAdapter);
             }
-            callListView.setAdapter(siteCallAdapter);
+            hostTextView.setText(siteSettings.getHost());
+            notificationCheckbox.setChecked(siteSettings.isNotificationEnabled());
+            if (siteSettings.isChecking()) {
+                progressBar.setVisibility(View.VISIBLE);
+            } else {
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+            siteCallAdapter.notifyDataSetChanged();
         }
-    }
-
-    public void refresh() {
-        siteCallAdapter.notifyDataSetChanged();
     }
 
     public void setSiteSettings(SiteSettings siteSettings) {
@@ -116,8 +121,8 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
 
     @Override
     public void onSiteUpdated(SiteSettings siteSettings) {
-        if (siteCallAdapter != null && siteSettings.equals(this.siteSettings)) {
-            siteCallAdapter.notifyDataSetChanged();
+        if (this.siteSettings != null && siteSettings.equals(this.siteSettings)) {
+            updateView();
         }
     }
 

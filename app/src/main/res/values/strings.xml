@@ -34,12 +34,12 @@
     <string name="notifications">Notifications</string>
     <string name="last_calls">Last calls</string>
     <string name="site_not_found">Oups site not found !!!</string>
-    <string name="connecting_site_1st_time">1st connection in progress&#8230;</string>
     <string name="title_activity_about">About</string>
 
     <string name="state_success">OK</string>
     <string name="state_unreachable">unreachable</string>
     <string name="state_unknown">unknown</string>
+    <string name="state_1st_connection">connecting&#8230;</string>
 
     <string name="no_connectivity_available">No connectivity available</string>
     <string name="already_exists">" already exists"</string>

@@ -43,13 +43,15 @@ public class NetworkTask extends AsyncTaskWithCallback<SiteSettings, Void, SiteS
         }
         SiteSettings siteSettings = params[0];
         if (BuildConfig.DEBUG) {
-            Log.d(TAG, "doInBackground start: " + siteSettings);
+            Log.d(TAG, "doInBackground: " + siteSettings);
         }
+        siteSettings.setIsChecking(true);
+        NetworkService.broadcast(context, NetworkService.ACTION_SITE_UPDATED, siteSettings);
         SiteCall siteCall = NetworkService.buildHeadHttpConnectionThenDoCall(context, siteSettings);
         siteSettings.add(siteCall);
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "doInBackground end: " + siteSettings);
-        }
+        siteSettings.setIsChecking(false);
+        NetworkService.broadcast(context, NetworkService.ACTION_SITE_UPDATED, siteSettings);
+
         return siteSettings;
     }
 

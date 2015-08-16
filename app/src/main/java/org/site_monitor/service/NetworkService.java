@@ -47,7 +47,8 @@ import java.util.List;
  * a service on a separate handler thread.
  */
 public class NetworkService extends IntentService {
-    public static final String ACTION_SITE_UPDATED = "org.site_monitor.service.networkService.SITE_UPDATED";
+
+    public static final String ACTION_SITE_UPDATED = "org.site_monitor.service.networkService.ACTION_SITE_UPDATED";
     public static final String EXTRA_SITE = "org.site_monitor.service.networkService.SITE";
 
     private static final String TAG = "NetworkService";
@@ -118,6 +119,11 @@ public class NetworkService extends IntentService {
         return urlConnection;
     }
 
+    public static void broadcast(Context context, String action, SiteSettings siteSettings) {
+        Intent localIntent = new Intent(action).putExtra(EXTRA_SITE, siteSettings);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         SiteSettingsManager siteSettingsManager = SiteSettingsManager.instance(this);
@@ -127,11 +133,13 @@ public class NetworkService extends IntentService {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "call: " + siteSettings);
             }
+            siteSettings.setIsChecking(true);
+            broadcast(this, ACTION_SITE_UPDATED, siteSettings);
             SiteCall siteCall = buildHeadHttpConnectionThenDoCall(this, siteSettings);
-
             siteSettings.add(siteCall);
+            siteSettings.setIsChecking(false);
+            broadcast(this, ACTION_SITE_UPDATED, siteSettings);
 
-            broadcastUpdate(siteSettings);
             if (siteCall.getResult() == NetworkCallResult.FAIL) {
                 failsPairs.add(new Pair<>(siteSettings, siteCall));
             }
@@ -161,11 +169,6 @@ public class NetworkService extends IntentService {
         }
 
         WakefulBroadcastReceiver.completeWakefulIntent(intent);
-    }
-
-    public void broadcastUpdate(SiteSettings siteSettings) {
-        Intent localIntent = new Intent(ACTION_SITE_UPDATED).putExtra(EXTRA_SITE, siteSettings);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(localIntent);
     }
 
 }
