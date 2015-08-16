@@ -27,6 +27,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import org.site_monitor.App;
 import org.site_monitor.BuildConfig;
 import org.site_monitor.R;
 import org.site_monitor.activity.PrefSettingsActivity;
@@ -36,8 +37,8 @@ import org.site_monitor.activity.PrefSettingsActivity;
  */
 public class NotificationUtil {
 
+    public static final String TAG = "NotificationUtil";
     public static int ID_NOT_REACHABLE = 1;
-
 
     /**
      * Sends notification. If BuildConfig.DEBUG && typeId < 0 ignore command.
@@ -52,11 +53,18 @@ public class NotificationUtil {
         if (BuildConfig.DEBUG && typeId < 0) {
             return;
         }
+        if (App.isForeground()) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "doesn't send notification (app foreground)");
+            }
+            return;
+        }
+
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         boolean notificationEnable = preferences.getBoolean(PrefSettingsActivity.NOTIFICATION_ENABLE, false);
-        if (typeId == ID_NOT_REACHABLE && !notificationEnable) {
+        if (!notificationEnable) {
             if (BuildConfig.DEBUG) {
-                Log.d("NotificationUtil", "doesn't send notification (disabled)");
+                Log.d(TAG, "doesn't send notification (disabled)");
             }
             return;
         }
@@ -86,11 +94,6 @@ public class NotificationUtil {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(typeId, notificationBuilder.build());
 
-    }
-
-    public static void removeNotification(Context context, int typeId) {
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(typeId);
     }
 
 }
