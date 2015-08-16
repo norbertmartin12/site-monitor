@@ -22,8 +22,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import org.site_monitor.R;
@@ -41,6 +43,7 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
     private MenuItem syncMenuItem;
     private SiteSettingsActivityFragment siteSettingsFragment;
     private Context context;
+    private boolean hasBeenModified = false;
 
     public static void start(Context context, int siteSettingsIndex) {
         Intent intent = new Intent(context, SiteSettingsActivity.class).putExtra(P_SITE_SETTINGS_ID, siteSettingsIndex);
@@ -64,8 +67,23 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
             siteSettingsFragment = (SiteSettingsActivityFragment) fragmentManager.findFragmentById(R.id.fragment_site_settings);
         }
         siteSettingsFragment.setSiteSettings(siteSetting);
-        setTitle(siteSetting.getHost());
+        setTitle(siteSetting.getName());
 
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (hasBeenModified) {
+            SiteSettingsManager.instance(this).saveSiteSettings(this);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        hasBeenModified = false;
     }
 
     @Override
@@ -82,6 +100,34 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
         if (id == R.id.action_refresh) {
             new NetworkTask(this, siteSettingsFragment).execute(siteSetting);
             item.setEnabled(false);
+            return true;
+        }
+        if (id == R.id.action_rename) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(R.string.action_rename);
+            final EditText input = new EditText(context);
+            input.setHint(R.string.hint_rename_site);
+            input.setText(siteSetting.getName());
+            input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+            builder.setView(input);
+            builder.setPositiveButton(R.string.action_rename, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    String name = input.getText().toString().trim();
+                    if (name.isEmpty()) {
+                        name = getString(R.string.no_name);
+                    }
+                    siteSetting.setName(name);
+                    setTitle(siteSetting.getName());
+                    hasBeenModified = true;
+                }
+            });
+            builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            builder.show();
             return true;
         }
         if (id == R.id.action_delete) {
@@ -109,7 +155,7 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
 
     @Override
     public void hasChanged(SiteSettings siteSettings) {
-        SiteSettingsManager.instance(this).saveSiteSettings(this);
+        hasBeenModified = true;
     }
 
     @Override

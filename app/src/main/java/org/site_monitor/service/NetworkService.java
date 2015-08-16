@@ -122,7 +122,7 @@ public class NetworkService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         SiteSettingsManager siteSettingsManager = SiteSettingsManager.instance(this);
         List<SiteSettings> siteSettingsList = siteSettingsManager.getSiteSettingsUnmodifiableList();
-        List<Pair<SiteSettings, SiteCall>> toNotifyPairs = new LinkedList<>();
+        List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<>();
         for (SiteSettings siteSettings : siteSettingsList) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "call: " + siteSettings);
@@ -132,8 +132,8 @@ public class NetworkService extends IntentService {
             siteSettings.add(siteCall);
 
             broadcastUpdate(siteSettings);
-            if (siteSettings.isNotificationEnabled() && siteCall.getResult() == NetworkCallResult.FAIL) {
-                toNotifyPairs.add(new Pair<>(siteSettings, siteCall));
+            if (siteCall.getResult() == NetworkCallResult.FAIL) {
+                failsPairs.add(new Pair<>(siteSettings, siteCall));
             }
         }
         siteSettingsManager.saveSiteSettings(this);
@@ -142,16 +142,22 @@ public class NetworkService extends IntentService {
             Log.w(TAG, "called but nothing to run");
         }
 
-        if (!toNotifyPairs.isEmpty()) {
+        boolean atLeastOneToNotify = false;
+        if (!failsPairs.isEmpty()) {
             StringBuilder sb = new StringBuilder();
-            for (Pair<SiteSettings, SiteCall> pair : toNotifyPairs) {
+            for (Pair<SiteSettings, SiteCall> pair : failsPairs) {
                 if (sb.length() > 0) {
-                    sb.append("/");
+                    sb.append(",");
                 }
-                sb.append(pair.first.getHost());
+                if (pair.first.isNotificationEnabled()) {
+                    atLeastOneToNotify = true;
+                }
+                sb.append(pair.first.getName());
             }
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-            NotificationUtil.sendNotification(this, NotificationUtil.ID_NOT_REACHABLE, toNotifyPairs.size() + " " + getString(R.string.state_unreachable), sb.toString(), pendingIntent);
+            if (atLeastOneToNotify) {
+                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+                NotificationUtil.sendNotification(this, NotificationUtil.ID_NOT_REACHABLE, failsPairs.size() + " " + getString(R.string.state_unreachable), sb.toString(), pendingIntent);
+            }
         }
 
         WakefulBroadcastReceiver.completeWakefulIntent(intent);

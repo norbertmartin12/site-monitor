@@ -28,6 +28,8 @@ import java.util.List;
 public class SiteSettings implements Serializable, Comparable<SiteSettings> {
 
     @Expose
+    private String name;
+    @Expose
     private String host;
     @Expose
     private boolean isNotificationEnabled = true;
@@ -36,11 +38,20 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
 
     public SiteSettings(String host, boolean isNotificationEnabled) {
         this.host = host;
+        this.name = host;
         this.isNotificationEnabled = isNotificationEnabled;
     }
 
     public String getHost() {
         return host;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean isNotificationEnabled() {
@@ -75,9 +86,9 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
 
     @Override
     public String toString() {
-
         return "SiteSettings{" +
-                "host='" + host + '\'' +
+                "name='" + name + '\'' +
+                ", host='" + host + '\'' +
                 ", isNotificationEnabled=" + isNotificationEnabled +
                 ", calls=" + calls.size() +
                 '}';

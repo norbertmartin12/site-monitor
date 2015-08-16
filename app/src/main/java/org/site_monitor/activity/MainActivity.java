@@ -89,7 +89,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle(R.string.add_monitor);
                 final EditText input = new EditText(context);
-                input.setHint(R.string.main_hint_url);
+                input.setHint(R.string.hint_site_url);
                 input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
                 builder.setView(input);
                 builder.setPositiveButton(R.string.action_add, new DialogInterface.OnClickListener() {

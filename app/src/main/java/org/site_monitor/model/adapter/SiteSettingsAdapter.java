@@ -42,13 +42,13 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
     private final SiteSettingsManager siteSettingsManager;
 
     SiteSettingsAdapter(Context context, SiteSettingsManager siteSettingsManager) {
-        super(context, R.layout.cell_site_settings, R.id.urlText, siteSettingsManager.getSiteSettingsSortedList());
+        super(context, R.layout.cell_site_settings, R.id.nameText, siteSettingsManager.getSiteSettingsSortedList());
         this.siteSettingsManager = siteSettingsManager;
         this.inflater = LayoutInflater.from(context);
     }
 
     private static void updateView(ViewHandler viewHandler) {
-        viewHandler.urlTextView.setText(viewHandler.siteSettings.getHost());
+        viewHandler.nameTextView.setText(viewHandler.siteSettings.getName());
         List<SiteCall> unmodifiableCalls = viewHandler.siteSettings.getUnmodifiableCalls();
         int lastCall = unmodifiableCalls.size() - 1;
         if (lastCall >= 0) {
@@ -97,14 +97,14 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
     private class ViewHandler {
         final View view;
         final SiteSettings siteSettings;
-        final TextView urlTextView;
+        final TextView nameTextView;
         final ProgressBar progressBar;
         final TextView stateText;
 
         ViewHandler(int position, View view) {
             this.siteSettings = getItem(position);
             this.view = view;
-            this.urlTextView = (TextView) view.findViewById(R.id.urlText);
+            this.nameTextView = (TextView) view.findViewById(R.id.nameText);
             this.progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
             this.stateText = (TextView) view.findViewById(R.id.stateText);
         }
