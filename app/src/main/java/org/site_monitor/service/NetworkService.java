@@ -50,7 +50,8 @@ public class NetworkService extends IntentService {
 
     public static final String ACTION_SITE_UPDATED = "org.site_monitor.service.networkService.ACTION_SITE_UPDATED";
     public static final String EXTRA_SITE = "org.site_monitor.service.networkService.SITE";
-
+    public static final String BOT_SITE_MONITOR = "bot-site-monitor";
+    public static final String USER_AGENT = "User-Agent";
     private static final String TAG = "NetworkService";
     private static final String CLOSE = "close";
     private static final String CONNECTION = "Connection";
@@ -112,6 +113,7 @@ public class NetworkService extends IntentService {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod(METHOD_HEAD);
         urlConnection.setRequestProperty(CONNECTION, CLOSE);
+        urlConnection.setRequestProperty(USER_AGENT, BOT_SITE_MONITOR);
         urlConnection.setUseCaches(false);
         urlConnection.setInstanceFollowRedirects(true);
         urlConnection.setConnectTimeout(TIMEOUT_10);
