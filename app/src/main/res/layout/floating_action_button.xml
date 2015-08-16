@@ -18,7 +18,7 @@
              android:layout_height="match_parent"
              android:orientation="vertical">
 
-    <org.app4life.sitemonitor.activity.fragment.floatingButton.FloatingButton
+    <org.site_monitor.activity.fragment.floatingButton.FloatingButton
         android:id="@+id/floatingButton"
         android:layout_width="@dimen/fab_size"
         android:layout_height="@dimen/fab_size"
@@ -36,5 +36,5 @@
             android:duplicateParentState="true"
             android:src="@drawable/fab_icons"/>
 
-    </org.app4life.sitemonitor.activity.fragment.floatingButton.FloatingButton>
+    </org.site_monitor.activity.fragment.floatingButton.FloatingButton>
 </FrameLayout>

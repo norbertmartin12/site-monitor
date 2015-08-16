@@ -18,11 +18,11 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="org.app4life.sitemonitor.activity.PrefSettingsActivity$NotificationPreferenceFragment"
+        android:fragment="org.site_monitor.activity.PrefSettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications"/>
 
     <header
-        android:fragment="org.app4life.sitemonitor.activity.PrefSettingsActivity$FrequencyPreferenceFragment"
+        android:fragment="org.site_monitor.activity.PrefSettingsActivity$FrequencyPreferenceFragment"
         android:title="@string/pref_header_monitoring"/>
 
 </preference-headers>

@@ -14,7 +14,7 @@
   -->
 
 <manifest
-    package="org.app4life.sitemonitor"
+    package="org.site_monitor"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -80,7 +80,7 @@
             android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.app4life.sitemonitor.activity.MainActivity"/>
+                android:value=".activity.MainActivity"/>
         </activity>
         <activity
             android:name=".activity.PrefSettingsActivity"
@@ -88,7 +88,7 @@
             android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.app4life.sitemonitor.activity.MainActivity"/>
+                android:value=".activity.MainActivity"/>
         </activity>
 
         <activity
@@ -97,7 +97,7 @@
             android:parentActivityName=".activity.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.app4life.sitemonitor.activity.MainActivity"/>
+                android:value=".activity.MainActivity"/>
         </activity>
     </application>
 

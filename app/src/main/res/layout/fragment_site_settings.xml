@@ -19,7 +19,7 @@
               android:layout_height="wrap_content"
               android:orientation="vertical"
               android:padding="@dimen/size_small"
-              tools:context="org.app4life.sitemonitor.activity.fragment.SiteSettingsActivityFragment">
+              tools:context="org.site_monitor.activity.fragment.SiteSettingsActivityFragment">
 
     <TextView
         android:id="@+id/hostTextView"

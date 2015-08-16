@@ -15,7 +15,7 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:tools="http://schemas.android.com/tools"
-      tools:context="org.app4life.sitemonitor.activity.SiteSettingsActivity">
+      tools:context="org.site_monitor.activity.SiteSettingsActivity">
 
     <item
         android:id="@+id/action_refresh"
