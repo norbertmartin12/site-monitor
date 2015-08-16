@@ -37,7 +37,7 @@ import org.site_monitor.task.TaskCallback;
 
 public class SiteSettingsActivity extends FragmentActivity implements SiteSettingsActivityFragment.Callback, TaskCallback<NetworkTask, Void, SiteSettings> {
 
-    private static final String P_SITE_SETTINGS_ID = "org.site_monitor.activity.SiteSettingsActivity.site";
+    private static final String P_SITE_SETTINGS = "org.site_monitor.activity.SiteSettingsActivity.site";
     private static final String TAG_TASK_FRAGMENT = "site_settings_activity_task_fragment";
     private SiteSettings siteSettings;
     private MenuItem syncMenuItem;
@@ -45,8 +45,8 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
     private Context context;
     private boolean hasBeenModified = false;
 
-    public static void start(Context context, int siteSettingsIndex) {
-        Intent intent = new Intent(context, SiteSettingsActivity.class).putExtra(P_SITE_SETTINGS_ID, siteSettingsIndex);
+    public static void start(Context context, String siteSettingsUrl) {
+        Intent intent = new Intent(context, SiteSettingsActivity.class).putExtra(P_SITE_SETTINGS, siteSettingsUrl);
         context.startActivity(intent);
     }
 
@@ -55,12 +55,12 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
         super.onCreate(savedInstanceState);
         this.context = this;
         setContentView(R.layout.activity_site_settings);
-        int index = getIntent().getIntExtra(P_SITE_SETTINGS_ID, -1);
-        if (index == -1) {
+        String url = getIntent().getStringExtra(P_SITE_SETTINGS);
+        if (url == null) {
             Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
             finish();
         }
-        siteSettings = SiteSettingsManager.instance(this).getSiteSettingsUnmodifiableList().get(index);
+        siteSettings = SiteSettingsManager.instance(this).getBy(url);
         FragmentManager fragmentManager = getSupportFragmentManager();
         siteSettingsFragment = (SiteSettingsActivityFragment) fragmentManager.findFragmentByTag(TAG_TASK_FRAGMENT);
         if (siteSettingsFragment == null) {

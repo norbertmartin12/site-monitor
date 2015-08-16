@@ -106,6 +106,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
                         }
                         siteSettingsManager.add(context, siteSettings);
                         new NetworkTask(context, taskFragment).execute(siteSettings);
+                        SiteSettingsActivity.start(context, siteSettings.getHost());
                     }
                 });
                 builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {

@@ -139,4 +139,17 @@ public class SiteSettingsManager implements Serializable {
             this.siteSettingsAdapter.notifyDataSetChanged();
         }
     }
+
+    /**
+     * @param host
+     * @return found object or null
+     */
+    public SiteSettings getBy(String host) {
+        for (SiteSettings siteSettings : siteSettingsList) {
+            if (siteSettings.getHost().equals(host)) {
+                return siteSettings;
+            }
+        }
+        return null;
+    }
 }

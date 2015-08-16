@@ -83,7 +83,7 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SiteSettingsActivity.start(getContext(), position);
+                SiteSettingsActivity.start(getContext(), viewHandler.siteSettings.getHost());
             }
         });
         updateView(viewHandler);
