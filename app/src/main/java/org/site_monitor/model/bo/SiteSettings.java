@@ -117,6 +117,10 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
         }
         SiteCall siteCall = calls.get(calls.size() - 1);
         SiteCall anotherSiteCall = another.calls.get(another.calls.size() - 1);
-        return siteCall.getResult().compareTo(anotherSiteCall.getResult());
+        int callResultCompare = siteCall.getResult().compareTo(anotherSiteCall.getResult());
+        if (callResultCompare == 0) {
+            return name.compareToIgnoreCase(another.name);
+        }
+        return callResultCompare;
     }
 }

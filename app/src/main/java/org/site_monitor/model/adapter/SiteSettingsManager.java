@@ -135,6 +135,7 @@ public class SiteSettingsManager implements Serializable {
     }
 
     public void refreshData() {
+        Collections.sort(siteSettingsList);
         if (this.siteSettingsAdapter != null) {
             this.siteSettingsAdapter.notifyDataSetChanged();
         }

@@ -215,7 +215,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
 
     @Override
     public void onPostExecute(NetworkTask task, SiteSettings siteSettings) {
-        siteSettingsManager.getArrayAdapter(this).notifyDataSetChanged();
+        siteSettingsManager.refreshData();
     }
 
     @Override
@@ -225,7 +225,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
 
     @Override
     public void onSiteUpdated(SiteSettings siteSettings) {
-        siteSettingsManager.getArrayAdapter(this).notifyDataSetChanged();
+        siteSettingsManager.refreshData();
     }
 
     @Override
