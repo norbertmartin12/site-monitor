@@ -28,6 +28,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.site_monitor.GA;
+import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.model.adapter.SiteCallAdapter;
 import org.site_monitor.model.bo.SiteSettings;
@@ -71,6 +73,11 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         notificationCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 1L).build());
+                } else {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 0L).build());
+                }
                 siteSettings.setNotificationEnabled(isChecked);
                 callback.hasChanged(siteSettings);
             }

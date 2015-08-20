@@ -41,33 +41,16 @@ public class NotificationUtil {
     public static int ID_NOT_REACHABLE = 1;
 
     /**
-     * Sends notification. If BuildConfig.DEBUG && typeId < 0 ignore command.
+     * Prebuild notification.
      *
      * @param context
-     * @param typeId
      * @param title
      * @param text
      * @param pendingIntent
      */
-    public static void sendNotification(Context context, int typeId, String title, String text, PendingIntent pendingIntent) {
-        if (BuildConfig.DEBUG && typeId < 0) {
-            return;
-        }
-        if (App.isForeground()) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "doesn't send notification (app foreground)");
-            }
-            return;
-        }
-
+    public static NotificationCompat.Builder build(Context context, String title, String text, PendingIntent pendingIntent) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean notificationEnable = preferences.getBoolean(PrefSettingsActivity.NOTIFICATION_ENABLE, false);
-        if (!notificationEnable) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "doesn't send notification (disabled)");
-            }
-            return;
-        }
+
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
         notificationBuilder.setSmallIcon(R.drawable.ic_app);
         notificationBuilder.setColor(context.getResources().getColor(R.color.primary));
@@ -90,10 +73,43 @@ public class NotificationUtil {
             notificationBuilder.setVibrate(pattern);
         }
         notificationBuilder.setContentIntent(pendingIntent);
-
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(typeId, notificationBuilder.build());
-
+        return notificationBuilder;
     }
 
+    /**
+     * @param context
+     * @param typeId
+     * @param notification
+     * @return false if not sent {@see #shouldNotify}
+     */
+    public static boolean send(Context context, int typeId, Notification notification) {
+        if (!shouldNotify(context)) {
+            return false;
+        }
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(typeId, notification);
+        return true;
+    }
+
+    /**
+     * @param context
+     * @return false if app foreground or notification disabled
+     */
+    public static boolean shouldNotify(Context context) {
+        if (App.isForeground()) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "doesn't send notification (app foreground)");
+            }
+            return false;
+        }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean notificationEnable = preferences.getBoolean(PrefSettingsActivity.NOTIFICATION_ENABLE, false);
+        if (!notificationEnable) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "doesn't send notification (disabled)");
+            }
+            return false;
+        }
+        return true;
+    }
 }

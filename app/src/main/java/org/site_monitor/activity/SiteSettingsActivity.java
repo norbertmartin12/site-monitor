@@ -28,6 +28,8 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.site_monitor.GA;
+import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.fragment.SiteSettingsActivityFragment;
 import org.site_monitor.model.adapter.SiteSettingsManager;
@@ -97,13 +99,16 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             if (siteSettings.isChecking()) {
+                GA.tracker().send(GAHit.builder().event(R.string.c_refresh, R.string.a_site_refresh, R.string.l_in_progress).build());
                 return true;
             }
             syncMenuItem.setEnabled(false);
             new NetworkTask(this, siteSettingsFragment).execute(siteSettings);
+            GA.tracker().send(GAHit.builder().event(R.string.c_refresh, R.string.a_site_refresh).build());
             return true;
         }
         if (id == R.id.action_rename) {
+            GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_rename, R.string.l_touched).build());
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(R.string.action_rename);
             final EditText input = new EditText(context);
@@ -121,17 +126,20 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
                     siteSettings.setName(name);
                     setTitle(siteSettings.getName());
                     hasBeenModified = true;
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_rename, R.string.l_done).build());
                 }
             });
             builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_rename, R.string.l_cancel).build());
                 }
             });
             builder.show();
             return true;
         }
         if (id == R.id.action_delete) {
+            GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_remove, R.string.l_touched).build());
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.delete_current_monitor);
             builder.setPositiveButton(R.string.action_delete, new DialogInterface.OnClickListener() {
@@ -139,6 +147,7 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
                 public void onClick(DialogInterface dialog, int which) {
                     SiteSettingsManager.instance(context).remove(context, siteSettings);
                     hasBeenModified = true;
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_remove, R.string.l_done).build());
                     finish();
                 }
             });
@@ -146,6 +155,7 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
             builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_remove, R.string.l_cancel).build());
                 }
             });
             builder.show();

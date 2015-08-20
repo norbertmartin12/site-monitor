@@ -35,6 +35,8 @@ import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
+import org.site_monitor.GA;
+import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.receiver.AlarmReceiver;
 import org.site_monitor.receiver.StartupBootReceiver;
@@ -55,7 +57,6 @@ import java.util.List;
  */
 public class PrefSettingsActivity extends PreferenceActivity {
 
-
     public static final String JSON_SITE_SETTINGS = "org.site_monitor.activity.settings.json.siteSettings";
     public static final String NOTIFICATIONS_VIBRATE = "notifications_vibrate";
     public static final String NOTIFICATIONS_RINGTONE = "notifications_ringtone";
@@ -70,6 +71,7 @@ public class PrefSettingsActivity extends PreferenceActivity {
      * shown on tablets.
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
+
     /**
      * A preference value change listener that updates the preference's summary to reflect its new value.
      */
@@ -82,14 +84,19 @@ public class PrefSettingsActivity extends PreferenceActivity {
                 // For list preferences, look up the correct display value in the preference's 'entries' list.
                 ListPreference listPreference = (ListPreference) preference;
                 int index = listPreference.findIndexOfValue(stringValue);
-
-                // Set the summary to reflect the new value.
                 preference.setSummary(index >= 0 ? listPreference.getEntries()[index] : null);
+
+                if (preference.getKey().equals(FREQUENCY)) {
+                    String currentValue = preference.getSharedPreferences().getString(FREQUENCY, "");
+                    if (!currentValue.equals(stringValue)) {
+                        GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_frequency_changed, Long.parseLong(stringValue)).build());
+                        AlarmReceiver.rescheduleAlarm(preference.getContext(), Long.parseLong(stringValue) * TimeUtil.MINUTE_2_MILLISEC);
+                    }
+                }
 
             } else if (preference instanceof RingtonePreference) {
                 // For ringtone preferences, look up the correct display value using RingtoneManager.
                 if (TextUtils.isEmpty(stringValue)) {
-                    // Empty values correspond to 'silent' (no ringtone).
                     preference.setSummary(R.string.pref_ringtone_silent);
                 } else {
                     Ringtone ringtone = RingtoneManager.getRingtone(preference.getContext(), Uri.parse(stringValue));
@@ -97,7 +104,6 @@ public class PrefSettingsActivity extends PreferenceActivity {
                         // Clear the summary if there was a lookup error.
                         preference.setSummary(null);
                     } else {
-                        // Set the summary to reflect the new ringtone display name.
                         String name = ringtone.getTitle(preference.getContext());
                         preference.setSummary(name);
                     }
@@ -107,25 +113,41 @@ public class PrefSettingsActivity extends PreferenceActivity {
                 // For all other preferences, set the summary to the value's simple string representation.
                 preference.setSummary(stringValue);
             }
+            return true;
+        }
+    };
 
-            if (preference.getKey().equals(FREQUENCY)) {
-                String currentValue = preference.getSharedPreferences().getString(FREQUENCY, "");
-                if (!currentValue.equals(stringValue)) {
-                    AlarmReceiver.rescheduleAlarm(preference.getContext(), Long.parseLong(stringValue) * TimeUtil.MINUTE_2_MILLISEC);
-                }
-            } else if (preference.getKey().equals(BOOT_START)) {
+    private static Preference.OnPreferenceChangeListener sPreferenceListener = new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object value) {
+            if (preference.getKey().equals(BOOT_START)) {
                 boolean state = (Boolean) value;
+                if (state) {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_boot_start_changed, 1L).build());
+                } else {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_boot_start_changed, 0L).build());
+                }
                 StartupBootReceiver.setCanBeInitiatedBySystem(preference.getContext(), state);
                 preference.setSummary("");
+            } else if (preference.getKey().equals(NOTIFICATION_ENABLE)) {
+                boolean state = (Boolean) value;
+                if (state) {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_changed, 1L).build());
+                } else {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_changed, 0L).build());
+                }
             }
             return true;
         }
     };
+
+
     private final PrefSettingsActivity context = this;
 
     /**
      * Helper method to determine if the device has an extra-large screen. For example, 10" tablets are extra-large.
      */
+
     private static boolean isXLargeTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
@@ -238,10 +260,8 @@ public class PrefSettingsActivity extends PreferenceActivity {
         bindPreferenceSummaryToValue(findPreference(FREQUENCY));
         bindPreferenceSummaryToValue(findPreference(NOTIFICATION_LIGHT_COLOR));
 
-        Preference bootStartPref = findPreference(BOOT_START);
-        bootStartPref.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(bootStartPref, PreferenceManager.getDefaultSharedPreferences(bootStartPref.getContext()).getBoolean(bootStartPref.getKey(), true));
-
+        findPreference(BOOT_START).setOnPreferenceChangeListener(sPreferenceListener);
+        findPreference(NOTIFICATION_ENABLE).setOnPreferenceChangeListener(sPreferenceListener);
     }
 
     /**
@@ -259,6 +279,8 @@ public class PrefSettingsActivity extends PreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(NOTIFICATIONS_RINGTONE));
             bindPreferenceSummaryToValue(findPreference(NOTIFICATION_LIGHT_COLOR));
 
+            findPreference(NOTIFICATION_ENABLE).setOnPreferenceChangeListener(sPreferenceListener);
+
         }
     }
 
@@ -275,6 +297,8 @@ public class PrefSettingsActivity extends PreferenceActivity {
             // Bind the summaries of EditText/List/Dialog/Ringtone preferences to their values. When their values change, their summaries are
             // dataChanged to reflect the new value, per the Android Design guidelines.
             bindPreferenceSummaryToValue(findPreference(FREQUENCY));
+
+            findPreference(BOOT_START).setOnPreferenceChangeListener(sPreferenceListener);
         }
     }
 }

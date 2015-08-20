@@ -19,12 +19,15 @@ import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 import android.util.Pair;
 
 import org.site_monitor.BuildConfig;
+import org.site_monitor.GA;
+import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.MainActivity;
 import org.site_monitor.model.adapter.SiteSettingsManager;
@@ -166,9 +169,13 @@ public class NetworkService extends IntentService {
             }
             if (atLeastOneToNotify) {
                 PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-                NotificationUtil.sendNotification(this, NotificationUtil.ID_NOT_REACHABLE, failsPairs.size() + " " + getString(R.string.state_unreachable), sb.toString(), pendingIntent);
+                NotificationCompat.Builder notificationBuilder = NotificationUtil.build(this, failsPairs.size() + " " + getString(R.string.state_unreachable), sb.toString(), pendingIntent);
+                if (NotificationUtil.send(this, NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build())) {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_notification, R.string.a_sent, new Long(failsPairs.size())).build());
+                }
             }
         }
+
 
         WakefulBroadcastReceiver.completeWakefulIntent(intent);
     }

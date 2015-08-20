@@ -37,6 +37,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.site_monitor.BuildConfig;
+import org.site_monitor.GA;
+import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.fragment.DummySiteInjector;
 import org.site_monitor.activity.fragment.TaskFragment;
@@ -85,7 +87,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         floatingButtonFragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_touched).build());
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle(R.string.add_monitor);
                 final EditText input = new EditText(context);
@@ -102,8 +104,10 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
                         SiteSettings siteSettings = new SiteSettings(host, true);
                         if (siteSettingsManager.contains(siteSettings)) {
                             Toast.makeText(context, host + getString(R.string.already_exists), Toast.LENGTH_SHORT).show();
+                            GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_already_exists).build());
                             return;
                         }
+                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add).build());
                         siteSettingsManager.add(context, siteSettings);
                         new NetworkTask(context, taskFragment).execute(siteSettings);
                         SiteSettingsActivity.start(context, siteSettings.getHost());
@@ -112,6 +116,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
                 builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_cancel).build());
                     }
                 });
                 builder.show();
@@ -174,6 +179,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "global refresh requested");
             }
+            GA.tracker().send(GAHit.builder().event(R.string.c_refresh, R.string.a_global_refresh).build());
             startService(new Intent(context, NetworkService.class));
         }
         if (id == R.id.action_settings) {
