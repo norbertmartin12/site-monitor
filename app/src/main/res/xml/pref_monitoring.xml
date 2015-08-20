@@ -15,21 +15,26 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to dismiss it. -->
+    <PreferenceCategory
+        android:key="pref_header_monitoring"
+        android:title="@string/pref_header_monitoring">
 
-    <CheckBoxPreference
-        android:defaultValue="true"
-        android:key="boot_start"
-        android:title="@string/pref_title_boot_start"/>
+        <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to dismiss it. -->
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="boot_start"
+            android:title="@string/pref_title_boot_start"/>
 
-    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-    <ListPreference
-        android:defaultValue="60"
-        android:entries="@array/pref_frequency_titles"
-        android:entryValues="@array/pref_frequency_values"
-        android:key="frequency"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_title_frequency"/>
+        <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+        <ListPreference
+            android:defaultValue="60"
+            android:entries="@array/pref_frequency_titles"
+            android:entryValues="@array/pref_frequency_values"
+            android:key="frequency"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_title_frequency"/>
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

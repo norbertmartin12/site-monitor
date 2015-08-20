@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
@@ -230,12 +229,8 @@ public class PrefSettingsActivity extends PreferenceActivity {
         }
 
         // In the simplified UI, fragments are not used at all and we instead use the older PreferenceActivity APIs.
-        addPreferencesFromResource(R.xml.pref_notification);
-
-        PreferenceCategory fakeHeader = new PreferenceCategory(this);
-        fakeHeader.setTitle(R.string.pref_header_monitoring);
-        getPreferenceScreen().addPreference(fakeHeader);
         addPreferencesFromResource(R.xml.pref_monitoring);
+        addPreferencesFromResource(R.xml.pref_notification);
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to their values. When their values change,
         // their summaries are dataChanged to reflect the new value, per the Android Design guidelines.
