@@ -99,7 +99,7 @@ public class SiteSettingsManager implements Serializable {
         stopAlarmIfNeeded(context);
     }
 
-    public void saveSiteSettings(Context context) {
+    public synchronized void saveSiteSettings(Context context) {
         String json = GsonUtil.toJson(siteSettingsList);
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         defaultSharedPreferences.edit().putString(PrefSettingsActivity.JSON_SITE_SETTINGS, json).commit();
@@ -108,7 +108,7 @@ public class SiteSettingsManager implements Serializable {
         }
     }
 
-    private void retrieveSiteSettings(Context context) {
+    private synchronized void retrieveSiteSettings(Context context) {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         String json = defaultSharedPreferences.getString(PrefSettingsActivity.JSON_SITE_SETTINGS, "");
         List<SiteSettings> retrievedList = null;
