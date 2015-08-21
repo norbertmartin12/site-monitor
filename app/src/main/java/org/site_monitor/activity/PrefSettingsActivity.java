@@ -142,8 +142,6 @@ public class PrefSettingsActivity extends PreferenceActivity {
     };
 
 
-    private final PrefSettingsActivity context = this;
-
     /**
      * Helper method to determine if the device has an extra-large screen. For example, 10" tablets are extra-large.
      */
@@ -222,8 +220,12 @@ public class PrefSettingsActivity extends PreferenceActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-
         setupSimplePreferencesScreen();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -280,7 +282,6 @@ public class PrefSettingsActivity extends PreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(NOTIFICATION_LIGHT_COLOR));
 
             findPreference(NOTIFICATION_ENABLE).setOnPreferenceChangeListener(sPreferenceListener);
-
         }
     }
 
