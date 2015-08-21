@@ -16,11 +16,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 android {
-    signingConfigs {
-        playstore {
-            keyAlias 'playstore'
-        }
-    }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
     defaultConfig {
