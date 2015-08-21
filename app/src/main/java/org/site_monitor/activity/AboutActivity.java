@@ -22,7 +22,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import org.site_monitor.BuildConfig;
 import org.site_monitor.R;
 
 public class AboutActivity extends Activity {
@@ -41,9 +40,7 @@ public class AboutActivity extends Activity {
         versionTextView = (TextView) findViewById(R.id.version);
 
         try {
-            if (BuildConfig.DEBUG) {
-                versionTextView.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-            }
+            versionTextView.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
         } catch (PackageManager.NameNotFoundException e) {
             versionTextView.setText("?");
         }
