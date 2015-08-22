@@ -15,18 +15,17 @@
   -->
 
 <resources>
-    <!-- End current session if app sleeps for a period of time -->
-    <integer name="ga_sessionTimeout">300</integer>
+    <string name="ga_trackingId">UA-66443402-1</string>
 
-    <!-- in minutues -->
-    <int name="ga_dispatchPeriod">30</int>
+    <!-- The amount of time (in seconds) your application can stay in the background before the session is ended -->
+    <intger name="ga_sessionTimeout">300</intger>
+    <!-- Frequency of automatic dispatch in seconds. Defaults to 30 minutes (1800 seconds).-->
+    <intger name="ga_dispatchPeriod">1800</intger>
 
     <!-- auto tracking -->
-    <bool name="ga_autoActivityTracking">true</bool>
-    <bool name="ga_reportUncaughtExceptions">true</bool>
-
-    <!--  The property id associated with this analytics tracker -->
-    <string name="ga_trackingId">UA-66443402-1</string>
+    <boolean name="ga_autoActivityTracking">true</boolean>
+    <boolean name="ga_reportUncaughtExceptions">true</boolean>
+    <boolean name="ga_anonymizeIp">true</boolean>
 
     <!--
       See Project Structure -> Analytics -> Google Analytics -> Learn More

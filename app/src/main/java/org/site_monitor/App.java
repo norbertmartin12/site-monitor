@@ -47,7 +47,6 @@ public class App extends Application implements Application.ActivityLifecycleCal
         tracker.setAppVersion(BuildConfig.VERSION_NAME);
         tracker.setAppInstallerId(getPackageManager().getInstallerPackageName(getPackageName()));
         tracker.setLanguage(Locale.getDefault().getDisplayLanguage());
-        tracker.setAnonymizeIp(true);
     }
 
     @Override
