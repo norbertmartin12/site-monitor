@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2015 Martin Norbert
   ~  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,40 +15,29 @@
   -->
 
 <resources>
-    <string name="pref_header_monitoring">Monitoring</string>
-    <string name="pref_title_frequency">Frequency</string>
+    <string name="pref_header_monitoring">Contrôle</string>
+    <string name="pref_title_frequency">Fréquence</string>
     <string-array name="pref_frequency_titles">
         <item>5 minutes</item>
         <item>15 minutes</item>
         <item>30 minutes</item>
-        <item>1 hour</item>
-        <item>3 hours</item>
+        <item>1 heure</item>
+        <item>3 heures</item>
     </string-array>
-    <string-array name="pref_frequency_values">
-        <item>5</item>
-        <item>15</item>
-        <item>30</item>
-        <item>60</item>
-        <item>180</item>
-    </string-array>
-    <string name="pref_title_boot_start">Start on boot</string>
+
+
+    <string name="pref_title_boot_start">Lancer au démarrage</string>
 
     <string name="pref_header_notifications">Notification</string>
     <string name="pref_title_notification_allowed">Notification</string>
-    <string name="pref_title_ringtone">Ringtone</string>
-    <string name="pref_ringtone_silent">Silent</string>
-    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="pref_title_ringtone">Sonnerie</string>
+    <string name="pref_ringtone_silent">Silencieux</string>
+    <string name="pref_title_vibrate">Vibreur</string>
 
-    <string name="pref_notification_light_color">Color</string>
+    <string name="pref_notification_light_color">Couleur</string>
     <string-array name="pref_notification_light_color_titles">
-        <item>White</item>
-        <item>Blue</item>
-        <item>Red</item>
+        <item>Blanc</item>
+        <item>Bleu</item>
+        <item>Rouge</item>
     </string-array>
-    <string-array name="pref_notification_light_color_values">
-        <item>-1</item>
-        <item>-16776961</item>
-        <item>-65536</item>
-    </string-array>
-
 </resources>

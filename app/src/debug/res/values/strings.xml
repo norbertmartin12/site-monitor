@@ -15,5 +15,6 @@
   -->
 
 <resources>
-    <string name="app_name">Site Monitor -debug</string>
+  <string name="app_name">Site Monitor β</string>
+  <string name="title_activity_main">Site Monitor -debug</string>
 </resources>

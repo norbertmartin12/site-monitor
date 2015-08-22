@@ -55,21 +55,23 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.context = this;
-        setContentView(R.layout.activity_site_settings);
         String url = getIntent().getStringExtra(P_SITE_SETTINGS);
         if (url == null) {
             Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
             finish();
         }
-        siteSettings = SiteSettingsManager.instance(this).getBy(url);
+        this.context = this;
+        this.siteSettings = SiteSettingsManager.instance(this).getBy(url);
+        setTitle(siteSettings.getName());
+        setContentView(R.layout.activity_site_settings);
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         siteSettingsFragment = (SiteSettingsActivityFragment) fragmentManager.findFragmentByTag(TAG_TASK_FRAGMENT);
         if (siteSettingsFragment == null) {
             siteSettingsFragment = (SiteSettingsActivityFragment) fragmentManager.findFragmentById(R.id.fragment_site_settings);
         }
         siteSettingsFragment.setSiteSettings(siteSettings);
-        setTitle(siteSettings.getName());
+
     }
 
     @Override
