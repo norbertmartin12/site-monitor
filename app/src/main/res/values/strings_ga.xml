@@ -18,6 +18,7 @@
     <string name="c_monitor">monitor</string>
     <string name="c_notification">notification</string>
     <string name="c_refresh">refresh</string>
+    <string name="c_settings">settings</string>
 
     <string name="a_add">add</string>
     <string name="a_rename">rename</string>
@@ -25,14 +26,14 @@
     <string name="a_dismiss">dismiss</string>
     <string name="a_global_refresh">global refresh</string>
     <string name="a_site_refresh">site refresh</string>
+    <string name="a_notification_changed">notification changed</string>
+    <string name="a_frequency_changed">frequency changed</string>
+    <string name="a_sent">sent</string>
+    <string name="a_boot_start_changed">boot start changed</string>
 
     <string name="l_already_exists">already exists</string>
     <string name="l_in_progress">in progress</string>
     <string name="l_cancel">cancel</string>
     <string name="l_done">done</string>
     <string name="l_touched">touched</string>
-    <string name="a_notification_changed">notification changed</string>
-    <string name="a_frequency_changed">frequency changed</string>
-    <string name="c_settings">settings</string>
-    <string name="a_sent">sent</string>
 </resources>

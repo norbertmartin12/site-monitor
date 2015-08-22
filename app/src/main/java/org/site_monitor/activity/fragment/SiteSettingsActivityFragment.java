@@ -70,6 +70,13 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         callListView = (ListView) view.findViewById(R.id.callListView);
         hostTextView = (TextView) view.findViewById(R.id.hostTextView);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateView();
         notificationCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -83,13 +90,6 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
             }
         });
 
-        return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        updateView();
         if (networkServiceReceiver == null && siteCallAdapter != null) {
             networkServiceReceiver = new NetworkServiceReceiver(this);
         }
@@ -99,6 +99,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     @Override
     public void onPause() {
         super.onPause();
+        notificationCheckbox.setOnCheckedChangeListener(null);
         if (networkServiceReceiver != null) {
             LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(networkServiceReceiver);
         }
@@ -111,7 +112,9 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
                 callListView.setAdapter(siteCallAdapter);
             }
             hostTextView.setText(siteSettings.getHost());
-            notificationCheckbox.setChecked(siteSettings.isNotificationEnabled());
+            if (notificationCheckbox.isChecked() != siteSettings.isNotificationEnabled()) {
+                notificationCheckbox.setChecked(siteSettings.isNotificationEnabled());
+            }
             if (siteSettings.isChecking()) {
                 progressBar.setVisibility(View.VISIBLE);
             } else {

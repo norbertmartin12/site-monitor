@@ -22,8 +22,6 @@ import android.util.Log;
 
 import com.google.android.gms.analytics.Tracker;
 
-import java.util.Locale;
-
 /**
  * Created by Martin Norbert on 16/08/2015.
  */
@@ -42,11 +40,6 @@ public class App extends Application implements Application.ActivityLifecycleCal
         GA.initialize(this);
         GAHit.initialize(this);
         Tracker tracker = GA.tracker();
-        tracker.setAppId(BuildConfig.APPLICATION_ID);
-        tracker.setAppName(getString(R.string.app_name));
-        tracker.setAppVersion(BuildConfig.VERSION_NAME);
-        tracker.setAppInstallerId(getPackageManager().getInstallerPackageName(getPackageName()));
-        tracker.setLanguage(Locale.getDefault().getDisplayLanguage());
     }
 
     @Override

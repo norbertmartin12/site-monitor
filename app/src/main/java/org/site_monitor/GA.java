@@ -15,14 +15,14 @@
 
 package org.site_monitor;
 
+import android.app.Application;
 import android.content.Context;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Logger;
 import com.google.android.gms.analytics.Tracker;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Locale;
 
 /**
  * A collection of Google Analytics trackers. Fetch the tracker you need using
@@ -35,53 +35,39 @@ import java.util.Map;
 public final class GA {
 
     private static GA sInstance;
-    private final Map<Target, Tracker> mTrackers = new HashMap<Target, Tracker>();
     private final Context mContext;
+    private final Tracker tracker;
 
     /**
      * Don't instantiate directly - use {@link #tracker()} instead.
      */
-    private GA(Context context) {
-        mContext = context.getApplicationContext();
+    private GA(Application application) {
+        mContext = application.getApplicationContext();
+        GoogleAnalytics ga = GoogleAnalytics.getInstance(mContext);
+        ga.enableAutoActivityReports(application);
+        if (BuildConfig.DEBUG) {
+            ga.setDryRun(true);
+            ga.getLogger().setLogLevel(Logger.LogLevel.INFO);
+        }
+        tracker = ga.newTracker(R.xml.ga_tracker_config);
+        tracker.setAppName(mContext.getString(R.string.app_name));
+        tracker.setAppVersion(BuildConfig.VERSION_NAME);
+        tracker.setAppInstallerId(mContext.getPackageManager().getInstallerPackageName(mContext.getPackageName()));
+        tracker.setLanguage(Locale.getDefault().getDisplayLanguage());
+        tracker.enableAutoActivityTracking(true);
     }
 
-    public static synchronized void initialize(Context context) {
+    public static synchronized void initialize(Application application) {
         if (sInstance != null) {
             throw new IllegalStateException("Extra call to initialize analytics trackers");
         }
-        sInstance = new GA(context);
+        sInstance = new GA(application);
     }
 
     public static synchronized Tracker tracker() {
         if (sInstance == null) {
             throw new IllegalStateException("Call initialize() before tracker()");
         }
-        return sInstance.get(Target.APP);
-    }
-
-    private synchronized Tracker get(Target target) {
-        if (!mTrackers.containsKey(target)) {
-            Tracker tracker;
-            switch (target) {
-                case APP:
-                    GoogleAnalytics ga = GoogleAnalytics.getInstance(mContext);
-                    if (BuildConfig.DEBUG) {
-                        ga.setDryRun(true);
-                        ga.getLogger().setLogLevel(Logger.LogLevel.INFO);
-                    }
-                    tracker = ga.newTracker(R.xml.app_tracker);
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unhandled analytics target " + target);
-            }
-            mTrackers.put(target, tracker);
-        }
-
-        return mTrackers.get(target);
-    }
-
-    public enum Target {
-        APP,
-        // Add more trackers here if you need, and update the code in #get(Target) below
+        return sInstance.tracker;
     }
 }
