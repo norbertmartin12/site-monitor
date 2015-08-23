@@ -47,4 +47,6 @@
     <string name="copy_right">Copyright 2015 Martin Norbert</string>
     <string name="contact">Développeur: norbertmartin12@gmail.com</string>
     <string name="apache_license">Apache License v2.0\nhttp://www.apache.org/licenses/LICENSE-2.0</string>
+    <string name="rateApp">Noter sur Play Store</string>
+    <string name="trello">Suivre sur Trello</string>
 </resources>

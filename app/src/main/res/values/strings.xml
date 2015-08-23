@@ -16,7 +16,7 @@
 <resources>
     <string name="app_name">Site Monitor</string>
     <string name="title_activity_main">Site Monitor</string>
-    <string name="title_activity_site_settings">SiteSettingsActivity</string>
+    <string name="title_activity_site_settings" translatable="false">SiteSettingsActivity</string>
     <string name="title_activity_about">About</string>
     <string name="title_activity_settings">Settings</string>
 
@@ -48,4 +48,6 @@
     <string name="copy_right">Copyright 2015 Martin Norbert</string>
     <string name="contact">Developer: norbertmartin12@gmail.com</string>
     <string name="apache_license">Apache License v2.0\nhttp://www.apache.org/licenses/LICENSE-2.0</string>
+    <string name="trello">Follow on Trello</string>
+    <string name="rateApp">Rate on Play Store</string>
 </resources>

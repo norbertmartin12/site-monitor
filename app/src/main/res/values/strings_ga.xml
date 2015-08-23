@@ -15,25 +15,25 @@
   -->
 
 <resources>
-    <string name="c_monitor">monitor</string>
-    <string name="c_notification">notification</string>
-    <string name="c_refresh">refresh</string>
-    <string name="c_settings">settings</string>
+    <string name="c_monitor" translatable="false">monitor</string>
+    <string name="c_notification" translatable="false">notification</string>
+    <string name="c_refresh" translatable="false">refresh</string>
+    <string name="c_settings" translatable="false">settings</string>
 
-    <string name="a_add">add</string>
-    <string name="a_rename">rename</string>
-    <string name="a_remove">remove</string>
-    <string name="a_dismiss">dismiss</string>
-    <string name="a_global_refresh">global refresh</string>
-    <string name="a_site_refresh">site refresh</string>
-    <string name="a_notification_changed">notification changed</string>
-    <string name="a_frequency_changed">frequency changed</string>
-    <string name="a_sent">sent</string>
-    <string name="a_boot_start_changed">boot start changed</string>
+    <string name="a_add" translatable="false">add</string>
+    <string name="a_rename" translatable="false">rename</string>
+    <string name="a_remove" translatable="false">remove</string>
+    <string name="a_dismiss" translatable="false">dismiss</string>
+    <string name="a_global_refresh" translatable="false">global refresh</string>
+    <string name="a_site_refresh" translatable="false">site refresh</string>
+    <string name="a_notification_changed" translatable="false">notification changed</string>
+    <string name="a_frequency_changed" translatable="false">frequency changed</string>
+    <string name="a_sent" translatable="false">sent</string>
+    <string name="a_boot_start_changed" translatable="false">boot start changed</string>
 
-    <string name="l_already_exists">already exists</string>
-    <string name="l_in_progress">in progress</string>
-    <string name="l_cancel">cancel</string>
-    <string name="l_done">done</string>
-    <string name="l_touched">touched</string>
+    <string name="l_already_exists" translatable="false">already exists</string>
+    <string name="l_in_progress" translatable="false">in progress</string>
+    <string name="l_cancel" translatable="false">cancel</string>
+    <string name="l_done" translatable="false">done</string>
+    <string name="l_touched" translatable="false">touched</string>
 </resources>

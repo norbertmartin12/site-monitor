@@ -19,13 +19,17 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import org.site_monitor.R;
 
 public class AboutActivity extends Activity {
 
+    public static final String MARKET_SITE_MONITOR = "market://details?id=org.site_monitor";
+    private static final String TRELLO_SITE_MONITOR = "https://trello.com/b/G0rQVzo8/site-monitor";
     private TextView versionTextView;
 
     public static void start(Context context) {
@@ -45,4 +49,19 @@ public class AboutActivity extends Activity {
             versionTextView.setText("?");
         }
     }
+
+    public void goTo(View v) {
+
+        if (v.getId() == R.id.rateAppButton) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(MARKET_SITE_MONITOR));
+            startActivity(intent);
+        } else if (v.getId() == R.id.trelloButton) {
+
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(TRELLO_SITE_MONITOR));
+            startActivity(intent);
+        }
+    }
+
 }

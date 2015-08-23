@@ -29,7 +29,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/app_name"
-        android:textSize="18sp"
+        android:textColor="@color/primary"
+        android:textSize="24sp"
         android:textStyle="bold"/>
 
     <TextView
@@ -37,8 +38,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="_1.2.3"
+        android:textColor="@color/primary"
         android:textSize="14sp"
         android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/trelloButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/size_medium"
+        android:onClick="goTo"
+        android:text="@string/trello"
+        android:textColor="@color/accent"/>
+
+    <Button
+        android:id="@+id/rateAppButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/size_medium"
+        android:onClick="goTo"
+        android:text="@string/rateApp"
+        android:textColor="@color/accent"/>
+
 
     <TextView
         android:layout_width="match_parent"
