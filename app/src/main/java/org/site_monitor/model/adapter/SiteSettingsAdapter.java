@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -72,6 +73,7 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         } else {
             viewHandler.progressBar.setVisibility(View.INVISIBLE);
         }
+        viewHandler.faviconView.setImageBitmap(viewHandler.siteSettings.getFavicon());
     }
 
     @Override
@@ -96,6 +98,7 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         final TextView nameTextView;
         final ProgressBar progressBar;
         final TextView stateText;
+        final ImageView faviconView;
 
         ViewHandler(int position, View view) {
             this.siteSettings = getItem(position);
@@ -103,6 +106,7 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
             this.nameTextView = (TextView) view.findViewById(R.id.nameText);
             this.progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
             this.stateText = (TextView) view.findViewById(R.id.stateText);
+            this.faviconView = (ImageView) view.findViewById(R.id.faviconView);
         }
     }
 }

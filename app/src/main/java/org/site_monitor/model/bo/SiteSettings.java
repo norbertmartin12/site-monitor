@@ -15,6 +15,8 @@
 
 package org.site_monitor.model.bo;
 
+import android.graphics.Bitmap;
+
 import com.google.gson.annotations.Expose;
 
 import java.io.Serializable;
@@ -35,6 +37,7 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
     private boolean isNotificationEnabled = true;
     @Expose
     private List<SiteCall> calls = new ArrayList<>();
+    private Bitmap favicon;
 
     private boolean isChecking;
 
@@ -78,6 +81,14 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
 
     public void setIsChecking(boolean isChecking) {
         this.isChecking = isChecking;
+    }
+
+    public Bitmap getFavicon() {
+        return favicon;
+    }
+
+    public void setFavicon(Bitmap favicon) {
+        this.favicon = favicon;
     }
 
     @Override

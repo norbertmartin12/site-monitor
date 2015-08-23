@@ -19,6 +19,8 @@ import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.content.WakefulBroadcastReceiver;
@@ -39,6 +41,7 @@ import org.site_monitor.util.NotificationUtil;
 import org.site_monitor.util.TimeUtil;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Date;
@@ -63,6 +66,8 @@ public class NetworkService extends IntentService {
     private static final int TIMEOUT_10 = (int) (10 * TimeUtil.SEC_2_MILLISEC);
     private static final String METHOD_HEAD = "HEAD";
 
+    private static final String FAVICON_SERVICE_URL = "http://www.google.com/s2/favicons?domain=";
+
     public NetworkService() {
         super(TAG);
     }
@@ -74,6 +79,9 @@ public class NetworkService extends IntentService {
     public static SiteCall buildHeadHttpConnectionThenDoCall(Context context, SiteSettings siteSettings) {
         SiteCall siteCall;
         if (ConnectivityUtil.isConnectedOrConnecting(context)) {
+            if (siteSettings.getFavicon() == null) {
+                loadFaviconFor(siteSettings);
+            }
             HttpURLConnection urlConnection = null;
             try {
                 urlConnection = buildHeadHttpConnection(siteSettings);
@@ -127,6 +135,26 @@ public class NetworkService extends IntentService {
     public static void broadcast(Context context, String action, SiteSettings siteSettings) {
         Intent localIntent = new Intent(action).putExtra(EXTRA_SITE, siteSettings);
         LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
+    }
+
+    public static void loadFaviconFor(SiteSettings siteSettings) {
+        InputStream is = null;
+        try {
+            is = (InputStream) new URL(FAVICON_SERVICE_URL + siteSettings.getHost()).getContent();
+        } catch (IOException e) {
+            if (BuildConfig.DEBUG) {
+                Log.w(TAG, "loadFaviconFor " + siteSettings.getName() + " fails: " + e, e);
+            }
+            return;
+        }
+        Bitmap favicon = BitmapFactory.decodeStream(is);
+        Log.d(TAG, "favicon " + favicon.getByteCount() + "bytes");
+        if (favicon != null) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "favicon update for " + siteSettings);
+            }
+            siteSettings.setFavicon(favicon);
+        }
     }
 
     @Override

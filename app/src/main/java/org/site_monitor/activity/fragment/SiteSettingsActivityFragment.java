@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -45,6 +46,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     private TextView hostTextView;
     private ListView callListView;
     private ProgressBar progressBar;
+    private ImageView faviconView;
     private View view;
 
     private Callback callback;
@@ -70,6 +72,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         callListView = (ListView) view.findViewById(R.id.callListView);
         hostTextView = (TextView) view.findViewById(R.id.hostTextView);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
+        faviconView = (ImageView) view.findViewById(R.id.faviconView);
         return view;
     }
 
@@ -121,6 +124,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
                 progressBar.setVisibility(View.INVISIBLE);
             }
             siteCallAdapter.notifyDataSetChanged();
+            faviconView.setImageBitmap(siteSettings.getFavicon());
         }
     }
 

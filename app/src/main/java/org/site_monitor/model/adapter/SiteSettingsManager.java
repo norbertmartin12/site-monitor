@@ -67,7 +67,7 @@ public class SiteSettingsManager implements Serializable {
     }
 
     public List<SiteSettings> getSiteSettingsUnmodifiableList() {
-        return Collections.unmodifiableList(new ArrayList<SiteSettings>(siteSettingsList));
+        return Collections.unmodifiableList(new ArrayList<>(siteSettingsList));
     }
 
     public int size() {
@@ -116,7 +116,7 @@ public class SiteSettingsManager implements Serializable {
             retrievedList = GsonUtil.fromJson(json, new TypeToken<List<SiteSettings>>() {
             });
         } else {
-            retrievedList = new ArrayList<SiteSettings>();
+            retrievedList = new ArrayList<>();
         }
         siteSettingsList.clear();
         siteSettingsList.addAll(retrievedList);
