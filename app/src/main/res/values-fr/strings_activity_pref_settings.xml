@@ -40,4 +40,8 @@
         <item>Bleu</item>
         <item>Rouge</item>
     </string-array>
+
+    <string name="pref_header_analytics">Analytics</string>
+    <string name="pref_title_allow_analytics">Participer</string>
+    <string name="pref_title_allow_analytics_description">Autoriser la collecte de données anonymes sur l\'utilisation: actions, écrans, notifications</string>
 </resources>

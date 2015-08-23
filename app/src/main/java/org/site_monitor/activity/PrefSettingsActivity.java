@@ -64,6 +64,7 @@ public class PrefSettingsActivity extends PreferenceActivity {
     public static final String NOTIFICATION_LIGHT_COLOR = "notification_light_color";
     public static final String BOOT_START = "boot_start";
     public static final String FREQUENCY = "frequency";
+    public static final String ANALYTICS = "allow_analytics";
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -120,8 +121,8 @@ public class PrefSettingsActivity extends PreferenceActivity {
     private static Preference.OnPreferenceChangeListener sPreferenceListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
+            boolean state = (Boolean) value;
             if (preference.getKey().equals(BOOT_START)) {
-                boolean state = (Boolean) value;
                 if (state) {
                     GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_boot_start_changed, 1L).build());
                 } else {
@@ -130,11 +131,16 @@ public class PrefSettingsActivity extends PreferenceActivity {
                 StartupBootReceiver.setCanBeInitiatedBySystem(preference.getContext(), state);
                 preference.setSummary("");
             } else if (preference.getKey().equals(NOTIFICATION_ENABLE)) {
-                boolean state = (Boolean) value;
                 if (state) {
                     GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_changed, 1L).build());
                 } else {
                     GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_changed, 0L).build());
+                }
+            } else if (preference.getKey().equals(ANALYTICS)) {
+                if (state) {
+                    GA.getInstance().startTracking();
+                } else {
+                    GA.getInstance().stopTracking();
                 }
             }
             return true;
@@ -255,6 +261,7 @@ public class PrefSettingsActivity extends PreferenceActivity {
         // In the simplified UI, fragments are not used at all and we instead use the older PreferenceActivity APIs.
         addPreferencesFromResource(R.xml.pref_monitoring);
         addPreferencesFromResource(R.xml.pref_notification);
+        addPreferencesFromResource(R.xml.pref_analytics);
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to their values. When their values change,
         // their summaries are dataChanged to reflect the new value, per the Android Design guidelines.
@@ -264,6 +271,7 @@ public class PrefSettingsActivity extends PreferenceActivity {
 
         findPreference(BOOT_START).setOnPreferenceChangeListener(sPreferenceListener);
         findPreference(NOTIFICATION_ENABLE).setOnPreferenceChangeListener(sPreferenceListener);
+        findPreference(ANALYTICS).setOnPreferenceChangeListener(sPreferenceListener);
     }
 
     /**
@@ -300,6 +308,21 @@ public class PrefSettingsActivity extends PreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(FREQUENCY));
 
             findPreference(BOOT_START).setOnPreferenceChangeListener(sPreferenceListener);
+        }
+    }
+
+    /**
+     * This fragment shows analytics preferences only.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class AnalyticsPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_analytics);
+
+            findPreference(BOOT_START).setOnPreferenceChangeListener(sPreferenceListener);
+            findPreference(ANALYTICS).setOnPreferenceChangeListener(sPreferenceListener);
         }
     }
 }

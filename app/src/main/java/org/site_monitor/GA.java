@@ -17,10 +17,14 @@ package org.site_monitor;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Logger;
 import com.google.android.gms.analytics.Tracker;
+
+import org.site_monitor.activity.PrefSettingsActivity;
 
 import java.util.Locale;
 
@@ -35,24 +39,28 @@ import java.util.Locale;
 public final class GA {
 
     private static GA sInstance;
-    private final Context mContext;
+    private final Context context;
     private final Tracker tracker;
 
     /**
      * Don't instantiate directly - use {@link #tracker()} instead.
      */
     private GA(Application application) {
-        mContext = application.getApplicationContext();
-        GoogleAnalytics ga = GoogleAnalytics.getInstance(mContext);
+        context = application.getApplicationContext();
+        GoogleAnalytics ga = GoogleAnalytics.getInstance(context);
         ga.enableAutoActivityReports(application);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean analyticsAllowed = preferences.getBoolean(PrefSettingsActivity.ANALYTICS, true);
+        ga.setAppOptOut(!analyticsAllowed);
         if (BuildConfig.DEBUG) {
             ga.setDryRun(true);
             ga.getLogger().setLogLevel(Logger.LogLevel.INFO);
         }
         tracker = ga.newTracker(R.xml.ga_tracker_config);
-        tracker.setAppName(mContext.getString(R.string.app_name));
+        tracker.setAppName(context.getString(R.string.app_name));
         tracker.setAppVersion(BuildConfig.VERSION_NAME);
-        tracker.setAppInstallerId(mContext.getPackageManager().getInstallerPackageName(mContext.getPackageName()));
+        tracker.setAppInstallerId(context.getPackageManager().getInstallerPackageName(context.getPackageName()));
         tracker.setLanguage(Locale.getDefault().getDisplayLanguage());
         tracker.enableAutoActivityTracking(true);
     }
@@ -64,10 +72,22 @@ public final class GA {
         sInstance = new GA(application);
     }
 
+    public static synchronized GA getInstance() {
+        return sInstance;
+    }
+
     public static synchronized Tracker tracker() {
         if (sInstance == null) {
             throw new IllegalStateException("Call initialize() before tracker()");
         }
         return sInstance.tracker;
+    }
+
+    public void startTracking() {
+        GoogleAnalytics.getInstance(context).setAppOptOut(false);
+    }
+
+    public void stopTracking() {
+        GoogleAnalytics.getInstance(context).setAppOptOut(true);
     }
 }

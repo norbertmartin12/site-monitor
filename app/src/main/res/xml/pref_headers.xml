@@ -25,4 +25,8 @@
         android:fragment="org.site_monitor.activity.PrefSettingsActivity$FrequencyPreferenceFragment"
         android:title="@string/pref_header_monitoring"/>
 
+    <header
+        android:fragment="org.site_monitor.activity.PrefSettingsActivity$AnalyticsPreferenceFragment"
+        android:title="@string/pref_header_analytics"/>
+
 </preference-headers>

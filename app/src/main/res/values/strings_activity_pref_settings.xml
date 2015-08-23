@@ -50,4 +50,7 @@
         <item>-65536</item>
     </string-array>
 
+    <string name="pref_header_analytics">Analytics</string>
+    <string name="pref_title_allow_analytics">Take part</string>
+    <string name="pref_title_allow_analytics_description">Collect anonymous data about app usage: actions, screens, notifications</string>
 </resources>

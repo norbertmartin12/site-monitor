@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (c) 2015 Martin Norbert
   ~  Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,24 +17,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
-        android:key="pref_header_monitoring"
-        android:title="@string/pref_header_monitoring">
-
+        android:key="pref_header_analytics"
+        android:title="@string/pref_header_analytics">
         <CheckBoxPreference
             android:defaultValue="true"
-            android:key="boot_start"
-            android:title="@string/pref_title_boot_start"/>
-
-        <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-        <ListPreference
-            android:defaultValue="60"
-            android:entries="@array/pref_frequency_titles"
-            android:entryValues="@array/pref_frequency_values"
-            android:key="frequency"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="@null"
-            android:title="@string/pref_title_frequency"/>
-
+            android:key="allow_analytics"
+            android:summary="@string/pref_title_allow_analytics_description"
+            android:title="@string/pref_title_allow_analytics"/>
     </PreferenceCategory>
-
 </PreferenceScreen>

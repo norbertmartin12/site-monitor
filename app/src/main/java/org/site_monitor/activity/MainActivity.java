@@ -36,6 +36,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+
 import org.site_monitor.BuildConfig;
 import org.site_monitor.GA;
 import org.site_monitor.GAHit;
@@ -203,6 +205,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             sb.append("StartupBoot state: ").append(startupBootEnable).append("\n");
             sb.append("Alarm set: ").append(AlarmReceiver.hasAlarm()).append(" ").append(AlarmReceiver.getCurrentInterval()).append("\n");
             sb.append("Battery: ").append(BatteryLevelReceiver.getLastAction()).append("\n");
+            sb.append("Analytics: ").append(!GoogleAnalytics.getInstance(this).getAppOptOut()).append("\n");
             Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();
             return true;
         }
