@@ -16,7 +16,7 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android" android:enterFadeDuration="@android:integer/config_shortAnimTime">
 
     <item>
-        <bitmap android:src="@drawable/ic_add" android:tint="@android:color/white"/>
+      <bitmap android:src="@drawable/fab_plus" android:tint="@android:color/white"/>
     </item>
 
 </selector>

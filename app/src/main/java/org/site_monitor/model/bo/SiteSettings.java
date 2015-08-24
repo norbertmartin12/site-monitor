@@ -36,7 +36,7 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
     @Expose
     private boolean isNotificationEnabled = true;
     @Expose
-    private List<SiteCall> calls = new ArrayList<>();
+    private List<SiteCall> calls = new ArrayList<SiteCall>();
     private Bitmap favicon;
 
     private boolean isChecking;

@@ -161,7 +161,7 @@ public class NetworkService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         SiteSettingsManager siteSettingsManager = SiteSettingsManager.instance(this);
         List<SiteSettings> siteSettingsList = siteSettingsManager.getSiteSettingsUnmodifiableList();
-        List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<>();
+        List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<Pair<SiteSettings, SiteCall>>();
         for (SiteSettings siteSettings : siteSettingsList) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "call: " + siteSettings);
@@ -174,7 +174,7 @@ public class NetworkService extends IntentService {
             broadcast(this, ACTION_SITE_UPDATED, siteSettings);
 
             if (siteCall.getResult() == NetworkCallResult.FAIL) {
-                failsPairs.add(new Pair<>(siteSettings, siteCall));
+                failsPairs.add(new Pair<SiteSettings, SiteCall>(siteSettings, siteCall));
             }
         }
         siteSettingsManager.saveSiteSettings(this);

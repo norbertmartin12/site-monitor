@@ -15,8 +15,10 @@
 
 package org.site_monitor.activity.fragment.floatingButton;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Outline;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewOutlineProvider;
@@ -28,6 +30,8 @@ import android.widget.FrameLayout;
  *
  * @modifiedBy Martin Norbert
  */
+
+@TargetApi(value = Build.VERSION_CODES.LOLLIPOP)
 public class FloatingButton extends FrameLayout {
 
     private static final String TAG = "FloatingActionButton";

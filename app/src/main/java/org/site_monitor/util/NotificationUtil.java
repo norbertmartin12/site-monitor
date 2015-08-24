@@ -23,6 +23,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -54,7 +55,9 @@ public class NotificationUtil {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
         notificationBuilder.setSmallIcon(R.drawable.ic_app);
         notificationBuilder.setColor(context.getResources().getColor(R.color.primary));
-        notificationBuilder.setCategory(Notification.CATEGORY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            notificationBuilder.setCategory(Notification.CATEGORY_SERVICE);
+        }
         notificationBuilder.setContentTitle(title).setContentText(text);
         notificationBuilder.setAutoCancel(true);
 
