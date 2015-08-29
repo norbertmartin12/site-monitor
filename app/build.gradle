@@ -17,8 +17,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 android {
     signingConfigs {
-        config {
-        }
+        config {}
     }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -26,8 +25,8 @@ android {
         applicationId "org.site_monitor"
         minSdkVersion 19
         targetSdkVersion 22
-        versionCode 6
-        versionName '0.2.1'
+        versionCode 7
+        versionName '0.2.2'
     }
     buildTypes {
         debug {
@@ -37,7 +36,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
         }
