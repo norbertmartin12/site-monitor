@@ -72,7 +72,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         callListView = (ListView) view.findViewById(R.id.callListView);
         hostTextView = (TextView) view.findViewById(R.id.hostTextView);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        faviconView = (ImageView) view.findViewById(R.id.faviconView);
+        faviconView = (ImageView) view.findViewById(R.id.faviconImage);
         return view;
     }
 

@@ -23,7 +23,7 @@
                 tools:context=".activity.MainActivity">
 
     <ImageView
-        android:id="@+id/faviconView"
+        android:id="@+id/faviconImage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
@@ -41,7 +41,7 @@
         android:layout_centerVertical="true"
         android:layout_marginLeft="@dimen/size_tiny"
         android:layout_marginRight="@dimen/size_tiny"
-        android:layout_toEndOf="@id/faviconView"
+        android:layout_toEndOf="@id/faviconImage"
         android:layout_toStartOf="@+id/stateText"
         android:text="_monsite.fr"
         android:textSize="18sp"/>
@@ -73,5 +73,17 @@
         android:maxWidth="18dp"
         android:minHeight="18dp"
         android:minWidth="18dp"/>
+
+    <ImageView
+        android:id="@+id/notificationImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/stateText"
+        android:maxHeight="18dp"
+        android:maxWidth="18dp"
+        android:minHeight="18dp"
+        android:minWidth="18dp"
+        android:src="@drawable/ic_notification_off"/>
 
 </RelativeLayout>

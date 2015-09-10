@@ -73,7 +73,12 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         } else {
             viewHandler.progressBar.setVisibility(View.INVISIBLE);
         }
-        viewHandler.faviconView.setImageBitmap(viewHandler.siteSettings.getFavicon());
+        if (viewHandler.siteSettings.isNotificationEnabled()) {
+            viewHandler.notificationImage.setVisibility(View.INVISIBLE);
+        } else {
+            viewHandler.notificationImage.setVisibility(View.VISIBLE);
+        }
+        viewHandler.faviconImage.setImageBitmap(viewHandler.siteSettings.getFavicon());
     }
 
     @Override
@@ -98,7 +103,8 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         final TextView nameTextView;
         final ProgressBar progressBar;
         final TextView stateText;
-        final ImageView faviconView;
+        final ImageView faviconImage;
+        final ImageView notificationImage;
 
         ViewHandler(int position, View view) {
             this.siteSettings = getItem(position);
@@ -106,7 +112,8 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
             this.nameTextView = (TextView) view.findViewById(R.id.nameText);
             this.progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
             this.stateText = (TextView) view.findViewById(R.id.stateText);
-            this.faviconView = (ImageView) view.findViewById(R.id.faviconView);
+            this.faviconImage = (ImageView) view.findViewById(R.id.faviconImage);
+            this.notificationImage = (ImageView) view.findViewById(R.id.notificationImage);
         }
     }
 }
