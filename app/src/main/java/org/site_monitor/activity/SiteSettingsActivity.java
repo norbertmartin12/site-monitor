@@ -143,8 +143,8 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
         if (id == R.id.action_delete) {
             GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_remove, R.string.l_touched).build());
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(R.string.delete_current_monitor);
-            builder.setPositiveButton(R.string.action_delete, new DialogInterface.OnClickListener() {
+            builder.setMessage(R.string.remove_current_monitor);
+            builder.setPositiveButton(R.string.action_remove, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     SiteSettingsManager.instance(context).remove(context, siteSettings);

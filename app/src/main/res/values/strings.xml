@@ -24,15 +24,15 @@
     <string name="action_about">About</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_rename">Rename</string>
-    <string name="action_delete">Delete</string>
+    <string name="action_remove">Remove</string>
     <string name="action_add">Add</string>
     <string name="action_cancel">Cancel</string>
 
     <string name="add_monitor">Add site</string>
     <string name="no_name">[no name]</string>
-    <string name="delete_current_monitor">Delete this site ?</string>
+    <string name="remove_current_monitor">Remove website ?</string>
 
-    <string name="hint_rename_site">site short name</string>
+    <string name="hint_rename_site">website short name</string>
     <string name="hint_site_url">ie: https://google.fr</string>
     <string name="notifications">Notifications</string>
     <string name="last_calls">Last calls</string>

@@ -23,13 +23,13 @@
     <string name="action_about">A propos</string>
     <string name="action_refresh">Rafraîchir</string>
     <string name="action_rename">Renommer</string>
-    <string name="action_delete">Supprimer</string>
+    <string name="action_remove">Supprimer</string>
     <string name="action_add">Ajouter</string>
     <string name="action_cancel">Annuler</string>
 
     <string name="add_monitor">Ajouter un site</string>
     <string name="no_name">[sans nom]</string>
-    <string name="delete_current_monitor">Supprimer ce site ?</string>
+    <string name="remove_current_monitor">Supprimer ce site ?</string>
 
     <string name="hint_rename_site">nom court du site</string>
     <string name="hint_site_url">ex: https://google.fr</string>
