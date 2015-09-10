@@ -39,6 +39,7 @@ import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.util.ConnectivityUtil;
 import org.site_monitor.util.NotificationUtil;
 import org.site_monitor.util.TimeUtil;
+import org.site_monitor.util.Timer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -83,11 +84,12 @@ public class NetworkService extends IntentService {
                 loadFaviconFor(siteSettings);
             }
             HttpURLConnection urlConnection = null;
+            Timer timer = new Timer();
             try {
                 urlConnection = buildHeadHttpConnection(siteSettings);
-                siteCall = doCall(urlConnection);
+                siteCall = doCall(urlConnection, timer);
             } catch (IOException e) {
-                siteCall = new SiteCall(new Date(), NetworkCallResult.FAIL, e);
+                siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -99,12 +101,12 @@ public class NetworkService extends IntentService {
         return siteCall;
     }
 
-    private static SiteCall doCall(HttpURLConnection urlConnection) throws IOException {
+    private static SiteCall doCall(HttpURLConnection urlConnection, Timer timer) throws IOException {
         urlConnection.connect();
         if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            return new SiteCall(new Date(), NetworkCallResult.FAIL, urlConnection.getResponseCode());
+            return new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), urlConnection.getResponseCode());
         }
-        return new SiteCall(new Date(), NetworkCallResult.SUCCESS, urlConnection.getResponseCode());
+        return new SiteCall(timer.getReferenceDate(), NetworkCallResult.SUCCESS, timer.getElapsedTime(), urlConnection.getResponseCode());
     }
 
     /**

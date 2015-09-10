@@ -35,8 +35,10 @@ import java.text.SimpleDateFormat;
  */
 public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
 
+    public static final String MS = "ms";
+    public static final String UNKNOWN = "?";
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private final LayoutInflater inflater;
-    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 
     public SiteCallAdapter(Context context, SiteSettings siteSettings) {
         super(context, R.layout.cell_site_call, R.id.mainTextView, siteSettings.getUnmodifiableCalls());
@@ -59,7 +61,6 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
         String date = simpleDateFormat.format(viewHandler.siteCall.getDate());
         viewHandler.mainTextView.setText(date);
 
-        String secondText = null;
         if (viewHandler.siteCall.getResponseCode() != null) {
             viewHandler.secondCodeTextView.setText(viewHandler.siteCall.getResponseCode().toString());
         } else if (viewHandler.siteCall.getException() != null) {
@@ -67,7 +68,7 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
         } else if (viewHandler.siteCall.getResult() == NetworkCallResult.NO_CONNECTIVITY) {
             viewHandler.secondCodeTextView.setText(R.string.no_connectivity_available);
         } else {
-            viewHandler.secondCodeTextView.setText("?");
+            viewHandler.secondCodeTextView.setText(UNKNOWN);
         }
         NetworkCallResult result = viewHandler.siteCall.getResult();
         Resources resources = viewHandler.view.getResources();
@@ -78,12 +79,19 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
         } else {
             viewHandler.view.setBackgroundColor(resources.getColor(R.color.state_unknown));
         }
+
+        if (viewHandler.siteCall.getResponseTime() != null) {
+            viewHandler.responseTimeTextView.setText(viewHandler.siteCall.getResponseTime() + MS);
+        } else {
+            viewHandler.responseTimeTextView.setText("");
+        }
     }
 
     private class ViewHandler {
 
         final TextView mainTextView;
         final TextView secondCodeTextView;
+        final TextView responseTimeTextView;
         final SiteCall siteCall;
         final View view;
 
@@ -92,7 +100,7 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
             this.siteCall = getItem(position);
             this.mainTextView = (TextView) view.findViewById(R.id.mainTextView);
             this.secondCodeTextView = (TextView) view.findViewById(R.id.secondTextView);
-
+            this.responseTimeTextView = (TextView) view.findViewById(R.id.responseTimeTextView);
         }
     }
 }

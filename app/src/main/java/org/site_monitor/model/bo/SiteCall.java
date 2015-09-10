@@ -31,27 +31,31 @@ public class SiteCall implements Serializable {
     @Expose
     private Integer responseCode;
     @Expose
+    private Long responseTime;
+    @Expose
     private String exception;
+
 
     public SiteCall(Date date, NetworkCallResult callResult) {
         this(date, callResult, null, null);
     }
 
-    public SiteCall(Date date, NetworkCallResult callResult, int responseCode) {
-        this(date, callResult, responseCode, null);
+    public SiteCall(Date date, NetworkCallResult callResult, Long responseTime, int responseCode) {
+        this(date, callResult, responseCode, responseTime, null);
     }
 
-    public SiteCall(Date date, NetworkCallResult callResult, Exception e) {
-        this(date, callResult, null, e);
+    public SiteCall(Date date, NetworkCallResult callResult, Long responseTime, Exception e) {
+        this(date, callResult, null, responseTime, e);
     }
 
-    public SiteCall(Date date, NetworkCallResult callResult, Integer responseCode, Exception e) {
+    public SiteCall(Date date, NetworkCallResult callResult, Integer responseCode, Long responseTime, Exception e) {
         this.date = date;
         this.result = callResult;
         this.responseCode = responseCode;
         if (e != null) {
             this.exception = e.getLocalizedMessage();
         }
+        this.responseTime = responseTime;
     }
 
     public Integer getResponseCode() {
@@ -70,13 +74,18 @@ public class SiteCall implements Serializable {
         return result;
     }
 
+    public Long getResponseTime() {
+        return responseTime;
+    }
+
     @Override
     public String toString() {
         return "SiteCall{" +
                 "date=" + date +
                 ", result=" + result +
                 ", responseCode=" + responseCode +
-                ", exception=" + exception +
+                ", responseTime=" + responseTime +
+                ", exception='" + exception + '\'' +
                 '}';
     }
 

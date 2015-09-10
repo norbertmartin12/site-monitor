@@ -17,13 +17,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="46dp"
-                android:padding="@dimen/size_xtiny">
+                android:padding="@dimen/size_tiny">
 
     <TextView
         android:id="@+id/mainTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
+        android:layout_toEndOf="@+id/responseTimeTextView"
         android:text="_call time"/>
 
     <TextView
@@ -32,5 +33,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/mainTextView"
         android:text="_return code"
+        android:textSize="10sp"/>
+
+    <TextView
+        android:id="@+id/responseTimeTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:text="_response time"
         android:textSize="10sp"/>
 </RelativeLayout>
