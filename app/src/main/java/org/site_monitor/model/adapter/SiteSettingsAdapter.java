@@ -17,6 +17,8 @@ package org.site_monitor.model.adapter;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.format.DateUtils;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +40,7 @@ import java.util.List;
  */
 public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
 
+    public static final String EMPTY = "";
     private final LayoutInflater inflater;
     private final SiteSettingsManager siteSettingsManager;
 
@@ -47,7 +50,7 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         this.inflater = LayoutInflater.from(context);
     }
 
-    private static void updateView(ViewHandler viewHandler) {
+    private void updateView(ViewHandler viewHandler) {
         viewHandler.nameTextView.setText(viewHandler.siteSettings.getName());
         List<SiteCall> unmodifiableCalls = viewHandler.siteSettings.getUnmodifiableCalls();
         Resources resources = viewHandler.view.getResources();
@@ -79,6 +82,16 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
             viewHandler.notificationImage.setVisibility(View.VISIBLE);
         }
         viewHandler.faviconImage.setImageBitmap(viewHandler.siteSettings.getFavicon());
+
+        if (viewHandler.siteSettings.isInFail()) {
+            Pair<SiteCall, SiteCall> lastFailPeriod = viewHandler.siteSettings.getLastFailPeriod();
+            CharSequence lastFailText = DateUtils.getRelativeTimeSpanString(lastFailPeriod.first.getDate().getTime(), lastFailPeriod.second.getDate().getTime(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+            viewHandler.lastFailText.setText(lastFailText);
+            viewHandler.lastFailText.setVisibility(View.VISIBLE);
+        } else {
+            viewHandler.lastFailText.setVisibility(View.GONE);
+            viewHandler.lastFailText.setText(EMPTY);
+        }
     }
 
     @Override
@@ -103,6 +116,7 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         final TextView nameTextView;
         final ProgressBar progressBar;
         final TextView stateText;
+        final TextView lastFailText;
         final ImageView faviconImage;
         final ImageView notificationImage;
 
@@ -114,6 +128,7 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
             this.stateText = (TextView) view.findViewById(R.id.stateText);
             this.faviconImage = (ImageView) view.findViewById(R.id.faviconImage);
             this.notificationImage = (ImageView) view.findViewById(R.id.notificationImage);
+            this.lastFailText = (TextView) view.findViewById(R.id.lastFailText);
         }
     }
 }

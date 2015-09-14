@@ -16,6 +16,7 @@
 package org.site_monitor.model.bo;
 
 import android.graphics.Bitmap;
+import android.util.Pair;
 
 import com.google.gson.annotations.Expose;
 
@@ -37,8 +38,8 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
     private boolean isNotificationEnabled = true;
     @Expose
     private List<SiteCall> calls = new ArrayList<SiteCall>();
-    private Bitmap favicon;
 
+    private Bitmap favicon;
     private boolean isChecking;
 
     public SiteSettings(String host, boolean isNotificationEnabled) {
@@ -134,4 +135,47 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
         }
         return callResultCompare;
     }
+
+    public boolean isInFail() {
+        if (calls.size() == 0) {
+            return false;
+        }
+        return calls.get(calls.size() - 1).getResult() == NetworkCallResult.FAIL;
+    }
+
+    /**
+     * @return 2 site calls representing last fail period, null if none
+     */
+    public Pair<SiteCall, SiteCall> getLastFailPeriod() {
+        SiteCall start = null;
+        SiteCall last = null;
+        // read last calls first
+        for (int i = calls.size() - 1; i >= 0; i--) {
+            SiteCall siteCall = calls.get(i);
+            if (last == null && siteCall.getResult() == NetworkCallResult.FAIL) {
+                last = siteCall;
+                // last call in fail is first call
+                if (i == 0) {
+                    start = last;
+                    break;
+                }
+                continue;
+            }
+            // when find non fail call get previous it's period start
+            if (start == null && siteCall.getResult() != NetworkCallResult.FAIL) {
+                start = calls.get(i + 1);
+                break;
+            }
+        }
+        // no fail found
+        if (last == null) {
+            return null;
+        }
+        // first call is a fail
+        if (start == null) {
+            start = calls.get(0);
+        }
+        return new Pair<SiteCall, SiteCall>(start, last);
+    }
+
 }

@@ -31,34 +31,61 @@
         android:maxHeight="18dp"
         android:maxWidth="18dp"
         android:minHeight="18dp"
-        android:minWidth="18dp"
-        />
+        android:minWidth="18dp"/>
 
     <TextView
         android:id="@+id/nameText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
+        android:layout_gravity="left"
         android:layout_marginLeft="@dimen/size_tiny"
         android:layout_marginRight="@dimen/size_tiny"
         android:layout_toEndOf="@id/faviconImage"
-        android:layout_toStartOf="@+id/stateText"
+        android:layout_toStartOf="@+id/notificationImage"
+        android:ellipsize="end"
+        android:maxLines="2"
         android:text="_monsite.fr"
         android:textSize="18sp"/>
 
-    <TextView
-        android:id="@+id/stateText"
+    <ImageView
+        android:id="@+id/notificationImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/stateBlock"
+        android:src="@drawable/ic_notification_off"/>
+
+    <LinearLayout
+        android:id="@+id/stateBlock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/size_tiny"
         android:layout_toStartOf="@+id/progressBar"
-        android:gravity="right"
-        android:minWidth="66dp"
-        android:text="_state"
-        android:textColor="@color/accent"
-        android:textSize="12sp"
-        android:textStyle="bold"/>
+        android:minWidth="90dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/stateText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:text="_state"
+            android:textColor="@color/accent"
+            android:textSize="12sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/lastFailText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:singleLine="true"
+            android:text="_last fail"
+            android:textSize="12sp"/>
+
+    </LinearLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -73,17 +100,5 @@
         android:maxWidth="18dp"
         android:minHeight="18dp"
         android:minWidth="18dp"/>
-
-    <ImageView
-        android:id="@+id/notificationImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/stateText"
-        android:maxHeight="18dp"
-        android:maxWidth="18dp"
-        android:minHeight="18dp"
-        android:minWidth="18dp"
-        android:src="@drawable/ic_notification_off"/>
 
 </RelativeLayout>
