@@ -23,8 +23,8 @@
         android:layout_width="@dimen/fab_size"
         android:layout_height="@dimen/fab_size"
         android:layout_gravity="right"
-        android:layout_marginBottom="@dimen/size_medium"
-        android:layout_marginRight="@dimen/size_medium"
+        android:layout_marginBottom="@dimen/size_small"
+        android:layout_marginRight="@dimen/size_small"
         android:background="@drawable/fab_background"
         android:elevation="@dimen/fab_elevation"
         android:stateListAnimator="@animator/fab_anim">
