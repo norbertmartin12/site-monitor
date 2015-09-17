@@ -47,7 +47,7 @@ public class NetworkServiceReceiver extends BroadcastReceiver {
             }
             listener.onSiteUpdated(siteSettings);
         } else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-            boolean b = ConnectivityUtil.isConnectedOrConnecting(context);
+            boolean b = ConnectivityUtil.isConnected(context);
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "CONNECTIVITY_ACTION: " + b);
             }

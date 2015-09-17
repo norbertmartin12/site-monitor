@@ -54,7 +54,9 @@ public class NotificationUtil {
 
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
         notificationBuilder.setSmallIcon(R.drawable.ic_app);
-        notificationBuilder.setColor(context.getResources().getColor(R.color.primary));
+        if (!BuildConfig.DEBUG) {
+            notificationBuilder.setColor(context.getResources().getColor(R.color.primary));
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             notificationBuilder.setCategory(Notification.CATEGORY_SERVICE);
         }

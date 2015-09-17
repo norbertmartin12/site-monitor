@@ -178,4 +178,13 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
         return new Pair<SiteCall, SiteCall>(start, last);
     }
 
+    /**
+     * @return null if empty or last call
+     */
+    public SiteCall getLastCall() {
+        if (calls.isEmpty()) {
+            return null;
+        }
+        return calls.get(calls.size() - 1);
+    }
 }

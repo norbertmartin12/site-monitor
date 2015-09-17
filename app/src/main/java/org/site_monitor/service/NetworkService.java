@@ -40,6 +40,7 @@ import org.site_monitor.util.ConnectivityUtil;
 import org.site_monitor.util.NotificationUtil;
 import org.site_monitor.util.TimeUtil;
 import org.site_monitor.util.Timer;
+import org.site_monitor.widget.SiteMonitorWidget;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,7 +80,7 @@ public class NetworkService extends IntentService {
 
     public static SiteCall buildHeadHttpConnectionThenDoCall(Context context, SiteSettings siteSettings) {
         SiteCall siteCall;
-        if (ConnectivityUtil.isConnectedOrConnecting(context)) {
+        if (ConnectivityUtil.isConnected(context)) {
             if (siteSettings.getFavicon() == null) {
                 loadFaviconFor(siteSettings);
             }
@@ -206,6 +207,7 @@ public class NetworkService extends IntentService {
             }
         }
 
+        SiteMonitorWidget.refresh(this);
 
         WakefulBroadcastReceiver.completeWakefulIntent(intent);
     }

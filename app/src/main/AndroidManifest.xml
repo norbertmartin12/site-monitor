@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ Copyright (c) 2015 Martin Norbert
   ~  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <manifest
     package="org.site_monitor"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -34,11 +32,9 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-
         <meta-data
             android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"
-            />
+            android:value="@integer/google_play_services_version"/>
         <meta-data
             android:name="com.google.android.gms.analytics.globalConfigResource"
             android:resource="@xml/ga_general_config"/>
@@ -51,7 +47,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".receiver.AlarmReceiver"
             android:enabled="true"
@@ -119,6 +114,17 @@
                 android:value=".activity.MainActivity"/>
         </activity>
 
+        <receiver
+            android:name=".widget.SiteMonitorWidget"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_site_monitor_info"/>
+        </receiver>
     </application>
 
 </manifest>

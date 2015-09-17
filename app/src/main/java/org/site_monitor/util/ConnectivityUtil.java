@@ -24,9 +24,9 @@ import android.net.NetworkInfo;
  */
 public class ConnectivityUtil {
 
-    public static boolean isConnectedOrConnecting(Context context) {
+    public static boolean isConnected(Context context) {
         NetworkInfo networkInfo = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE)).getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+        return networkInfo != null && networkInfo.isConnected();
     }
 
 }

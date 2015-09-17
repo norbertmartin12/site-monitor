@@ -56,6 +56,7 @@ import org.site_monitor.service.NetworkService;
 import org.site_monitor.task.NetworkTask;
 import org.site_monitor.task.TaskCallback;
 import org.site_monitor.util.ConnectivityUtil;
+import org.site_monitor.widget.SiteMonitorWidget;
 
 
 /**
@@ -110,7 +111,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         if (networkServiceReceiver == null && listView.getAdapter() != null) {
             networkServiceReceiver = new NetworkServiceReceiver(this);
         }
-        onNetworkStateChanged(ConnectivityUtil.isConnectedOrConnecting(this));
+        onNetworkStateChanged(ConnectivityUtil.isConnected(this));
 
         LocalBroadcastManager.getInstance(this).registerReceiver(networkServiceReceiver, new IntentFilter(NetworkService.ACTION_SITE_UPDATED));
         registerReceiver(networkServiceReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -217,7 +218,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         }
         if (id == R.id.action_debug) {
             StringBuilder sb = new StringBuilder("you're on alpha version").append("\n");
-            sb.append("Connectivity: ").append(ConnectivityUtil.isConnectedOrConnecting(context)).append("\n");
+            sb.append("Connectivity: ").append(ConnectivityUtil.isConnected(context)).append("\n");
 
             int startupBootState = context.getPackageManager().getComponentEnabledSetting(new ComponentName(context, StartupBootReceiver.class));
             boolean startupBootEnable = (startupBootState == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT || startupBootState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
@@ -244,6 +245,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
     @Override
     public void onPostExecute(NetworkTask task, SiteSettings siteSettings) {
         siteSettingsManager.refreshData();
+        SiteMonitorWidget.refresh(this);
     }
 
     @Override

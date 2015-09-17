@@ -36,6 +36,7 @@ import org.site_monitor.model.adapter.SiteSettingsManager;
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.task.NetworkTask;
 import org.site_monitor.task.TaskCallback;
+import org.site_monitor.widget.SiteMonitorWidget;
 
 public class SiteSettingsActivity extends FragmentActivity implements SiteSettingsActivityFragment.Callback, TaskCallback<NetworkTask, Void, SiteSettings> {
 
@@ -186,6 +187,7 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
                 syncMenuItem.setEnabled(true);
             }
             hasBeenModified = true;
+            SiteMonitorWidget.refresh(this);
         }
     }
 
