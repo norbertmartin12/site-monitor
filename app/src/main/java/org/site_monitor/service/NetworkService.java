@@ -56,10 +56,11 @@ import java.util.List;
  */
 public class NetworkService extends IntentService {
 
-    public static final String ACTION_SITE_UPDATED = "org.site_monitor.service.networkService.ACTION_SITE_UPDATED";
-    public static final String EXTRA_SITE = "org.site_monitor.service.networkService.SITE";
-    public static final String BOT_SITE_MONITOR = "bot-site-monitor";
-    public static final String USER_AGENT = "User-Agent";
+    public static final String ACTION_SITE_UPDATED = "org.site_monitor.service.action.SITE_UPDATED";
+    public static final String EXTRA_SITE = "org.site_monitor.service.extra.SITE";
+
+    private static final String BOT_SITE_MONITOR = "bot-site-monitor";
+    private static final String USER_AGENT = "User-Agent";
     private static final String TAG = "NetworkService";
     private static final String CLOSE = "close";
     private static final String CONNECTION = "Connection";
