@@ -33,7 +33,6 @@ import org.site_monitor.model.adapter.SiteSettingsManager;
 import org.site_monitor.model.bo.NetworkCallResult;
 import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
-import org.site_monitor.service.NetworkService;
 
 import java.util.List;
 
@@ -45,7 +44,7 @@ public class SiteMonitorWidget extends AppWidgetProvider {
     public static final String BG_COLOR = "setBackgroundResource";
     private static final String TAG = "SiteMonitorWidget";
 
-    static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
+    private static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.site_monitor_widget);
 
@@ -99,12 +98,17 @@ public class SiteMonitorWidget extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onEnabled");
+        }
         GA.tracker().send(GAHit.builder().event(R.string.c_widget, R.string.a_add).build());
-        context.startService(new Intent(context, NetworkService.class));
     }
 
     @Override
     public void onDisabled(Context context) {
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "onDisabled");
+        }
         GA.tracker().send(GAHit.builder().event(R.string.c_widget, R.string.a_remove).build());
     }
 }

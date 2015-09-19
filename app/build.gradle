@@ -17,7 +17,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 android {
     signingConfigs {
-        config {}
+        config {
+        }
     }
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -25,8 +26,8 @@ android {
         applicationId "org.site_monitor"
         minSdkVersion 19
         targetSdkVersion 22
-        versionCode 11
-        versionName '0.5.1'
+        versionCode 12
+        versionName '0.5.2'
     }
     buildTypes {
         debug {

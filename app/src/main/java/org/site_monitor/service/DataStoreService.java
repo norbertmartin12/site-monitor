@@ -66,6 +66,11 @@ public class DataStoreService extends IntentService {
         return defaultSharedPreferences.getLong(key, 0);
     }
 
+    public static String getStringNow(Context context, String key) {
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return defaultSharedPreferences.getString(key, "");
+    }
+
     public static void saveNow(Context context, String key, String value) {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         defaultSharedPreferences.edit().putString(key, value).commit();
@@ -90,4 +95,6 @@ public class DataStoreService extends IntentService {
             }
         }
     }
+
+
 }

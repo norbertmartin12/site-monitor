@@ -15,19 +15,15 @@
 
 package org.site_monitor.receiver;
 
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
 import org.site_monitor.model.adapter.SiteSettingsManager;
-import org.site_monitor.service.DataStoreService;
 
 public class StartupBootReceiver extends BroadcastReceiver {
 
@@ -49,17 +45,9 @@ public class StartupBootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-            SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-            String json = defaultSharedPreferences.getString(DataStoreService.KEY_JSON_SITE_SETTINGS, "");
-            if (json.isEmpty()) {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "no content in defaultSharedPreferences for " + DataStoreService.KEY_JSON_SITE_SETTINGS);
-                }
-                return;
-            }
             SiteSettingsManager siteSettingsManager = SiteSettingsManager.instance(context);
             if (siteSettingsManager.size() > 0) {
-                PendingIntent pendingIntent = AlarmReceiver.startAlarm(context);
+                AlarmReceiver.startAlarm(context);
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "starts on boot: " + siteSettingsManager.size() + " sites");
                 }

@@ -17,11 +17,12 @@ package org.site_monitor.model.adapter;
 
 import android.content.Context;
 
+import com.google.gson.reflect.TypeToken;
+
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.receiver.AlarmReceiver;
 import org.site_monitor.service.DataStoreService;
-import org.site_monitor.task.DataStoreTask;
-import org.site_monitor.task.TaskCallback;
+import org.site_monitor.util.GsonUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,7 @@ import java.util.List;
 /**
  * Created by norbert on 19/07/2015.
  */
-public class SiteSettingsManager implements TaskCallback<DataStoreTask, Void, List<SiteSettings>>, TaskCallback.Provider {
+public class SiteSettingsManager {
     private static final String TAG = "SiteSettingsManager";
     private static SiteSettingsManager instance;
     private final List<SiteSettings> siteSettingsList = new ArrayList<SiteSettings>();
@@ -43,6 +44,7 @@ public class SiteSettingsManager implements TaskCallback<DataStoreTask, Void, Li
         }
         return instance;
     }
+
 
     public void stopAlarmIfNeeded(Context context) {
         if (siteSettingsList.size() == 0) {
@@ -93,8 +95,16 @@ public class SiteSettingsManager implements TaskCallback<DataStoreTask, Void, Li
         DataStoreService.startActionSaveData(context, DataStoreService.KEY_JSON_SITE_SETTINGS, new ArrayList<SiteSettings>(siteSettingsList));
     }
 
-    private synchronized void loadSiteSettings(final Context context) {
-        new DataStoreTask(context, this).execute(DataStoreService.KEY_JSON_SITE_SETTINGS);
+    private synchronized void loadSiteSettings(Context context) {
+        String jsonData = DataStoreService.getStringNow(context, DataStoreService.KEY_JSON_SITE_SETTINGS);
+        if (!jsonData.isEmpty()) {
+            List<SiteSettings> jsonList = GsonUtil.fromJson(jsonData, new TypeToken<List<SiteSettings>>() {
+            });
+            siteSettingsList.clear();
+            siteSettingsList.addAll(jsonList);
+            refreshData();
+            startAlarmIfNeeded(context);
+        }
     }
 
     List<SiteSettings> getSiteSettingsList() {
@@ -123,30 +133,5 @@ public class SiteSettingsManager implements TaskCallback<DataStoreTask, Void, Li
             }
         }
         return null;
-    }
-
-    @Override
-    public void onPreExecute(DataStoreTask task) {
-    }
-
-    @Override
-    public void onProgressUpdate(DataStoreTask task, Void... percent) {
-    }
-
-    @Override
-    public void onPostExecute(DataStoreTask task, List<SiteSettings> siteSettings) {
-        siteSettingsList.clear();
-        siteSettingsList.addAll(siteSettings);
-        refreshData();
-        startAlarmIfNeeded(task.getContext());
-    }
-
-    @Override
-    public void onCancelled(DataStoreTask task) {
-    }
-
-    @Override
-    public TaskCallback<DataStoreTask, Void, List<SiteSettings>> getCallback() {
-        return this;
     }
 }
