@@ -80,6 +80,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
     private CountDownTimer countDownTimer;
     private NetworkServiceReceiver networkServiceReceiver;
     private SiteSettingsManager siteSettingsManager;
+    private View timerBannerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +89,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         listView = (ListView) this.findViewById(R.id.listView);
         connectivityAlertView = (TextView) this.findViewById(R.id.connectivityAlert);
         chronometer = (Chronometer) this.findViewById(R.id.chronometer);
+        timerBannerView = this.findViewById(R.id.timerBanner);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         taskFragment = (TaskFragment) fragmentManager.findFragmentByTag(TAG_TASK_FRAGMENT);
@@ -142,6 +144,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         final long nextAlarmTime = DataStoreService.getLongNow(this, DataStoreService.KEY_NEXT_ALARM);
         final long nextAlarmInterval = nextAlarmTime - System.currentTimeMillis();
         if (nextAlarmInterval > 0) {
+            timerBannerView.setVisibility(View.VISIBLE);
             countDownTimer = new CountDownTimer(nextAlarmInterval, TimeUtil._1_SEC * 5) {
                 public void onTick(long millisUntilFinished) {
                     chronometer.setText(DateUtils.getRelativeTimeSpanString(nextAlarmTime));
@@ -152,7 +155,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
                 }
             }.start();
         } else {
-            chronometer.setText(R.string.imminent);
+            timerBannerView.setVisibility(View.GONE);
         }
     }
 

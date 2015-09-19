@@ -103,7 +103,13 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "schedule alarm every: " + currentInterval + " (" + interval + ")");
         }
+        saveNextAlarmDate(context);
         return pendingIntent;
+    }
+
+    private static void saveNextAlarmDate(Context context) {
+        long intervalMilli = currentInterval * TimeUtil.MINUTE_2_MILLISEC;
+        DataStoreService.saveNow(context, DataStoreService.KEY_NEXT_ALARM, System.currentTimeMillis() + intervalMilli);
     }
 
     @Override
@@ -115,8 +121,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
             Thread.sleep(RANDOM.nextInt(10) * 100);
             WakefulBroadcastReceiver.startWakefulService(context, NetworkService.getIntent(context));
 
-            long intervalMilli = currentInterval * TimeUtil.MINUTE_2_MILLISEC;
-            DataStoreService.saveNow(context, DataStoreService.KEY_NEXT_ALARM, System.currentTimeMillis() + intervalMilli);
+            saveNextAlarmDate(context);
         } catch (InterruptedException e) {
             if (BuildConfig.DEBUG) {
                 Log.wtf(TAG, e);
