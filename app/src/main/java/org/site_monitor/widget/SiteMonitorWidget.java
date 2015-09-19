@@ -33,6 +33,7 @@ import org.site_monitor.model.adapter.SiteSettingsManager;
 import org.site_monitor.model.bo.NetworkCallResult;
 import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
+import org.site_monitor.service.NetworkService;
 
 import java.util.List;
 
@@ -102,6 +103,7 @@ public class SiteMonitorWidget extends AppWidgetProvider {
             Log.d(TAG, "onEnabled");
         }
         GA.tracker().send(GAHit.builder().event(R.string.c_widget, R.string.a_add).build());
+        context.startService(new Intent(context, NetworkService.class));
     }
 
     @Override
