@@ -16,11 +16,12 @@
 package org.site_monitor.model.bo;
 
 import android.graphics.Bitmap;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Pair;
 
 import com.google.gson.annotations.Expose;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +29,19 @@ import java.util.List;
 /**
  * Created by Martin Norbert on 11/07/2015.
  */
-public class SiteSettings implements Serializable, Comparable<SiteSettings> {
+public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
 
+    public static final Creator<SiteSettings> CREATOR = new Creator<SiteSettings>() {
+        @Override
+        public SiteSettings createFromParcel(Parcel in) {
+            return new SiteSettings(in);
+        }
+
+        @Override
+        public SiteSettings[] newArray(int size) {
+            return new SiteSettings[size];
+        }
+    };
     @Expose
     private String name;
     @Expose
@@ -38,7 +50,6 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
     private boolean isNotificationEnabled = true;
     @Expose
     private List<SiteCall> calls = new ArrayList<SiteCall>();
-
     private Bitmap favicon;
     private boolean isChecking;
 
@@ -46,6 +57,13 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
         this.host = host;
         this.name = host;
         this.isNotificationEnabled = isNotificationEnabled;
+    }
+
+    public SiteSettings(Parcel in) {
+        name = in.readString();
+        host = in.readString();
+        isNotificationEnabled = in.readInt() == 1 ? true : false;
+        in.readList(calls, SiteCall.class.getClassLoader());
     }
 
     public String getHost() {
@@ -186,5 +204,18 @@ public class SiteSettings implements Serializable, Comparable<SiteSettings> {
             return null;
         }
         return calls.get(calls.size() - 1);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        dest.writeString(host);
+        dest.writeInt(isNotificationEnabled ? 1 : 0);
+        dest.writeList(calls);
     }
 }

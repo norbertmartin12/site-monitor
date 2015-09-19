@@ -16,19 +16,14 @@
 package org.site_monitor.model.adapter;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
-import com.google.gson.reflect.TypeToken;
-
-import org.site_monitor.BuildConfig;
 import org.site_monitor.activity.PrefSettingsActivity;
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.receiver.AlarmReceiver;
-import org.site_monitor.util.GsonUtil;
+import org.site_monitor.service.DataStoreService;
+import org.site_monitor.task.DataStoreTask;
+import org.site_monitor.task.TaskCallback;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -36,20 +31,16 @@ import java.util.List;
 /**
  * Created by norbert on 19/07/2015.
  */
-public class SiteSettingsManager implements Serializable {
+public class SiteSettingsManager implements TaskCallback<DataStoreTask, Void, List<SiteSettings>>, TaskCallback.Provider {
     private static final String TAG = "SiteSettingsManager";
     private static SiteSettingsManager instance;
-    private final List<SiteSettings> siteSettingsList;
+    private final List<SiteSettings> siteSettingsList = new ArrayList<SiteSettings>();
     private SiteSettingsAdapter siteSettingsAdapter;
-
-    private SiteSettingsManager(Context context) {
-        this.siteSettingsList = new ArrayList<SiteSettings>();
-        retrieveSiteSettings(context);
-    }
 
     public static SiteSettingsManager instance(Context context) {
         if (instance == null) {
-            instance = new SiteSettingsManager(context);
+            instance = new SiteSettingsManager();
+            instance.loadSiteSettings(context);
         }
         return instance;
     }
@@ -100,30 +91,11 @@ public class SiteSettingsManager implements Serializable {
     }
 
     public synchronized void saveSiteSettings(Context context) {
-        String json = GsonUtil.toJson(siteSettingsList);
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        defaultSharedPreferences.edit().putString(PrefSettingsActivity.JSON_SITE_SETTINGS, json).commit();
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "saveSiteSettings");
-        }
+        DataStoreService.startActionSaveData(context, PrefSettingsActivity.JSON_SITE_SETTINGS, new ArrayList<SiteSettings>(siteSettingsList));
     }
 
-    private synchronized void retrieveSiteSettings(Context context) {
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String json = defaultSharedPreferences.getString(PrefSettingsActivity.JSON_SITE_SETTINGS, "");
-        List<SiteSettings> retrievedList = null;
-        if (!json.isEmpty()) {
-            retrievedList = GsonUtil.fromJson(json, new TypeToken<List<SiteSettings>>() {
-            });
-        } else {
-            retrievedList = new ArrayList<SiteSettings>();
-        }
-        siteSettingsList.clear();
-        siteSettingsList.addAll(retrievedList);
-        Collections.sort(siteSettingsList);
-        if (this.siteSettingsAdapter != null) {
-            this.siteSettingsAdapter.notifyDataSetChanged();
-        }
+    private synchronized void loadSiteSettings(final Context context) {
+        new DataStoreTask(context, this).execute(PrefSettingsActivity.JSON_SITE_SETTINGS);
     }
 
     List<SiteSettings> getSiteSettingsList() {
@@ -152,5 +124,29 @@ public class SiteSettingsManager implements Serializable {
             }
         }
         return null;
+    }
+
+    @Override
+    public void onPreExecute(DataStoreTask task) {
+    }
+
+    @Override
+    public void onProgressUpdate(DataStoreTask task, Void... percent) {
+    }
+
+    @Override
+    public void onPostExecute(DataStoreTask task, List<SiteSettings> siteSettings) {
+        siteSettingsList.clear();
+        siteSettingsList.addAll(siteSettings);
+        refreshData();
+    }
+
+    @Override
+    public void onCancelled(DataStoreTask task) {
+    }
+
+    @Override
+    public TaskCallback<DataStoreTask, Void, List<SiteSettings>> getCallback() {
+        return this;
     }
 }

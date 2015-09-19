@@ -41,7 +41,7 @@ public class NetworkServiceReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(NetworkService.ACTION_SITE_UPDATED)) {
-            SiteSettings siteSettings = (SiteSettings) intent.getSerializableExtra(NetworkService.EXTRA_SITE);
+            SiteSettings siteSettings = intent.getParcelableExtra(NetworkService.EXTRA_SITE);
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "ACTION_SITE_UPDATED: " + siteSettings);
             }

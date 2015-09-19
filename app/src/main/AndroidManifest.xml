@@ -78,6 +78,13 @@
             android:enabled="true"
             android:exported="false"/>
 
+
+        <service
+            android:name=".service.DataStoreService"
+            android:enabled="true"
+            android:exported="false">
+        </service>
+
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/title_activity_main"
@@ -125,6 +132,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_site_monitor_info"/>
         </receiver>
+
     </application>
 
 </manifest>
