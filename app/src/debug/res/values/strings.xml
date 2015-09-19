@@ -16,5 +16,4 @@
 
 <resources>
   <string name="app_name" translatable="false">Site Monitor β</string>
-  <string name="title_activity_main" translatable="false">Site Monitor -debug</string>
 </resources>
