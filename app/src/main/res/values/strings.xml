@@ -14,9 +14,7 @@
   -->
 
 <resources>
-    <string name="app_name">Site Monitor</string>
-    <string name="title_activity_main">Site Monitor</string>
-    <string name="title_activity_site_settings" translatable="false">SiteSettingsActivity</string>
+    <string name="app_name">Wesimo</string>
     <string name="title_activity_about">About</string>
     <string name="title_activity_settings">Settings</string>
 
