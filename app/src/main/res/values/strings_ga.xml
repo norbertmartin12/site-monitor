@@ -19,6 +19,7 @@
     <string name="c_notification" translatable="false">notification</string>
     <string name="c_refresh" translatable="false">refresh</string>
     <string name="c_settings" translatable="false">settings</string>
+    <string name="c_widget" translatable="false">widget</string>
 
     <string name="a_add" translatable="false">add</string>
     <string name="a_rename" translatable="false">rename</string>

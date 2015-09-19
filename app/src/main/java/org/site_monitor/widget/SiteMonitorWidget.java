@@ -25,12 +25,15 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import org.site_monitor.BuildConfig;
+import org.site_monitor.GA;
+import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.MainActivity;
 import org.site_monitor.model.adapter.SiteSettingsManager;
 import org.site_monitor.model.bo.NetworkCallResult;
 import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
+import org.site_monitor.service.NetworkService;
 
 import java.util.List;
 
@@ -96,12 +99,13 @@ public class SiteMonitorWidget extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) {
-        // Enter relevant functionality for when the first widget is created
+        GA.tracker().send(GAHit.builder().event(R.string.c_widget, R.string.a_add).build());
+        context.startService(new Intent(context, NetworkService.class));
     }
 
     @Override
     public void onDisabled(Context context) {
-        // Enter relevant functionality for when the last widget is disabled
+        GA.tracker().send(GAHit.builder().event(R.string.c_widget, R.string.a_remove).build());
     }
 }
 
