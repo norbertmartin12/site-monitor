@@ -17,6 +17,7 @@ package org.site_monitor.model.adapter;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.text.format.DateUtils;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -43,11 +44,13 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
     public static final String EMPTY = "";
     private final LayoutInflater inflater;
     private final SiteSettingsManager siteSettingsManager;
+    private final Context context;
 
     SiteSettingsAdapter(Context context, SiteSettingsManager siteSettingsManager) {
         super(context, R.layout.cell_site_settings, R.id.nameText, siteSettingsManager.getSiteSettingsList());
         this.siteSettingsManager = siteSettingsManager;
         this.inflater = LayoutInflater.from(context);
+        this.context = context;
     }
 
     private void updateView(ViewHandler viewHandler) {
@@ -58,18 +61,14 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
             int lastCall = unmodifiableCalls.size() - 1;
             SiteCall siteCall = unmodifiableCalls.get(lastCall);
             if (siteCall.getResult() == NetworkCallResult.SUCCESS) {
-                viewHandler.stateText.setText(R.string.state_success);
-                viewHandler.stateText.setTextColor(resources.getColor(R.color.state_success));
+                viewHandler.stateImage.getBackground().setColorFilter(resources.getColor(R.color.state_success), PorterDuff.Mode.SRC);
             } else if (siteCall.getResult() == NetworkCallResult.FAIL) {
-                viewHandler.stateText.setText(R.string.state_unreachable);
-                viewHandler.stateText.setTextColor(resources.getColor(R.color.state_fail));
+                viewHandler.stateImage.getBackground().setColorFilter(resources.getColor(R.color.state_fail), PorterDuff.Mode.SRC);
             } else {
-                viewHandler.stateText.setText(R.string.state_unknown);
-                viewHandler.stateText.setTextColor(resources.getColor(R.color.state_unknown));
+                viewHandler.stateImage.getBackground().setColorFilter(resources.getColor(R.color.state_unknown), PorterDuff.Mode.SRC);
             }
         } else {
-            viewHandler.stateText.setText(R.string.state_1st_connection);
-            viewHandler.stateText.setTextColor(resources.getColor(R.color.state_unknown));
+            viewHandler.stateImage.getBackground().setColorFilter(resources.getColor(R.color.state_unknown), PorterDuff.Mode.SRC);
         }
         if (viewHandler.siteSettings.isChecking()) {
             viewHandler.progressBar.setVisibility(View.VISIBLE);
@@ -85,7 +84,7 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
 
         if (viewHandler.siteSettings.isInFail()) {
             Pair<SiteCall, SiteCall> lastFailPeriod = viewHandler.siteSettings.getLastFailPeriod();
-            CharSequence lastFailText = DateUtils.getRelativeTimeSpanString(lastFailPeriod.first.getDate().getTime(), lastFailPeriod.second.getDate().getTime(), DateUtils.MINUTE_IN_MILLIS, DateUtils.FORMAT_ABBREV_RELATIVE);
+            CharSequence lastFailText = DateUtils.getRelativeTimeSpanString(lastFailPeriod.first.getDate().getTime());
             viewHandler.lastFailText.setText(lastFailText);
             viewHandler.lastFailText.setVisibility(View.VISIBLE);
         } else {
@@ -115,20 +114,21 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         final SiteSettings siteSettings;
         final TextView nameTextView;
         final ProgressBar progressBar;
-        final TextView stateText;
         final TextView lastFailText;
         final ImageView faviconImage;
         final ImageView notificationImage;
+        final ImageView stateImage;
 
         ViewHandler(int position, View view) {
             this.siteSettings = getItem(position);
             this.view = view;
             this.nameTextView = (TextView) view.findViewById(R.id.nameText);
             this.progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-            this.stateText = (TextView) view.findViewById(R.id.stateText);
             this.faviconImage = (ImageView) view.findViewById(R.id.faviconImage);
             this.notificationImage = (ImageView) view.findViewById(R.id.notificationImage);
             this.lastFailText = (TextView) view.findViewById(R.id.lastFailText);
+            this.stateImage = (ImageView) view.findViewById(R.id.stateImage);
         }
     }
+
 }

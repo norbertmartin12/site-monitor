@@ -38,7 +38,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_gravity="left"
         android:layout_marginLeft="@dimen/size_tiny"
         android:layout_marginRight="@dimen/size_tiny"
         android:layout_toEndOf="@id/faviconImage"
@@ -53,39 +52,32 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/stateBlock"
+        android:layout_margin="@dimen/size_tiny"
+        android:layout_toStartOf="@+id/lastFailText"
         android:src="@drawable/ic_notification_off"/>
 
-    <LinearLayout
-        android:id="@+id/stateBlock"
+    <TextView
+        android:id="@+id/lastFailText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginRight="@dimen/size_tiny"
-        android:layout_toStartOf="@+id/progressBar"
-        android:minWidth="90dp"
-        android:orientation="vertical">
+        android:layout_toStartOf="@+id/stateImage"
+        android:singleLine="true"
+        android:text="_last fail"
+        android:textSize="12sp"/>
 
-        <TextView
-            android:id="@+id/stateText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:text="_state"
-            android:textColor="@color/accent"
-            android:textSize="12sp"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/lastFailText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:singleLine="true"
-            android:text="_last fail"
-            android:textSize="12sp"/>
-
-    </LinearLayout>
+    <ImageView
+        android:id="@+id/stateImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/progressBar"
+        android:layout_alignEnd="@+id/progressBar"
+        android:layout_alignStart="@+id/progressBar"
+        android:layout_alignTop="@+id/progressBar"
+        android:layout_centerVertical="true"
+        android:background="@drawable/rectangle_round_corner"
+        android:backgroundTint="@color/state_unknown"/>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -96,9 +88,9 @@
         android:indeterminate="true"
         android:indeterminateBehavior="repeat"
         android:indeterminateOnly="true"
-        android:maxHeight="18dp"
-        android:maxWidth="18dp"
-        android:minHeight="18dp"
-        android:minWidth="18dp"/>
+        android:maxHeight="20dp"
+        android:maxWidth="20dp"
+        android:minHeight="20dp"
+        android:minWidth="20dp"/>
 
 </RelativeLayout>
