@@ -54,6 +54,9 @@
         android:layout_centerVertical="true"
         android:layout_margin="@dimen/size_tiny"
         android:layout_toStartOf="@+id/lastFailText"
+        android:adjustViewBounds="true"
+        android:maxHeight="22dp"
+        android:maxWidth="22dp"
         android:src="@drawable/ic_notification_off"/>
 
     <TextView
@@ -88,6 +91,7 @@
         android:indeterminate="true"
         android:indeterminateBehavior="repeat"
         android:indeterminateOnly="true"
+        android:indeterminateTint="@android:color/white"
         android:maxHeight="20dp"
         android:maxWidth="20dp"
         android:minHeight="20dp"
