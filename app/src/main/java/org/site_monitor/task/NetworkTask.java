@@ -38,8 +38,10 @@ public class NetworkTask extends AsyncTaskWithCallback<SiteSettings, Void, SiteS
     @Override
     protected SiteSettings doInBackground(SiteSettings... params) {
         if (params.length != 1) {
-            Log.w(TAG, "too many params: " + params.length);
-            throw new UnsupportedOperationException("task supports only 1 params, params: " + params);
+            if (BuildConfig.DEBUG) {
+                Log.w(TAG, "too many params: " + params.length);
+            }
+            throw new UnsupportedOperationException("task supports only 1 param, params: " + params);
         }
         SiteSettings siteSettings = params[0];
         if (BuildConfig.DEBUG) {
