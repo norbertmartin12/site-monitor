@@ -24,14 +24,17 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.InputType;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -52,10 +55,12 @@ import org.site_monitor.receiver.AlarmReceiver;
 import org.site_monitor.receiver.BatteryLevelReceiver;
 import org.site_monitor.receiver.NetworkServiceReceiver;
 import org.site_monitor.receiver.StartupBootReceiver;
+import org.site_monitor.service.DataStoreService;
 import org.site_monitor.service.NetworkService;
 import org.site_monitor.task.NetworkTask;
 import org.site_monitor.task.TaskCallback;
 import org.site_monitor.util.ConnectivityUtil;
+import org.site_monitor.util.TimeUtil;
 import org.site_monitor.widget.SiteMonitorWidget;
 
 
@@ -71,7 +76,8 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
     private ListView listView;
     private TextView connectivityAlertView;
     private TaskFragment taskFragment;
-
+    private Chronometer chronometer;
+    private CountDownTimer countDownTimer;
     private NetworkServiceReceiver networkServiceReceiver;
     private SiteSettingsManager siteSettingsManager;
 
@@ -81,6 +87,8 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         setContentView(R.layout.activity_main);
         listView = (ListView) this.findViewById(R.id.listView);
         connectivityAlertView = (TextView) this.findViewById(R.id.connectivityAlert);
+        chronometer = (Chronometer) this.findViewById(R.id.chronometer);
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         taskFragment = (TaskFragment) fragmentManager.findFragmentByTag(TAG_TASK_FRAGMENT);
         if (taskFragment == null) {
@@ -100,8 +108,6 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         }
         siteSettingsManager = SiteSettingsManager.instance(context);
         listView.setAdapter(siteSettingsManager.getArrayAdapter(context));
-
-        siteSettingsManager.startAlarmIfNeeded(context);
     }
 
     @Override
@@ -115,6 +121,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
 
         LocalBroadcastManager.getInstance(this).registerReceiver(networkServiceReceiver, new IntentFilter(NetworkService.ACTION_SITE_UPDATED));
         registerReceiver(networkServiceReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        scheduleTimer();
 
     }
 
@@ -126,6 +133,27 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             unregisterReceiver(networkServiceReceiver);
         }
         siteSettingsManager.saveSiteSettings(context);
+    }
+
+    private void scheduleTimer() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        final long nextAlarmTime = DataStoreService.getLongNow(this, DataStoreService.KEY_NEXT_ALARM);
+        final long nextAlarmInterval = nextAlarmTime - System.currentTimeMillis();
+        if (nextAlarmInterval > 0) {
+            countDownTimer = new CountDownTimer(nextAlarmInterval, TimeUtil._1_SEC * 5) {
+                public void onTick(long millisUntilFinished) {
+                    chronometer.setText(DateUtils.getRelativeTimeSpanString(nextAlarmTime));
+                }
+
+                public void onFinish() {
+                    chronometer.setText(R.string.imminent);
+                }
+            }.start();
+        } else {
+            chronometer.setText(R.string.imminent);
+        }
     }
 
     private void onAddSiteClick() {
@@ -248,6 +276,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         SiteMonitorWidget.refresh(this);
     }
 
+
     @Override
     public void onCancelled(NetworkTask task) {
 
@@ -256,6 +285,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
     @Override
     public void onSiteUpdated(SiteSettings siteSettings) {
         siteSettingsManager.refreshData();
+        scheduleTimer();
     }
 
     @Override

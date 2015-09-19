@@ -52,4 +52,5 @@
     <string name="rateApp">Rate on Play Store</string>
     <string name="widget_all_ok">Everything works</string>
     <string name="widget_no_site">No website to monitor</string>
+    <string name="imminent">imminent</string>
 </resources>

@@ -21,12 +21,6 @@ public class TimeUtil {
 
     public static final long MINUTE_2_MILLISEC = 60 * SEC_2_MILLISEC;
 
-    public static final long MINUTE_2_SEC = 60;
-
-    public static final long HOUR_2_MILLISEC = 60 * MINUTE_2_MILLISEC;
-
-    public static final long DAY_2_MILLISEC = 24 * HOUR_2_MILLISEC;
-
     public static final long _1_SEC = SEC_2_MILLISEC;
 
     public static final int _1_SEC_INT = (int) _1_SEC;

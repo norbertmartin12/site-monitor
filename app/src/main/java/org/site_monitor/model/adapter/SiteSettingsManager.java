@@ -17,7 +17,6 @@ package org.site_monitor.model.adapter;
 
 import android.content.Context;
 
-import org.site_monitor.activity.PrefSettingsActivity;
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.receiver.AlarmReceiver;
 import org.site_monitor.service.DataStoreService;
@@ -91,11 +90,11 @@ public class SiteSettingsManager implements TaskCallback<DataStoreTask, Void, Li
     }
 
     public synchronized void saveSiteSettings(Context context) {
-        DataStoreService.startActionSaveData(context, PrefSettingsActivity.JSON_SITE_SETTINGS, new ArrayList<SiteSettings>(siteSettingsList));
+        DataStoreService.startActionSaveData(context, DataStoreService.KEY_JSON_SITE_SETTINGS, new ArrayList<SiteSettings>(siteSettingsList));
     }
 
     private synchronized void loadSiteSettings(final Context context) {
-        new DataStoreTask(context, this).execute(PrefSettingsActivity.JSON_SITE_SETTINGS);
+        new DataStoreTask(context, this).execute(DataStoreService.KEY_JSON_SITE_SETTINGS);
     }
 
     List<SiteSettings> getSiteSettingsList() {
@@ -139,6 +138,7 @@ public class SiteSettingsManager implements TaskCallback<DataStoreTask, Void, Li
         siteSettingsList.clear();
         siteSettingsList.addAll(siteSettings);
         refreshData();
+        startAlarmIfNeeded(task.getContext());
     }
 
     @Override

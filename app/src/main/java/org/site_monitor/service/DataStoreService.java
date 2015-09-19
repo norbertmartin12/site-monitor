@@ -23,7 +23,6 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
-import org.site_monitor.activity.PrefSettingsActivity;
 import org.site_monitor.util.GsonUtil;
 
 import java.io.Serializable;
@@ -33,6 +32,11 @@ import java.io.Serializable;
  * a service on a separate handler thread.
  */
 public class DataStoreService extends IntentService {
+
+
+    public static final String KEY_JSON_SITE_SETTINGS = "org.site_monitor.activity.settings.json.siteSettings";
+    public static final String KEY_NEXT_ALARM = "org.site_monitor.nextAlarm";
+
 
     private static final String ACTION_SAVE_DATA = "org.site_monitor.service.action.SAVE_DATA";
 
@@ -57,6 +61,21 @@ public class DataStoreService extends IntentService {
         context.startService(intent);
     }
 
+    public static long getLongNow(Context context, String key) {
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return defaultSharedPreferences.getLong(key, 0);
+    }
+
+    public static void saveNow(Context context, String key, String value) {
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        defaultSharedPreferences.edit().putString(key, value).commit();
+    }
+
+    public static void saveNow(Context context, String key, long value) {
+        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        defaultSharedPreferences.edit().putLong(key, value).commit();
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
@@ -64,17 +83,11 @@ public class DataStoreService extends IntentService {
             if (ACTION_SAVE_DATA.equals(action)) {
                 final String key = intent.getStringExtra(EXTRA_DATA_KEY);
                 final Serializable data = intent.getSerializableExtra(EXTRA_DATA);
-                handleActionSaveData(key, GsonUtil.toJson(data));
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "handleActionSaveData key: " + key);
+                }
+                saveNow(this, key, GsonUtil.toJson(data));
             }
         }
     }
-
-    private void handleActionSaveData(String key, String jsonData) {
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "handleActionSaveData key: " + key);
-        }
-        SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        defaultSharedPreferences.edit().putString(PrefSettingsActivity.JSON_SITE_SETTINGS, jsonData).commit();
-    }
-
 }

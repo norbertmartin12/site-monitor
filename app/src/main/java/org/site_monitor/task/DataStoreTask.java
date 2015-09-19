@@ -42,6 +42,10 @@ public class DataStoreTask extends AsyncTaskWithCallback<String, Void, List<Site
         this.context = context;
     }
 
+    public Context getContext() {
+        return context;
+    }
+
     @Override
     protected List<SiteSettings> doInBackground(String... params) {
         if (params.length != 1) {

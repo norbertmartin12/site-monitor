@@ -57,7 +57,6 @@ import java.util.List;
  */
 public class PrefSettingsActivity extends PreferenceActivity {
 
-    public static final String JSON_SITE_SETTINGS = "org.site_monitor.activity.settings.json.siteSettings";
     public static final String NOTIFICATIONS_VIBRATE = "notifications_vibrate";
     public static final String NOTIFICATIONS_RINGTONE = "notifications_ringtone";
     public static final String NOTIFICATION_ENABLE = "notifications_enable";

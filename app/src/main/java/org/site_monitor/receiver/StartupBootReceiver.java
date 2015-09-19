@@ -26,8 +26,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
-import org.site_monitor.activity.PrefSettingsActivity;
 import org.site_monitor.model.adapter.SiteSettingsManager;
+import org.site_monitor.service.DataStoreService;
 
 public class StartupBootReceiver extends BroadcastReceiver {
 
@@ -50,10 +50,10 @@ public class StartupBootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
             SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-            String json = defaultSharedPreferences.getString(PrefSettingsActivity.JSON_SITE_SETTINGS, "");
+            String json = defaultSharedPreferences.getString(DataStoreService.KEY_JSON_SITE_SETTINGS, "");
             if (json.isEmpty()) {
                 if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "no content in defaultSharedPreferences for " + PrefSettingsActivity.JSON_SITE_SETTINGS);
+                    Log.d(TAG, "no content in defaultSharedPreferences for " + DataStoreService.KEY_JSON_SITE_SETTINGS);
                 }
                 return;
             }

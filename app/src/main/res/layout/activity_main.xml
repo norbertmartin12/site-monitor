@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:background="@color/state_unknown"
+        android:elevation="@dimen/size_tiny"
         android:gravity="center_vertical"
         android:maxHeight="48dp"
         android:minHeight="48dp"
@@ -34,11 +35,41 @@
         android:textSize="18sp"
         android:textStyle="italic"/>
 
+
+    <LinearLayout
+        android:id="@+id/timerBanner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/connectivityAlert"
+        android:background="@color/accent"
+        android:elevation="@dimen/size_xtiny"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/size_xtiny">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:maxHeight="18dp"
+            android:src="@drawable/ic_refresh"/>
+
+        <Chronometer
+            android:id="@+id/chronometer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:textColor="@android:color/white"
+            />
+
+    </LinearLayout>
+
+
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/connectivityAlert"
+        android:layout_below="@+id/timerBanner"
         android:clipToPadding="false"
         android:divider="@null"
         android:dividerHeight="0dp"
@@ -55,5 +86,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:padding="@dimen/size_small"/>
+
 
 </RelativeLayout>

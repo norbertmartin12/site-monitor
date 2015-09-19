@@ -25,6 +25,7 @@ import android.util.Log;
 
 import org.site_monitor.BuildConfig;
 import org.site_monitor.activity.PrefSettingsActivity;
+import org.site_monitor.service.DataStoreService;
 import org.site_monitor.service.NetworkService;
 import org.site_monitor.util.TimeUtil;
 
@@ -37,7 +38,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     private static final Random RANDOM = new Random(new Date().getTime());
 
     private static PendingIntent pendingIntent;
-    private static String currentInterval;
+    private static Long currentInterval;
 
     public static PendingIntent startAlarm(Context context) {
         if (hasAlarm()) {
@@ -89,7 +90,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         return pendingIntent != null;
     }
 
-    public static String getCurrentInterval() {
+    public static Long getCurrentInterval() {
         return currentInterval;
     }
 
@@ -97,7 +98,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         PendingIntent newPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(context, AlarmReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, newPendingIntent);
-        currentInterval = interval / TimeUtil.MINUTE_2_MILLISEC + "min";
+        currentInterval = interval / TimeUtil.MINUTE_2_MILLISEC;
         pendingIntent = newPendingIntent;
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "schedule alarm every: " + currentInterval + " (" + interval + ")");
@@ -113,6 +114,9 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
             }
             Thread.sleep(RANDOM.nextInt(10) * 100);
             WakefulBroadcastReceiver.startWakefulService(context, NetworkService.getIntent(context));
+
+            long intervalMilli = currentInterval * TimeUtil.MINUTE_2_MILLISEC;
+            DataStoreService.saveNow(context, DataStoreService.KEY_NEXT_ALARM, System.currentTimeMillis() + intervalMilli);
         } catch (InterruptedException e) {
             if (BuildConfig.DEBUG) {
                 Log.wtf(TAG, e);
