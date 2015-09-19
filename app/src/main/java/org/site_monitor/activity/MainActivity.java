@@ -143,7 +143,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         }
         final long nextAlarmTime = DataStoreService.getLongNow(this, DataStoreService.KEY_NEXT_ALARM);
         final long nextAlarmInterval = nextAlarmTime - System.currentTimeMillis();
-        if (nextAlarmInterval > 0) {
+        if (AlarmReceiver.hasAlarm() && nextAlarmInterval > 0) {
             timerBannerView.setVisibility(View.VISIBLE);
             countDownTimer = new CountDownTimer(nextAlarmInterval, TimeUtil._1_SEC * 5) {
                 public void onTick(long millisUntilFinished) {
