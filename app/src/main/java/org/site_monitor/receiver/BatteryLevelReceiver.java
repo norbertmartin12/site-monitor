@@ -38,35 +38,37 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(Intent.ACTION_BATTERY_LOW)) {
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "ACTION_BATTERY_LOW");
-            }
-            batteryOk = false;
-            AlarmReceiver.stopAlarm(context);
-            lastAction = "ACTION_BATTERY_LOW";
-
-        } else if (intent.getAction().equals(Intent.ACTION_BATTERY_OKAY)) {
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "ACTION_BATTERY_OKAY");
-            }
-            batteryOk = true;
-            SiteSettingsManager.instance(context).startAlarmIfNeeded(context);
-            lastAction = "ACTION_BATTERY_OKAY";
-        } else if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "ACTION_POWER_CONNECTED");
-            }
-            SiteSettingsManager.instance(context).startAlarmIfNeeded(context);
-            lastAction = "ACTION_POWER_CONNECTED";
-        } else if (intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "ACTION_POWER_DISCONNECTED");
-            }
-            if (!batteryOk) {
+        if (intent != null) {
+            if (intent.getAction().equals(Intent.ACTION_BATTERY_LOW)) {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "ACTION_BATTERY_LOW");
+                }
+                batteryOk = false;
                 AlarmReceiver.stopAlarm(context);
+                lastAction = "ACTION_BATTERY_LOW";
+
+            } else if (intent.getAction().equals(Intent.ACTION_BATTERY_OKAY)) {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "ACTION_BATTERY_OKAY");
+                }
+                batteryOk = true;
+                SiteSettingsManager.instance(context).startAlarmIfNeeded(context);
+                lastAction = "ACTION_BATTERY_OKAY";
+            } else if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "ACTION_POWER_CONNECTED");
+                }
+                SiteSettingsManager.instance(context).startAlarmIfNeeded(context);
+                lastAction = "ACTION_POWER_CONNECTED";
+            } else if (intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "ACTION_POWER_DISCONNECTED");
+                }
+                if (!batteryOk) {
+                    AlarmReceiver.stopAlarm(context);
+                }
+                lastAction = "ACTION_POWER_DISCONNECTED";
             }
-            lastAction = "ACTION_POWER_DISCONNECTED";
         }
     }
 }
