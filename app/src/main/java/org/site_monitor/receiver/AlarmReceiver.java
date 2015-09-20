@@ -40,6 +40,12 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     private static PendingIntent pendingIntent;
     private static Long currentInterval;
 
+    /**
+     * Starts alarm if none set.
+     *
+     * @param context
+     * @return
+     */
     public static PendingIntent startAlarm(Context context) {
         if (hasAlarm()) {
             if (BuildConfig.DEBUG) {
@@ -47,15 +53,23 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
             }
             return pendingIntent;
         }
+
+        String intervalString = PreferenceManager.getDefaultSharedPreferences(context).getString(PrefSettingsActivity.FREQUENCY, null);
+        if (intervalString == null || intervalString.isEmpty()) {
+
+            return null;
+        }
+        long interval = AlarmManager.INTERVAL_HOUR;
+        if (intervalString != null && !intervalString.isEmpty()) {
+            interval = Long.parseLong(intervalString) * TimeUtil.MINUTE_2_MILLISEC;
+        } else {
+            if (BuildConfig.DEBUG) {
+                Log.w(TAG, "intervalString is null, default interval: " + interval);
+            }
+        }
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "startAlarm");
         }
-        String intervalString = PreferenceManager.getDefaultSharedPreferences(context).getString(PrefSettingsActivity.FREQUENCY, null);
-        long interval = AlarmManager.INTERVAL_HOUR;
-        if (intervalString != null) {
-            interval = Long.parseLong(intervalString) * TimeUtil.MINUTE_2_MILLISEC;
-        }
-
         return scheduleAlarm(context, interval);
     }
 
@@ -114,17 +128,18 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        try {
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "onReceive");
-            }
-            Thread.sleep(RANDOM.nextInt(10) * 100);
-            WakefulBroadcastReceiver.startWakefulService(context, NetworkService.getIntent(context));
-
-            saveNextAlarmDate(context);
-        } catch (InterruptedException e) {
-            if (BuildConfig.DEBUG) {
-                Log.wtf(TAG, e);
+        if (intent != null) {
+            try {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "onReceive");
+                }
+                Thread.sleep(RANDOM.nextInt(10) * 100);
+                WakefulBroadcastReceiver.startWakefulService(context, NetworkService.getIntent(context));
+                saveNextAlarmDate(context);
+            } catch (InterruptedException e) {
+                if (BuildConfig.DEBUG) {
+                    Log.wtf(TAG, e);
+                }
             }
         }
     }
