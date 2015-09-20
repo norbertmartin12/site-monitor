@@ -44,16 +44,18 @@ public class StartupBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-            SiteSettingsManager siteSettingsManager = SiteSettingsManager.instance(context);
-            if (siteSettingsManager.size() > 0) {
-                AlarmReceiver.startAlarm(context);
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "starts on boot: " + siteSettingsManager.size() + " sites");
-                }
-            } else {
-                if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "no start on boot: " + siteSettingsManager.size() + " site");
+        if (intent != null) {
+            if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+                SiteSettingsManager siteSettingsManager = SiteSettingsManager.instance(context);
+                if (siteSettingsManager.size() > 0) {
+                    AlarmReceiver.startAlarm(context);
+                    if (BuildConfig.DEBUG) {
+                        Log.i(TAG, "starts on boot: " + siteSettingsManager.size() + " sites");
+                    }
+                } else {
+                    if (BuildConfig.DEBUG) {
+                        Log.d(TAG, "no start on boot: " + siteSettingsManager.size() + " site");
+                    }
                 }
             }
         }

@@ -40,6 +40,12 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     private static PendingIntent pendingIntent;
     private static Long currentInterval;
 
+    /**
+     * Starts alarm if none set.
+     *
+     * @param context
+     * @return
+     */
     public static PendingIntent startAlarm(Context context) {
         if (hasAlarm()) {
             if (BuildConfig.DEBUG) {
@@ -47,18 +53,31 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
             }
             return pendingIntent;
         }
+
+        String intervalString = PreferenceManager.getDefaultSharedPreferences(context).getString(PrefSettingsActivity.FREQUENCY, null);
+        if (intervalString == null || intervalString.isEmpty()) {
+
+            return null;
+        }
+        long interval = AlarmManager.INTERVAL_HOUR;
+        if (intervalString != null && !intervalString.isEmpty()) {
+            interval = Long.parseLong(intervalString) * TimeUtil.MINUTE_2_MILLISEC;
+        } else {
+            if (BuildConfig.DEBUG) {
+                Log.w(TAG, "intervalString is null, default interval: " + interval);
+            }
+        }
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "startAlarm");
         }
-        String intervalString = PreferenceManager.getDefaultSharedPreferences(context).getString(PrefSettingsActivity.FREQUENCY, null);
-        long interval = AlarmManager.INTERVAL_HOUR;
-        if (intervalString != null) {
-            interval = Long.parseLong(intervalString) * TimeUtil.MINUTE_2_MILLISEC;
-        }
-
         return scheduleAlarm(context, interval);
     }
 
+    /**
+     * Stops alarm if exists
+     *
+     * @param context
+     */
     public static void stopAlarm(Context context) {
         if (!hasAlarm()) {
             if (BuildConfig.DEBUG) {
@@ -75,6 +94,10 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         }
     }
 
+    /** Stops existing alarm if any and schedule next for given newFrequency
+     * @param context
+     * @param newFrequency
+     */
     public static void rescheduleAlarm(Context context, Long newFrequency) {
         if (hasAlarm()) {
             stopAlarm(context);
@@ -86,10 +109,16 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         scheduleAlarm(context, newFrequency);
     }
 
+    /**
+     * @return true if has current alarm set
+     */
     public static boolean hasAlarm() {
         return pendingIntent != null;
     }
 
+    /**
+     * @return current alarm interval, or null if no alarm set
+     */
     public static Long getCurrentInterval() {
         return currentInterval;
     }
@@ -108,23 +137,29 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     }
 
     private static void saveNextAlarmDate(Context context) {
-        long intervalMilli = currentInterval * TimeUtil.MINUTE_2_MILLISEC;
-        DataStoreService.saveNow(context, DataStoreService.KEY_NEXT_ALARM, System.currentTimeMillis() + intervalMilli);
+        if (currentInterval != null) {
+            long intervalMilli = currentInterval * TimeUtil.MINUTE_2_MILLISEC;
+            DataStoreService.saveNow(context, DataStoreService.KEY_NEXT_ALARM, System.currentTimeMillis() + intervalMilli);
+        } else {
+            // no next alarm
+            DataStoreService.saveNow(context, DataStoreService.KEY_NEXT_ALARM, 0);
+        }
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        try {
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "onReceive");
-            }
-            Thread.sleep(RANDOM.nextInt(10) * 100);
-            WakefulBroadcastReceiver.startWakefulService(context, NetworkService.getIntent(context));
-
-            saveNextAlarmDate(context);
-        } catch (InterruptedException e) {
-            if (BuildConfig.DEBUG) {
-                Log.wtf(TAG, e);
+        if (intent != null) {
+            try {
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "onReceive");
+                }
+                Thread.sleep(RANDOM.nextInt(10) * 100);
+                WakefulBroadcastReceiver.startWakefulService(context, NetworkService.getIntent(context));
+                saveNextAlarmDate(context);
+            } catch (InterruptedException e) {
+                if (BuildConfig.DEBUG) {
+                    Log.wtf(TAG, e);
+                }
             }
         }
     }
