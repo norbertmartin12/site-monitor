@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ Copyright (c) 2015 Martin Norbert
   ~  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <manifest
     package="org.site_monitor"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -79,8 +77,6 @@
             android:name=".service.NetworkService"
             android:enabled="true"
             android:exported="false"/>
-
-
         <service
             android:name=".service.DataStoreService"
             android:enabled="true"
@@ -123,17 +119,27 @@
         </activity>
 
         <receiver
-            android:name=".widget.SiteMonitorWidget"
-            android:label="@string/app_name">
+            android:name=".widget.LineWidget"
+            android:label="@string/line_widget_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_site_monitor_info"/>
+                android:resource="@xml/line_widget_info"/>
         </receiver>
+        <receiver
+            android:name=".widget.SquareWidget"
+            android:label="@string/square_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
 
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/square_widget_info"/>
+        </receiver>
     </application>
 
 </manifest>

@@ -52,4 +52,6 @@
     <string name="widget_all_ok">Tout fonctionne</string>
     <string name="widget_no_site">Aucun site à surveiller</string>
     <string name="imminent">imminent</string>
+    <string name="line_widget_name">Widget ligne [texte]</string>
+    <string name="square_widget_name">Widget carré [sans texte]</string>
 </resources>

@@ -16,7 +16,7 @@
 
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
                     android:autoAdvanceViewId="@id/widgetTextView"
-                    android:initialLayout="@layout/site_monitor_widget"
+                    android:initialLayout="@layout/line_widget"
                     android:minHeight="40dp"
                     android:minWidth="260dp"
                     android:resizeMode="none"

@@ -51,4 +51,6 @@
     <string name="widget_all_ok">Everything works</string>
     <string name="widget_no_site">No website to monitor</string>
     <string name="imminent">imminent</string>
+    <string name="line_widget_name">Line widget [text]</string>
+    <string name="square_widget_name">Square widget [without text]</string>
 </resources>

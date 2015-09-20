@@ -61,7 +61,7 @@ import org.site_monitor.task.NetworkTask;
 import org.site_monitor.task.TaskCallback;
 import org.site_monitor.util.ConnectivityUtil;
 import org.site_monitor.util.TimeUtil;
-import org.site_monitor.widget.SiteMonitorWidget;
+import org.site_monitor.widget.WidgetManager;
 
 
 /**
@@ -276,7 +276,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
     @Override
     public void onPostExecute(NetworkTask task, SiteSettings siteSettings) {
         siteSettingsManager.refreshData();
-        SiteMonitorWidget.refresh(this);
+        WidgetManager.refresh(this);
     }
 
 

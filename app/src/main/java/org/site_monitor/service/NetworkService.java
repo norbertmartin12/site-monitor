@@ -40,7 +40,7 @@ import org.site_monitor.util.ConnectivityUtil;
 import org.site_monitor.util.NotificationUtil;
 import org.site_monitor.util.TimeUtil;
 import org.site_monitor.util.Timer;
-import org.site_monitor.widget.SiteMonitorWidget;
+import org.site_monitor.widget.WidgetManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -234,7 +234,7 @@ public class NetworkService extends IntentService {
                 }
             }
 
-            SiteMonitorWidget.refresh(this);
+            WidgetManager.refresh(this);
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
     }

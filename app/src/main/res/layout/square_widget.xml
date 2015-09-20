@@ -1,0 +1,48 @@
+<!--
+  ~ Copyright (c) 2015 Martin Norbert
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<FrameLayout
+    android:id="@+id/widgetView"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/widget_margin"
+    android:background="@drawable/rounded_corner"
+    android:gravity="center">
+
+    <ImageView
+        android:id="@+id/widgetBackgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/state_unknown"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/size_tiny">
+
+        <ImageView
+            android:id="@+id/widgetLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:minHeight="40dp"
+            android:minWidth="40dp"
+            android:padding="@dimen/size_tiny"
+            android:src="@drawable/ic_app"/>
+
+    </RelativeLayout>
+</FrameLayout>
