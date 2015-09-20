@@ -49,6 +49,8 @@ public class DataStoreService extends IntentService {
     }
 
     /**
+     * Calls start service with given params.
+     *
      * @param context
      * @param key
      * @param data
@@ -61,21 +63,41 @@ public class DataStoreService extends IntentService {
         context.startService(intent);
     }
 
+    /**
+     * @param context
+     * @param key
+     * @return value for given key or 0 if none
+     */
     public static long getLongNow(Context context, String key) {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         return defaultSharedPreferences.getLong(key, 0);
     }
 
+    /**
+     * @param context
+     * @param key
+     * @return value for given key or empty string if none
+     */
     public static String getStringNow(Context context, String key) {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         return defaultSharedPreferences.getString(key, "");
     }
 
+    /** Saves value for given key
+     * @param context
+     * @param key
+     * @param value
+     */
     public static void saveNow(Context context, String key, String value) {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         defaultSharedPreferences.edit().putString(key, value).commit();
     }
 
+    /** Saves value for given key
+     * @param context
+     * @param key
+     * @param value
+     */
     public static void saveNow(Context context, String key, long value) {
         SharedPreferences defaultSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         defaultSharedPreferences.edit().putLong(key, value).commit();
@@ -95,6 +117,5 @@ public class DataStoreService extends IntentService {
             }
         }
     }
-
 
 }

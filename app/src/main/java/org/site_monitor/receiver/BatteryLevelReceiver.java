@@ -23,6 +23,9 @@ import android.util.Log;
 import org.site_monitor.BuildConfig;
 import org.site_monitor.model.adapter.SiteSettingsManager;
 
+/**
+ * Receives battery level event and stop or start AlarmReceiver to optimize battery life and monitoring.
+ */
 public class BatteryLevelReceiver extends BroadcastReceiver {
     private static final String TAG = "BatteryLevelReceiver";
     private static String lastAction;

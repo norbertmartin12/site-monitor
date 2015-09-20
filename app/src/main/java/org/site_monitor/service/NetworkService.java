@@ -75,10 +75,21 @@ public class NetworkService extends IntentService {
         super(TAG);
     }
 
+    /**
+     * @param context
+     * @return intent to call start service
+     */
     public static Intent getIntent(Context context) {
         return new Intent(context, NetworkService.class);
     }
 
+    /**
+     * Builds and performs http request for given siteSettings
+     *
+     * @param context
+     * @param siteSettings
+     * @return SiteCall result
+     */
     public static SiteCall buildHeadHttpConnectionThenDoCall(Context context, SiteSettings siteSettings) {
         SiteCall siteCall;
         if (ConnectivityUtil.isConnected(context)) {
@@ -103,6 +114,12 @@ public class NetworkService extends IntentService {
         return siteCall;
     }
 
+    /** Performs call represented by urlConnection
+     * @param urlConnection
+     * @param timer
+     * @return call result
+     * @throws IOException
+     */
     private static SiteCall doCall(HttpURLConnection urlConnection, Timer timer) throws IOException {
         urlConnection.connect();
         if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
@@ -136,11 +153,19 @@ public class NetworkService extends IntentService {
         return urlConnection;
     }
 
+    /** Broadcasts siteSettings for given action as EXTRA_SITE
+     * @param context
+     * @param action
+     * @param siteSettings
+     */
     public static void broadcast(Context context, String action, SiteSettings siteSettings) {
         Intent localIntent = new Intent(action).putExtra(EXTRA_SITE, siteSettings);
         LocalBroadcastManager.getInstance(context).sendBroadcast(localIntent);
     }
 
+    /** Retrieves and set favicon for given siteSettings
+     * @param siteSettings
+     */
     public static void loadFaviconFor(SiteSettings siteSettings) {
         InputStream is = null;
         try {
@@ -163,54 +188,57 @@ public class NetworkService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        SiteSettingsManager siteSettingsManager = SiteSettingsManager.instance(this);
-        List<SiteSettings> siteSettingsList = siteSettingsManager.getSiteSettingsUnmodifiableList();
-        List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<Pair<SiteSettings, SiteCall>>();
-        for (SiteSettings siteSettings : siteSettingsList) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "call: " + siteSettings);
-            }
-            siteSettings.setIsChecking(true);
-            broadcast(this, ACTION_SITE_UPDATED, siteSettings);
-            SiteCall siteCall = buildHeadHttpConnectionThenDoCall(this, siteSettings);
-            siteSettings.add(siteCall);
-            siteSettings.setIsChecking(false);
-            broadcast(this, ACTION_SITE_UPDATED, siteSettings);
-
-            if (siteCall.getResult() == NetworkCallResult.FAIL) {
-                failsPairs.add(new Pair<SiteSettings, SiteCall>(siteSettings, siteCall));
-            }
-        }
-        siteSettingsManager.saveSiteSettings(this);
-
-        if (BuildConfig.DEBUG && siteSettingsList.isEmpty()) {
-            Log.w(TAG, "called but nothing to run");
-        }
-
-        boolean atLeastOneToNotify = false;
-        if (!failsPairs.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (Pair<SiteSettings, SiteCall> pair : failsPairs) {
-                if (sb.length() > 0) {
-                    sb.append(",");
+        if (intent != null) {
+            SiteSettingsManager siteSettingsManager = SiteSettingsManager.instance(this);
+            List<SiteSettings> siteSettingsList = siteSettingsManager.getSiteSettingsUnmodifiableList();
+            List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<Pair<SiteSettings, SiteCall>>();
+            for (SiteSettings siteSettings : siteSettingsList) {
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "call: " + siteSettings);
                 }
-                if (pair.first.isNotificationEnabled()) {
-                    atLeastOneToNotify = true;
-                }
-                sb.append(pair.first.getName());
-            }
-            if (atLeastOneToNotify) {
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-                NotificationCompat.Builder notificationBuilder = NotificationUtil.build(this, failsPairs.size() + " " + getString(R.string.state_unreachable), sb.toString(), pendingIntent);
-                if (NotificationUtil.send(this, NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build())) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_notification, R.string.a_sent, new Long(failsPairs.size())).build());
+                siteSettings.setIsChecking(true);
+                broadcast(this, ACTION_SITE_UPDATED, siteSettings);
+                SiteCall siteCall = buildHeadHttpConnectionThenDoCall(this, siteSettings);
+                siteSettings.add(siteCall);
+                siteSettings.setIsChecking(false);
+                broadcast(this, ACTION_SITE_UPDATED, siteSettings);
+
+                if (siteCall.getResult() == NetworkCallResult.FAIL) {
+                    failsPairs.add(new Pair<SiteSettings, SiteCall>(siteSettings, siteCall));
                 }
             }
+            siteSettingsManager.saveSiteSettings(this);
+
+            if (BuildConfig.DEBUG && siteSettingsList.isEmpty()) {
+                Log.w(TAG, "called but nothing to run");
+            }
+
+            boolean atLeastOneToNotify = false;
+            if (!failsPairs.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                for (Pair<SiteSettings, SiteCall> pair : failsPairs) {
+                    if (sb.length() > 0) {
+                        sb.append(",");
+                    }
+                    if (pair.first.isNotificationEnabled()) {
+                        atLeastOneToNotify = true;
+                    }
+                    sb.append(pair.first.getName());
+                }
+                if (atLeastOneToNotify) {
+                    PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+                    NotificationCompat.Builder notificationBuilder = NotificationUtil.build(this, failsPairs.size() + " " + getString(R.string.state_unreachable), sb.toString(), pendingIntent);
+                    if (NotificationUtil.send(this, NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build())) {
+                        GA.tracker().send(GAHit.builder().event(R.string.c_notification, R.string.a_sent, new Long(failsPairs.size())).build());
+                    }
+                }
+            }
+
+            SiteMonitorWidget.refresh(this);
+            WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
-
-        SiteMonitorWidget.refresh(this);
-
-        WakefulBroadcastReceiver.completeWakefulIntent(intent);
     }
+
+
 
 }

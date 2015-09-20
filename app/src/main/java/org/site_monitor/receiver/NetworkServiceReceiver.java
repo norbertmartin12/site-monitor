@@ -40,21 +40,24 @@ public class NetworkServiceReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(NetworkService.ACTION_SITE_UPDATED)) {
-            SiteSettings siteSettings = intent.getParcelableExtra(NetworkService.EXTRA_SITE);
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "ACTION_SITE_UPDATED: " + siteSettings);
-            }
-            listener.onSiteUpdated(siteSettings);
-        } else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-            boolean b = ConnectivityUtil.isConnected(context);
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "CONNECTIVITY_ACTION: " + b);
-            }
-            listener.onNetworkStateChanged(b);
-        } else {
-            if (BuildConfig.DEBUG) {
-                Log.w(TAG, "not managed action: " + intent.getAction());
+        if (intent != null) {
+
+            if (intent.getAction().equals(NetworkService.ACTION_SITE_UPDATED)) {
+                SiteSettings siteSettings = intent.getParcelableExtra(NetworkService.EXTRA_SITE);
+                if (BuildConfig.DEBUG) {
+                    Log.d(TAG, "ACTION_SITE_UPDATED: " + siteSettings);
+                }
+                listener.onSiteUpdated(siteSettings);
+            } else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                boolean b = ConnectivityUtil.isConnected(context);
+                if (BuildConfig.DEBUG) {
+                    Log.v(TAG, "CONNECTIVITY_ACTION: " + b);
+                }
+                listener.onNetworkStateChanged(b);
+            } else {
+                if (BuildConfig.DEBUG) {
+                    Log.w(TAG, "not managed action: " + intent.getAction());
+                }
             }
         }
     }
