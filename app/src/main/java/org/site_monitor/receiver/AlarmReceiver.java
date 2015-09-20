@@ -73,6 +73,11 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         return scheduleAlarm(context, interval);
     }
 
+    /**
+     * Stops alarm if exists
+     *
+     * @param context
+     */
     public static void stopAlarm(Context context) {
         if (!hasAlarm()) {
             if (BuildConfig.DEBUG) {
@@ -89,6 +94,10 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         }
     }
 
+    /** Stops existing alarm if any and schedule next for given newFrequency
+     * @param context
+     * @param newFrequency
+     */
     public static void rescheduleAlarm(Context context, Long newFrequency) {
         if (hasAlarm()) {
             stopAlarm(context);
@@ -100,10 +109,16 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
         scheduleAlarm(context, newFrequency);
     }
 
+    /**
+     * @return true if has current alarm set
+     */
     public static boolean hasAlarm() {
         return pendingIntent != null;
     }
 
+    /**
+     * @return current alarm interval, or null if no alarm set
+     */
     public static Long getCurrentInterval() {
         return currentInterval;
     }
@@ -122,8 +137,13 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
     }
 
     private static void saveNextAlarmDate(Context context) {
-        long intervalMilli = currentInterval * TimeUtil.MINUTE_2_MILLISEC;
-        DataStoreService.saveNow(context, DataStoreService.KEY_NEXT_ALARM, System.currentTimeMillis() + intervalMilli);
+        if (currentInterval != null) {
+            long intervalMilli = currentInterval * TimeUtil.MINUTE_2_MILLISEC;
+            DataStoreService.saveNow(context, DataStoreService.KEY_NEXT_ALARM, System.currentTimeMillis() + intervalMilli);
+        } else {
+            // no next alarm
+            DataStoreService.saveNow(context, DataStoreService.KEY_NEXT_ALARM, 0);
+        }
     }
 
     @Override
