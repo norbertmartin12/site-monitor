@@ -58,8 +58,8 @@ public class NetworkService extends IntentService {
 
     public static final String ACTION_SITE_UPDATED = "org.site_monitor.service.action.SITE_UPDATED";
     public static final String EXTRA_SITE = "org.site_monitor.service.extra.SITE";
-
-    private static final String BOT_SITE_MONITOR = "bot-site-monitor";
+    public static final String HTTP_KEEP_ALIVE = "http.keepAlive";
+    private static final String BOT_AGENT = "bot-on-web-monitor";
     private static final String USER_AGENT = "User-Agent";
     private static final String TAG = "NetworkService";
     private static final String CLOSE = "close";
@@ -68,7 +68,6 @@ public class NetworkService extends IntentService {
     private static final String ROOT_PROTOCOL = "://";
     private static final int TIMEOUT_10 = (int) (10 * TimeUtil.SEC_2_MILLISEC);
     private static final String METHOD_HEAD = "HEAD";
-
     private static final String FAVICON_SERVICE_URL = "http://www.google.com/s2/favicons?domain=";
 
     public NetworkService() {
@@ -122,10 +121,11 @@ public class NetworkService extends IntentService {
      */
     private static SiteCall doCall(HttpURLConnection urlConnection, Timer timer) throws IOException {
         urlConnection.connect();
-        if (urlConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            return new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), urlConnection.getResponseCode());
+        int responseCode = urlConnection.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            return new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), responseCode);
         }
-        return new SiteCall(timer.getReferenceDate(), NetworkCallResult.SUCCESS, timer.getElapsedTime(), urlConnection.getResponseCode());
+        return new SiteCall(timer.getReferenceDate(), NetworkCallResult.SUCCESS, timer.getElapsedTime(), responseCode);
     }
 
     /**
@@ -142,11 +142,15 @@ public class NetworkService extends IntentService {
         } else {
             url = new URL(HTTP + ROOT_PROTOCOL + siteSettings.getHost());
         }
+        // disable all connection reuse
+        System.setProperty(HTTP_KEEP_ALIVE, Boolean.FALSE.toString());
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod(METHOD_HEAD);
         urlConnection.setRequestProperty(CONNECTION, CLOSE);
-        urlConnection.setRequestProperty(USER_AGENT, BOT_SITE_MONITOR);
+        urlConnection.setRequestProperty(USER_AGENT, BOT_AGENT);
         urlConnection.setUseCaches(false);
+        urlConnection.setDoInput(false);
+        urlConnection.setDoOutput(false);
         urlConnection.setInstanceFollowRedirects(true);
         urlConnection.setConnectTimeout(TIMEOUT_10);
         urlConnection.setReadTimeout(TIMEOUT_10);
@@ -177,10 +181,9 @@ public class NetworkService extends IntentService {
             return;
         }
         Bitmap favicon = BitmapFactory.decodeStream(is);
-        Log.d(TAG, "favicon " + favicon.getByteCount() + "bytes");
         if (favicon != null) {
             if (BuildConfig.DEBUG) {
-                Log.d(TAG, "favicon update for " + siteSettings);
+                Log.d(TAG, "favicon update for " + siteSettings + " " + favicon.getByteCount() + "bytes");
             }
             siteSettings.setFavicon(favicon);
         }
