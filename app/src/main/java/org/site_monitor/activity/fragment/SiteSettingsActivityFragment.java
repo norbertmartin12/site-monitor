@@ -112,6 +112,8 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         if (siteSettings != null) {
             if (siteCallAdapter == null) {
                 siteCallAdapter = new SiteCallAdapter(getActivity(), siteSettings);
+            }
+            if (callListView.getAdapter() == null) {
                 callListView.setAdapter(siteCallAdapter);
             }
             hostTextView.setText(siteSettings.getHost());
