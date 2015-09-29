@@ -45,6 +45,7 @@ import org.site_monitor.widget.WidgetManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.SocketException;
 import java.net.URL;
 import java.util.Date;
 import java.util.LinkedList;
@@ -58,7 +59,7 @@ public class NetworkService extends IntentService {
 
     public static final String ACTION_SITE_UPDATED = "org.site_monitor.service.action.SITE_UPDATED";
     public static final String EXTRA_SITE = "org.site_monitor.service.extra.SITE";
-    public static final String HTTP_KEEP_ALIVE = "http.keepAlive";
+    public static final String RECVFROM_FAILED_ECONNRESET = "recvfrom failed: ECONNRESET";
     private static final String BOT_AGENT = "bot-on-web-monitor";
     private static final String USER_AGENT = "User-Agent";
     private static final String TAG = "NetworkService";
@@ -102,6 +103,14 @@ public class NetworkService extends IntentService {
                 siteCall = doCall(urlConnection, timer);
             } catch (IOException e) {
                 siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
+                if (e instanceof SocketException && e.getLocalizedMessage().startsWith(RECVFROM_FAILED_ECONNRESET)) {
+                    try {
+                        urlConnection = buildHeadHttpConnection(siteSettings);
+                        siteCall = doCall(urlConnection, timer);
+                    } catch (IOException e2) {
+                        siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
+                    }
+                }
             } finally {
                 if (urlConnection != null) {
                     urlConnection.disconnect();
@@ -142,13 +151,12 @@ public class NetworkService extends IntentService {
         } else {
             url = new URL(HTTP + ROOT_PROTOCOL + siteSettings.getHost());
         }
-        // disable all connection reuse
-        System.setProperty(HTTP_KEEP_ALIVE, Boolean.FALSE.toString());
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod(METHOD_HEAD);
         urlConnection.setRequestProperty(CONNECTION, CLOSE);
         urlConnection.setRequestProperty(USER_AGENT, BOT_AGENT);
         urlConnection.setUseCaches(false);
+        urlConnection.setDefaultUseCaches(false);
         urlConnection.setDoInput(false);
         urlConnection.setDoOutput(false);
         urlConnection.setInstanceFollowRedirects(true);
