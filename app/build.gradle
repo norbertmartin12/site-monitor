@@ -20,12 +20,12 @@ android {
         config {
         }
     }
-    compileSdkVersion 22
+    compileSdkVersion 23
     buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId "org.site_monitor"
         minSdkVersion 19
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 14
         versionName '0.6'
     }
@@ -49,4 +49,5 @@ dependencies {
     compile 'com.android.support:support-v4:23.0.1'
     compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.google.android.gms:play-services-analytics:8.1.0'
+    compile 'com.android.support:design:23.0.1'
 }

@@ -18,14 +18,6 @@
       tools:context="org.site_monitor.activity.MainActivity">
 
     <item
-        android:id="@+id/action_add"
-        android:icon="@drawable/ic_add"
-        android:orderInCategory="100"
-        android:showAsAction="ifRoom"
-        android:title="@string/action_add"
-        android:visible="false"/>
-
-    <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_refresh"
         android:orderInCategory="100"

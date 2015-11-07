@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.FragmentActivity;
@@ -48,7 +47,6 @@ import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.fragment.DummySiteInjector;
 import org.site_monitor.activity.fragment.TaskFragment;
-import org.site_monitor.activity.fragment.floatingButton.FloatingButtonFragment;
 import org.site_monitor.model.adapter.SiteSettingsManager;
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.receiver.AlarmReceiver;
@@ -72,7 +70,6 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
     private static final String TAG = "MainActivity";
 
     private MainActivity context = this;
-    private FloatingButtonFragment floatingButtonFragment;
     private ListView listView;
     private TextView connectivityAlertView;
     private TaskFragment taskFragment;
@@ -98,16 +95,6 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             fragmentManager.beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            floatingButtonFragment = new FloatingButtonFragment();
-            floatingButtonFragment.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onAddSiteClick();
-                }
-            });
-            fragmentManager.beginTransaction().replace(R.id.sample_content_fragment, floatingButtonFragment).commit();
-        }
         siteSettingsManager = SiteSettingsManager.instance(context);
         listView.setAdapter(siteSettingsManager.getArrayAdapter(context));
     }
@@ -159,42 +146,6 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         }
     }
 
-    private void onAddSiteClick() {
-        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_touched).build());
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.add_monitor);
-        final EditText input = new EditText(context);
-        input.setHint(R.string.hint_site_url);
-        input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        builder.setView(input);
-        builder.setPositiveButton(R.string.action_add, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String host = input.getText().toString().trim();
-                if (host.isEmpty()) {
-                    return;
-                }
-                SiteSettings siteSettings = new SiteSettings(host, true);
-                if (siteSettingsManager.contains(siteSettings)) {
-                    Toast.makeText(context, host + getString(R.string.already_exists), Toast.LENGTH_SHORT).show();
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_already_exists).build());
-                    return;
-                }
-                GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add).build());
-                siteSettingsManager.add(context, siteSettings);
-                new NetworkTask(context, taskFragment).execute(siteSettings);
-                SiteSettingsActivity.start(context, siteSettings.getHost());
-            }
-        });
-        builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_cancel).build());
-            }
-        });
-        builder.show();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -205,10 +156,6 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             debugItem.setVisible(true);
             MenuItem injectItem = menu.findItem(R.id.action_inject);
             injectItem.setVisible(true);
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            MenuItem addItem = menu.findItem(R.id.action_add);
-            addItem.setVisible(true);
         }
         return true;
     }
@@ -226,13 +173,6 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             }
             GA.tracker().send(GAHit.builder().event(R.string.c_refresh, R.string.a_global_refresh).build());
             startService(new Intent(context, NetworkService.class));
-            return true;
-        }
-        if (id == R.id.action_add) {
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "add site");
-            }
-            onAddSiteClick();
             return true;
         }
         if (id == R.id.action_settings) {
@@ -298,5 +238,41 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
         } else if (!hasConnectivity && connectivityAlertView.getVisibility() != View.VISIBLE) {
             connectivityAlertView.setVisibility(View.VISIBLE);
         }
+    }
+
+    public void floatingAddSite(View v) {
+        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_touched).build());
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.add_monitor);
+        final EditText input = new EditText(context);
+        input.setHint(R.string.hint_site_url);
+        input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        builder.setView(input);
+        builder.setPositiveButton(R.string.action_add, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String host = input.getText().toString().trim();
+                if (host.isEmpty()) {
+                    return;
+                }
+                SiteSettings siteSettings = new SiteSettings(host, true);
+                if (siteSettingsManager.contains(siteSettings)) {
+                    Toast.makeText(context, host + getString(R.string.already_exists), Toast.LENGTH_SHORT).show();
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_already_exists).build());
+                    return;
+                }
+                GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add).build());
+                siteSettingsManager.add(context, siteSettings);
+                new NetworkTask(context, taskFragment).execute(siteSettings);
+                SiteSettingsActivity.start(context, siteSettings.getHost());
+            }
+        });
+        builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_cancel).build());
+            }
+        });
+        builder.show();
     }
 }
