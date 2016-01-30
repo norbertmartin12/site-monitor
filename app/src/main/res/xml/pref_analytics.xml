@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2015 Martin Norbert
+  ~ Copyright (c) 2016 Martin Norbert
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -20,7 +20,7 @@
         android:key="pref_header_analytics"
         android:title="@string/pref_header_analytics">
         <CheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="allow_analytics"
             android:summary="@string/pref_title_allow_analytics_description"
             android:title="@string/pref_title_allow_analytics"/>
