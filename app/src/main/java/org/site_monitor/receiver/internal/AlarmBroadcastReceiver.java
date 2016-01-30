@@ -13,42 +13,45 @@
  * limitations under the License.
  */
 
-package org.site_monitor.receiver;
+package org.site_monitor.receiver.internal;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
-import org.site_monitor.service.NetworkService;
 import org.site_monitor.util.AlarmUtil;
+import org.site_monitor.util.BroadcastUtil;
 
-import java.util.Date;
-import java.util.Random;
+/**
+ * Created by Martin Norbert on 20/02/2016.
+ */
+public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
-public class AlarmReceiver extends WakefulBroadcastReceiver {
+    private static final String TAG = AlarmBroadcastReceiver.class.getSimpleName();
+    private Listener listener;
 
-    private static final String TAG = AlarmReceiver.class.getSimpleName();
-    private static final Random RANDOM = new Random(new Date().getTime());
+    public AlarmBroadcastReceiver() {
+    }
 
-    private AlarmUtil alarmUtil = AlarmUtil.instance();
+    public AlarmBroadcastReceiver(Listener listener) {
+        this.listener = listener;
+    }
 
-    @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
-            try {
+            if (intent.getAction().equals(AlarmUtil.ACTION_NEXT_ALARM_SET)) {
+                long nextAlarm = intent.getLongExtra(BroadcastUtil.EXTRA_ALARM, 0);
                 if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "onReceive");
+                    Log.d(TAG, "ACTION_NEXT_ALARM_SET: " + nextAlarm);
                 }
-                Thread.sleep(RANDOM.nextInt(10) * 100);
-                WakefulBroadcastReceiver.startWakefulService(context, NetworkService.intentToCheckSites(context));
-                alarmUtil.updateNextAlarmDate(context);
-            } catch (InterruptedException e) {
-                if (BuildConfig.DEBUG) {
-                    Log.wtf(TAG, e);
-                }
+                listener.onNextAlarmChange(nextAlarm);
             }
         }
+    }
+
+    public interface Listener {
+        void onNextAlarmChange(long nextAlarm);
     }
 }

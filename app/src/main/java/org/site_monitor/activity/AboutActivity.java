@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,7 +28,7 @@ import org.site_monitor.R;
 
 public class AboutActivity extends Activity {
 
-    public static final String MARKET_SITE_MONITOR = "market://details?id=org.site_monitor";
+    private static final String MARKET_SITE_MONITOR = "market://details?id=org.site_monitor";
     private static final String TRELLO_SITE_MONITOR = "https://trello.com/b/G0rQVzo8/site-monitor";
     private TextView versionTextView;
 

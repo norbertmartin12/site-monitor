@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,23 +18,25 @@ package org.site_monitor.activity.fragment;
 import android.content.Context;
 import android.widget.Toast;
 
-import org.site_monitor.model.adapter.SiteSettingsManager;
 import org.site_monitor.model.bo.SiteSettings;
+import org.site_monitor.model.db.DBSiteSettings;
 import org.site_monitor.task.NetworkTask;
 import org.site_monitor.task.TaskCallback;
+
+import java.sql.SQLException;
 
 /**
  * Created by norbert on 13/08/2015.
  */
 public class DummySiteInjector {
 
-    private static final String[] HOSTS = {"soanity.fr", "soanity.com", "192.168.1.10", "http://www.alittlemarket.com/boutique/soanity-709555.html", "https://m.facebook.com/soanity?refsrc=https%3A%2F%2Ffr-fr.facebook.com%2Fsoanity", "ghost.jbrieu.info", "home.jbrieu.info"};
+    private static final String[] HOSTS = {"192.168.1.9", "http://www.alittlemarket.com/boutique/soanity-709555.html", "home.jbrieu.info"};
 
-    public static void inject(Context context, TaskCallback.Provider callbackProvider, SiteSettingsManager siteSettingsManager) {
+    public static void inject(Context context, TaskCallback.Provider callbackProvider, DBSiteSettings dbSiteSettings) throws SQLException {
         Toast.makeText(context, "inject dummy data", Toast.LENGTH_LONG).show();
         for (String host : HOSTS) {
-            SiteSettings siteSettings = new SiteSettings(host, true);
-            siteSettingsManager.add(context, siteSettings);
+            SiteSettings siteSettings = new SiteSettings(host);
+            dbSiteSettings.create(siteSettings);
             new NetworkTask(context, callbackProvider).execute(siteSettings);
         }
 

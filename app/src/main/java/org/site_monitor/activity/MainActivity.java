@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,18 +18,20 @@ package org.site_monitor.activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.InputType;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,29 +47,39 @@ import org.site_monitor.BuildConfig;
 import org.site_monitor.GA;
 import org.site_monitor.GAHit;
 import org.site_monitor.R;
+import org.site_monitor.activity.adapter.SiteSettingsAdapter;
 import org.site_monitor.activity.fragment.DummySiteInjector;
 import org.site_monitor.activity.fragment.TaskFragment;
+import org.site_monitor.model.adapter.SiteSettingsBusiness;
 import org.site_monitor.model.adapter.SiteSettingsManager;
+import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
-import org.site_monitor.receiver.AlarmReceiver;
+import org.site_monitor.model.db.DBHelper;
+import org.site_monitor.model.db.DBSiteSettings;
 import org.site_monitor.receiver.BatteryLevelReceiver;
-import org.site_monitor.receiver.NetworkServiceReceiver;
 import org.site_monitor.receiver.StartupBootReceiver;
-import org.site_monitor.service.DataStoreService;
+import org.site_monitor.receiver.internal.AlarmBroadcastReceiver;
+import org.site_monitor.receiver.internal.NetworkBroadcastReceiver;
 import org.site_monitor.service.NetworkService;
 import org.site_monitor.task.NetworkTask;
 import org.site_monitor.task.TaskCallback;
+import org.site_monitor.util.AlarmUtil;
 import org.site_monitor.util.ConnectivityUtil;
 import org.site_monitor.util.TimeUtil;
-import org.site_monitor.widget.WidgetManager;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 /**
  * Allow user to add and monitor site settings.
  */
-public class MainActivity extends FragmentActivity implements TaskCallback<NetworkTask, Void, SiteSettings>, NetworkServiceReceiver.Listener {
+public class MainActivity extends FragmentActivity implements SiteSettingsAdapter.Handler, TaskCallback<NetworkTask, Void, Pair<SiteSettings, SiteCall>>, NetworkBroadcastReceiver.Listener, AlarmBroadcastReceiver.Listener {
     private static final String TAG_TASK_FRAGMENT = "main_activity_task_fragment";
-    private static final String TAG = "MainActivity";
+    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String PARCEL_SITE_LIST = "SITE_LIST";
 
     private MainActivity context = this;
     private ListView listView;
@@ -75,14 +87,21 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
     private TaskFragment taskFragment;
     private Chronometer chronometer;
     private CountDownTimer countDownTimer;
-    private NetworkServiceReceiver networkServiceReceiver;
-    private SiteSettingsManager siteSettingsManager;
+    private NetworkBroadcastReceiver networkBroadcastReceiver;
+    private AlarmBroadcastReceiver alarmBroadcastReceiver;
     private View timerBannerView;
+    private DBHelper dbHelper;
+    private AlarmUtil alarmUtil = AlarmUtil.instance();
+    private SiteSettingsAdapter siteSettingsAdapter;
+    private List<SiteSettingsBusiness> siteSettingsList;
+    private boolean loadDataFromDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SiteSettingsManager.migrateDataFromJsonToDatabase(this);
+        dbHelper = DBHelper.getHelper(this);
         listView = (ListView) this.findViewById(R.id.listView);
         connectivityAlertView = (TextView) this.findViewById(R.id.connectivityAlert);
         chronometer = (Chronometer) this.findViewById(R.id.chronometer);
@@ -95,55 +114,77 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             fragmentManager.beginTransaction().add(taskFragment, TAG_TASK_FRAGMENT).commit();
         }
 
-        siteSettingsManager = SiteSettingsManager.instance(context);
-        listView.setAdapter(siteSettingsManager.getArrayAdapter(context));
+        if (savedInstanceState == null || savedInstanceState.isEmpty()) {
+            siteSettingsList = new ArrayList<SiteSettingsBusiness>();
+            loadDataFromDb = true;
+        } else {
+            siteSettingsList = savedInstanceState.getParcelableArrayList(PARCEL_SITE_LIST);
+        }
+        siteSettingsAdapter = new SiteSettingsAdapter(context, this, siteSettingsList);
+        listView.setAdapter(siteSettingsAdapter);
+        if (networkBroadcastReceiver == null) {
+            networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
+        }
+        if (alarmBroadcastReceiver == null) {
+            alarmBroadcastReceiver = new AlarmBroadcastReceiver(this);
+        }
+        // start alarm on 1st install or if not started on system boot
+        alarmUtil.startAlarmIfNeeded(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.release();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        siteSettingsManager.refreshData();
-        if (networkServiceReceiver == null && listView.getAdapter() != null) {
-            networkServiceReceiver = new NetworkServiceReceiver(this);
+        if (loadDataFromDb) {
+            loadSiteSettingsBusinesses();
+        } else {
+            loadDataFromDb = false;
         }
+        scheduleTimer();
         onNetworkStateChanged(ConnectivityUtil.isConnected(this));
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(networkServiceReceiver, new IntentFilter(NetworkService.ACTION_SITE_UPDATED));
-        registerReceiver(networkServiceReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        scheduleTimer();
+        LocalBroadcastManager.getInstance(this).registerReceiver(alarmBroadcastReceiver, new IntentFilter(AlarmUtil.ACTION_NEXT_ALARM_SET));
+        LocalBroadcastManager.getInstance(this).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_START_REFRESH));
+        LocalBroadcastManager.getInstance(this).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_END_REFRESH));
+        LocalBroadcastManager.getInstance(this).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_FAVICON_UPDATED));
+        registerReceiver(networkBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+    }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(PARCEL_SITE_LIST, new ArrayList<Parcelable>(siteSettingsList));
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (networkServiceReceiver != null) {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(networkServiceReceiver);
-            unregisterReceiver(networkServiceReceiver);
-        }
-        siteSettingsManager.saveSiteSettings(context);
+        loadDataFromDb = true;
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(alarmBroadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(networkBroadcastReceiver);
+        unregisterReceiver(networkBroadcastReceiver);
     }
 
-    private void scheduleTimer() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
+    private void loadSiteSettingsBusinesses() {
+        try {
+            List<SiteSettings> list = dbHelper.getDBSiteSettings().queryForAll();
+            siteSettingsList.clear();
+            for (SiteSettings siteSettings : list) {
+                siteSettingsList.add(new SiteSettingsBusiness(siteSettings));
+            }
+        } catch (SQLException e) {
+            Log.e(TAG, "queryForAll", e);
         }
-        final long nextAlarmTime = DataStoreService.getLongNow(this, DataStoreService.KEY_NEXT_ALARM);
-        final long nextAlarmInterval = nextAlarmTime - System.currentTimeMillis();
-        if (AlarmReceiver.hasAlarm() && nextAlarmInterval > 0) {
-            timerBannerView.setVisibility(View.VISIBLE);
-            countDownTimer = new CountDownTimer(nextAlarmInterval, TimeUtil._1_SEC * 5) {
-                public void onTick(long millisUntilFinished) {
-                    chronometer.setText(DateUtils.getRelativeTimeSpanString(nextAlarmTime));
-                }
 
-                public void onFinish() {
-                    chronometer.setText(R.string.imminent);
-                }
-            }.start();
-        } else {
-            timerBannerView.setVisibility(View.GONE);
-        }
+        Collections.sort(siteSettingsList, SiteSettingsBusiness.NAME_COMPARATOR);
+        siteSettingsAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -172,7 +213,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
                 Log.i(TAG, "global refresh requested");
             }
             GA.tracker().send(GAHit.builder().event(R.string.c_refresh, R.string.a_global_refresh).build());
-            startService(new Intent(context, NetworkService.class));
+            startService(NetworkService.intentToCheckSites(this));
             return true;
         }
         if (id == R.id.action_settings) {
@@ -184,7 +225,13 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             return true;
         }
         if (id == R.id.action_inject) {
-            DummySiteInjector.inject(this, taskFragment, siteSettingsManager);
+            try {
+                DummySiteInjector.inject(context, taskFragment, dbHelper.getDBSiteSettings());
+                loadSiteSettingsBusinesses();
+                alarmUtil.startAlarmIfNeeded(context);
+            } catch (SQLException e) {
+                Log.e(TAG, "dummyinject", e);
+            }
             return true;
         }
         if (id == R.id.action_debug) {
@@ -194,7 +241,7 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             int startupBootState = context.getPackageManager().getComponentEnabledSetting(new ComponentName(context, StartupBootReceiver.class));
             boolean startupBootEnable = (startupBootState == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT || startupBootState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
             sb.append("StartupBoot state: ").append(startupBootEnable).append("\n");
-            sb.append("Alarm set: ").append(AlarmReceiver.hasAlarm()).append(" ").append(AlarmReceiver.getCurrentInterval()).append("\n");
+            sb.append("Alarm set: ").append(alarmUtil.hasAlarm()).append(" ").append(alarmUtil.getCurrentInterval()).append("\n");
             sb.append("Battery: ").append(BatteryLevelReceiver.getLastAction()).append("\n");
             sb.append("Analytics: ").append(!GoogleAnalytics.getInstance(this).getAppOptOut()).append("\n");
             Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();
@@ -210,25 +257,45 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
 
     @Override
     public void onProgressUpdate(NetworkTask task, Void... percent) {
-
     }
 
     @Override
-    public void onPostExecute(NetworkTask task, SiteSettings siteSettings) {
-        siteSettingsManager.refreshData();
-        WidgetManager.refresh(this);
+    public void onPostExecute(NetworkTask task, Pair<SiteSettings, SiteCall> result) {
     }
 
 
     @Override
     public void onCancelled(NetworkTask task) {
-
     }
 
     @Override
-    public void onSiteUpdated(SiteSettings siteSettings) {
-        siteSettingsManager.refreshData();
-        scheduleTimer();
+    public void onSiteStartRefresh(SiteSettings siteSettings) {
+        int position = siteSettingsAdapter.getPosition(new SiteSettingsBusiness(siteSettings));
+        if (position != -1) {
+            siteSettingsAdapter.getItem(position).setIsChecking(true);
+        }
+        siteSettingsAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onSiteEndRefresh(SiteSettings siteSettings, SiteCall siteCall) {
+        int position = siteSettingsAdapter.getPosition(new SiteSettingsBusiness(siteSettings));
+        if (position != -1) {
+            SiteSettingsBusiness siteSettingsView = siteSettingsAdapter.getItem(position);
+            siteSettingsView.setIsChecking(false);
+            siteSettingsView.getCalls().add(siteCall);
+            siteSettingsAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onFaviconUpdated(SiteSettings siteSettings, Bitmap favicon) {
+        int position = siteSettingsAdapter.getPosition(new SiteSettingsBusiness(siteSettings));
+        if (position != -1) {
+            SiteSettingsBusiness siteSettingsView = siteSettingsAdapter.getItem(position);
+            siteSettingsView.setFavicon(favicon);
+            siteSettingsAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -237,6 +304,29 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             connectivityAlertView.setVisibility(View.GONE);
         } else if (!hasConnectivity && connectivityAlertView.getVisibility() != View.VISIBLE) {
             connectivityAlertView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void scheduleTimer() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        final long nextAlarmTime = alarmUtil.getNextAlarmTime(this);
+        final long nextAlarmInterval = alarmUtil.getCountUntilNextAlarmTime(this);
+        if (nextAlarmInterval > 0) {
+            timerBannerView.setVisibility(View.VISIBLE);
+            countDownTimer = new CountDownTimer(nextAlarmInterval, TimeUtil._1_SEC * 5) {
+                public void onTick(long millisUntilFinished) {
+                    chronometer.setText(DateUtils.getRelativeTimeSpanString(nextAlarmTime));
+                    chronometer.setText(DateUtils.getRelativeTimeSpanString(nextAlarmTime, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS));
+                }
+
+                public void onFinish() {
+                    chronometer.setText(R.string.imminent);
+                }
+            }.start();
+        } else {
+            timerBannerView.setVisibility(View.GONE);
         }
     }
 
@@ -255,16 +345,22 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
                 if (host.isEmpty()) {
                     return;
                 }
-                SiteSettings siteSettings = new SiteSettings(host, true);
-                if (siteSettingsManager.contains(siteSettings)) {
-                    Toast.makeText(context, host + getString(R.string.already_exists), Toast.LENGTH_SHORT).show();
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_already_exists).build());
-                    return;
+                try {
+                    DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                    if (dbSiteSettings.findForHost(host) != null) {
+                        Toast.makeText(context, host + getString(R.string.already_exists), Toast.LENGTH_SHORT).show();
+                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_already_exists).build());
+                        return;
+                    }
+                    SiteSettings siteSettings = new SiteSettings(host);
+                    dbSiteSettings.create(siteSettings);
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add).build());
+                    alarmUtil.startAlarmIfNeeded(context);
+                    new NetworkTask(context, taskFragment).execute(siteSettings);
+                    SiteSettingsActivity.start(context, siteSettings.getHost());
+                } catch (SQLException e) {
+                    Log.e(TAG, "create", e);
                 }
-                GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add).build());
-                siteSettingsManager.add(context, siteSettings);
-                new NetworkTask(context, taskFragment).execute(siteSettings);
-                SiteSettingsActivity.start(context, siteSettings.getHost());
             }
         });
         builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
@@ -274,5 +370,15 @@ public class MainActivity extends FragmentActivity implements TaskCallback<Netwo
             }
         });
         builder.show();
+    }
+
+    @Override
+    public void touched(SiteSettingsBusiness siteSettings) {
+        SiteSettingsActivity.start(context, siteSettings.getHost());
+    }
+
+    @Override
+    public void onNextAlarmChange(long nextAlarm) {
+        scheduleTimer();
     }
 }

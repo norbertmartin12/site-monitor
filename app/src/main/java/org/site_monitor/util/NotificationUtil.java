@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,11 +38,11 @@ import org.site_monitor.activity.PrefSettingsActivity;
  */
 public class NotificationUtil {
 
-    public static final String TAG = "NotificationUtil";
+    private static final String TAG = NotificationUtil.class.getSimpleName();
     public static int ID_NOT_REACHABLE = 1;
 
     /**
-     * Prebuild notification.
+     * Pre builds notification.
      *
      * @param context
      * @param title

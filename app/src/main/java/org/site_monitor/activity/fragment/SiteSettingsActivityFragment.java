@@ -17,6 +17,7 @@ package org.site_monitor.activity.fragment;
 
 import android.app.Activity;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
@@ -32,15 +33,17 @@ import android.widget.TextView;
 import org.site_monitor.GA;
 import org.site_monitor.GAHit;
 import org.site_monitor.R;
-import org.site_monitor.model.adapter.SiteCallAdapter;
+import org.site_monitor.activity.adapter.SiteCallAdapter;
+import org.site_monitor.model.adapter.SiteSettingsBusiness;
+import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
-import org.site_monitor.receiver.NetworkServiceReceiver;
+import org.site_monitor.receiver.internal.NetworkBroadcastReceiver;
 import org.site_monitor.service.NetworkService;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class SiteSettingsActivityFragment extends TaskFragment implements NetworkServiceReceiver.Listener {
+public class SiteSettingsActivityFragment extends TaskFragment implements NetworkBroadcastReceiver.Listener {
 
     private CheckBox trustCertificateCheckbox;
     private View trustCertificateView;
@@ -52,10 +55,10 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     private View view;
 
     private Callback callback;
-    private SiteSettings siteSettings;
+    private SiteSettingsBusiness siteSettings;
     private SiteCallAdapter siteCallAdapter;
 
-    private NetworkServiceReceiver networkServiceReceiver;
+    private NetworkBroadcastReceiver networkBroadcastReceiver;
 
     @Override
     public void onAttach(Activity activity) {
@@ -92,8 +95,8 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
                 } else {
                     GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 0L).build());
                 }
-                siteSettings.setNotificationEnabled(isChecked);
-                callback.hasChanged(siteSettings);
+                siteSettings.getSiteSettings().setNotificationEnabled(isChecked);
+                callback.hasChanged(siteSettings.getSiteSettings());
             }
         });
         trustCertificateCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -104,15 +107,17 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
                 } else {
                     GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_trust_certificate_changed, 0L).build());
                 }
-                siteSettings.setForcedCertificate(isChecked);
-                callback.hasChanged(siteSettings);
+                siteSettings.getSiteSettings().setForcedCertificate(isChecked);
+                callback.hasChanged(siteSettings.getSiteSettings());
             }
         });
 
-        if (networkServiceReceiver == null && siteCallAdapter != null) {
-            networkServiceReceiver = new NetworkServiceReceiver(this);
+        if (networkBroadcastReceiver == null && siteCallAdapter != null) {
+            networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
         }
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkServiceReceiver, new IntentFilter(NetworkService.ACTION_SITE_UPDATED));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_START_REFRESH));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_END_REFRESH));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_FAVICON_UPDATED));
     }
 
     @Override
@@ -120,8 +125,8 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         super.onPause();
         notificationCheckbox.setOnCheckedChangeListener(null);
         trustCertificateCheckbox.setOnCheckedChangeListener(null);
-        if (networkServiceReceiver != null) {
-            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(networkServiceReceiver);
+        if (networkBroadcastReceiver != null) {
+            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(networkBroadcastReceiver);
         }
     }
 
@@ -130,9 +135,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
             if (siteCallAdapter == null) {
                 siteCallAdapter = new SiteCallAdapter(getActivity(), siteSettings);
             }
-            if (callListView.getAdapter() == null) {
-                callListView.setAdapter(siteCallAdapter);
-            }
+            callListView.setAdapter(siteCallAdapter);
             hostTextView.setText(siteSettings.getHost());
             if (notificationCheckbox.isChecked() != siteSettings.isNotificationEnabled()) {
                 notificationCheckbox.setChecked(siteSettings.isNotificationEnabled());
@@ -145,7 +148,8 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
             } else {
                 trustCertificateView.setVisibility(View.GONE);
             }
-            if (siteSettings.isChecking()) {
+            // HACK: is empty is a hack to show progress on create action cause listener is register to late to catch start refresh
+            if (siteSettings.isChecking() || siteSettings.getCalls().isEmpty()) {
                 progressBar.setVisibility(View.VISIBLE);
             } else {
                 progressBar.setVisibility(View.INVISIBLE);
@@ -155,14 +159,32 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         }
     }
 
-    public void setSiteSettings(SiteSettings siteSettings) {
+    public void setSiteSettings(SiteSettingsBusiness siteSettings) {
         this.siteSettings = siteSettings;
         updateView();
     }
 
     @Override
-    public void onSiteUpdated(SiteSettings siteSettings) {
-        if (this.siteSettings != null && siteSettings.equals(this.siteSettings)) {
+    public void onSiteStartRefresh(SiteSettings siteSettings) {
+        if (this.siteSettings != null && siteSettings.equals(this.siteSettings.getSiteSettings())) {
+            this.siteSettings.setIsChecking(true);
+            updateView();
+        }
+    }
+
+    @Override
+    public void onSiteEndRefresh(SiteSettings siteSettings, SiteCall siteCall) {
+        if (this.siteSettings != null && siteSettings.equals(this.siteSettings.getSiteSettings())) {
+            this.siteSettings.setIsChecking(false);
+            this.siteSettings.getCalls().add(siteCall);
+            updateView();
+        }
+    }
+
+    @Override
+    public void onFaviconUpdated(SiteSettings siteSettings, Bitmap favicon) {
+        if (this.siteSettings != null && siteSettings.equals(this.siteSettings.getSiteSettings())) {
+            this.siteSettings.setFavicon(favicon);
             updateView();
         }
     }

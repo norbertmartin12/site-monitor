@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.site_monitor.model.adapter;
+package org.site_monitor.activity.adapter;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -24,9 +24,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.site_monitor.R;
+import org.site_monitor.model.adapter.SiteSettingsBusiness;
 import org.site_monitor.model.bo.NetworkCallResult;
 import org.site_monitor.model.bo.SiteCall;
-import org.site_monitor.model.bo.SiteSettings;
 
 import java.text.SimpleDateFormat;
 
@@ -40,8 +40,8 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
     private final LayoutInflater inflater;
 
-    public SiteCallAdapter(Context context, SiteSettings siteSettings) {
-        super(context, R.layout.cell_site_call, R.id.mainTextView, siteSettings.getUnmodifiableCalls());
+    public SiteCallAdapter(Context context, SiteSettingsBusiness siteSettings) {
+        super(context, R.layout.cell_site_call, R.id.mainTextView, siteSettings.getCalls());
         this.inflater = LayoutInflater.from(context);
     }
 

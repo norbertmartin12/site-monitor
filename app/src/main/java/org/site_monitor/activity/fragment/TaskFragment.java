@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,7 +15,7 @@
 
 package org.site_monitor.activity.fragment;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
@@ -30,16 +30,21 @@ public class TaskFragment extends Fragment implements TaskCallback.Provider {
 
     private TaskCallback callback;
 
+    @Override
+    public TaskCallback getCallback() {
+        return callback;
+    }
+
     /**
-     * Hold a reference to the parent Activity so we can report the
+     * Hold a reference to the parent context so we can report the
      * task's current progress and results. The Android framework
      * will pass us a reference to the newly created Activity after
      * each configuration change.
      */
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        this.callback = (TaskCallback) activity;
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.callback = (TaskCallback) context;
     }
 
     /**
@@ -60,9 +65,5 @@ public class TaskFragment extends Fragment implements TaskCallback.Provider {
     public void onDetach() {
         super.onDetach();
         callback = null;
-    }
-
-    public TaskCallback getCallback() {
-        return callback;
     }
 }
