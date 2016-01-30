@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2015 Martin Norbert
+  ~ Copyright (c) 2016 Martin Norbert
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -28,6 +28,7 @@
     <string name="a_global_refresh" translatable="false">global refresh</string>
     <string name="a_site_refresh" translatable="false">site refresh</string>
     <string name="a_notification_changed" translatable="false">notification changed</string>
+    <string name="a_trust_certificate_changed" translatable="false">trust certificate changed</string>
     <string name="a_frequency_changed" translatable="false">frequency changed</string>
     <string name="a_sent" translatable="false">sent</string>
     <string name="a_boot_start_changed" translatable="false">boot start changed</string>

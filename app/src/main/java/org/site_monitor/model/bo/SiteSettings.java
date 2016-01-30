@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,12 +42,15 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
             return new SiteSettings[size];
         }
     };
+    public static final String CERT_PATH_EXCEPTION = "java.security.cert.CertPathValidatorException";
     @Expose
     private String name;
     @Expose
     private String host;
     @Expose
     private boolean isNotificationEnabled = true;
+    @Expose
+    private boolean forcedCertificate = false;
     @Expose
     private List<SiteCall> calls = new ArrayList<SiteCall>();
     private Bitmap favicon;
@@ -108,6 +111,14 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
 
     public void setFavicon(Bitmap favicon) {
         this.favicon = favicon;
+    }
+
+    public boolean isForcedCertificate() {
+        return forcedCertificate;
+    }
+
+    public void setForcedCertificate(boolean forcedCertificate) {
+        this.forcedCertificate = forcedCertificate;
     }
 
     @Override
@@ -204,6 +215,14 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
             return null;
         }
         return calls.get(calls.size() - 1);
+    }
+
+    public boolean isLastCallIsCertError() {
+        SiteCall lastCall = getLastCall();
+        if (lastCall == null || lastCall.getResult() != NetworkCallResult.FAIL) {
+            return false;
+        }
+        return lastCall.getException().startsWith(CERT_PATH_EXCEPTION);
     }
 
     @Override

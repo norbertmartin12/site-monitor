@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -42,6 +42,8 @@ import org.site_monitor.service.NetworkService;
  */
 public class SiteSettingsActivityFragment extends TaskFragment implements NetworkServiceReceiver.Listener {
 
+    private CheckBox trustCertificateCheckbox;
+    private View trustCertificateView;
     private CheckBox notificationCheckbox;
     private TextView hostTextView;
     private ListView callListView;
@@ -69,6 +71,8 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_site_settings, container, false);
         notificationCheckbox = (CheckBox) view.findViewById(R.id.notificationCheckbox);
+        trustCertificateCheckbox = (CheckBox) view.findViewById(R.id.trustCertificateCheckbox);
+        trustCertificateView = view.findViewById(R.id.trustCertificateView);
         callListView = (ListView) view.findViewById(R.id.callListView);
         hostTextView = (TextView) view.findViewById(R.id.hostTextView);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
@@ -89,6 +93,18 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
                     GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 0L).build());
                 }
                 siteSettings.setNotificationEnabled(isChecked);
+                callback.hasChanged(siteSettings);
+            }
+        });
+        trustCertificateCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 1L).build());
+                } else {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 0L).build());
+                }
+                siteSettings.setForcedCertificate(isChecked);
                 callback.hasChanged(siteSettings);
             }
         });
@@ -119,6 +135,14 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
             hostTextView.setText(siteSettings.getHost());
             if (notificationCheckbox.isChecked() != siteSettings.isNotificationEnabled()) {
                 notificationCheckbox.setChecked(siteSettings.isNotificationEnabled());
+            }
+            if (siteSettings.isForcedCertificate() || siteSettings.isLastCallIsCertError()) {
+                trustCertificateView.setVisibility(View.VISIBLE);
+                if (trustCertificateCheckbox.isChecked() != siteSettings.isForcedCertificate()) {
+                    trustCertificateCheckbox.setChecked(siteSettings.isForcedCertificate());
+                }
+            } else {
+                trustCertificateView.setVisibility(View.GONE);
             }
             if (siteSettings.isChecking()) {
                 progressBar.setVisibility(View.VISIBLE);

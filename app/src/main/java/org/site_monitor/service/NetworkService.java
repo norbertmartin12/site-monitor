@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,6 +40,7 @@ import org.site_monitor.util.ConnectivityUtil;
 import org.site_monitor.util.NotificationUtil;
 import org.site_monitor.util.TimeUtil;
 import org.site_monitor.util.Timer;
+import org.site_monitor.util.TrustAllManager;
 import org.site_monitor.widget.WidgetManager;
 
 import java.io.IOException;
@@ -50,6 +51,8 @@ import java.net.URL;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -162,6 +165,9 @@ public class NetworkService extends IntentService {
         urlConnection.setInstanceFollowRedirects(true);
         urlConnection.setConnectTimeout(TIMEOUT_10);
         urlConnection.setReadTimeout(TIMEOUT_10);
+        if (siteSettings.isForcedCertificate()) {
+            ((HttpsURLConnection) urlConnection).setSSLSocketFactory(TrustAllManager.sslSocketFactory());
+        }
         return urlConnection;
     }
 
@@ -249,7 +255,5 @@ public class NetworkService extends IntentService {
             WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
     }
-
-
 
 }
