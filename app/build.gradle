@@ -26,19 +26,19 @@ android {
         applicationId "org.site_monitor"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 18
-        versionName '0.8.1'
+        versionCode 19
+        versionName '0.8.2'
     }
     buildTypes {
         debug {
+            shrinkResources true
             applicationIdSuffix '.debug'
             versionNameSuffix '.debug'
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles 'proguard-rules.pro'
         }
         release {
             shrinkResources true
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles 'proguard-rules.pro'
             signingConfig signingConfigs.config
         }
     }
