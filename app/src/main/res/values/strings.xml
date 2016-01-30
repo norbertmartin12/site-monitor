@@ -48,7 +48,7 @@
     <string name="apache_license">Apache License v2.0\nhttp://www.apache.org/licenses/LICENSE-2.0</string>
     <string name="trello">Follow on Trello</string>
     <string name="rateApp">Rate on Play Store</string>
-    <string name="widget_all_ok">Everything works</string>
+    <string name="widget_all_ok">You\'re on the web</string>
     <string name="widget_no_site">No website to monitor</string>
     <string name="imminent">imminent</string>
     <string name="trust_certificate">Force certificate trust</string>
