@@ -100,9 +100,9 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 1L).build());
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_trust_certificate_changed, 1L).build());
                 } else {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 0L).build());
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_trust_certificate_changed, 0L).build());
                 }
                 siteSettings.setForcedCertificate(isChecked);
                 callback.hasChanged(siteSettings);
@@ -119,6 +119,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     public void onPause() {
         super.onPause();
         notificationCheckbox.setOnCheckedChangeListener(null);
+        trustCertificateCheckbox.setOnCheckedChangeListener(null);
         if (networkServiceReceiver != null) {
             LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(networkServiceReceiver);
         }
