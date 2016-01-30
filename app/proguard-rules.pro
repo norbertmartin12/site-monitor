@@ -23,4 +23,6 @@
 # Application classes that will be serialized/deserialized over Gson
 -keep class org.site_monitor.model.bo.** { *; }
 -keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
 -keep class com.android.support.** { *; }
+-dontwarn com.android.support.**
