@@ -15,21 +15,25 @@
 
 package org.site_monitor.model.bo;
 
-import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Pair;
 
 import com.google.gson.annotations.Expose;
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DataType;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by Martin Norbert on 11/07/2015.
  */
-public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
+
+@DatabaseTable
+public class SiteSettings implements Parcelable {
 
     public static final Creator<SiteSettings> CREATOR = new Creator<SiteSettings>() {
         @Override
@@ -42,24 +46,35 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
             return new SiteSettings[size];
         }
     };
-    public static final String CERT_PATH_EXCEPTION = "java.security.cert.CertPathValidatorException";
+
+    @DatabaseField(generatedId = true)
+    private Long id;
     @Expose
+    @DatabaseField
     private String name;
     @Expose
+    @DatabaseField(canBeNull = false, uniqueIndex = true)
     private String host;
     @Expose
+    @DatabaseField
     private boolean isNotificationEnabled = true;
     @Expose
+    @DatabaseField
     private boolean forcedCertificate = false;
+    @DatabaseField(dataType = DataType.BYTE_ARRAY)
+    private byte[] favicon;
     @Expose
     private List<SiteCall> calls = new ArrayList<SiteCall>();
-    private Bitmap favicon;
-    private boolean isChecking;
+    @ForeignCollectionField(eager = true)
+    private ForeignCollection<SiteCall> siteCalls;
 
-    public SiteSettings(String host, boolean isNotificationEnabled) {
+
+    public SiteSettings() {
+    }
+
+    public SiteSettings(String host) {
         this.host = host;
         this.name = host;
-        this.isNotificationEnabled = isNotificationEnabled;
     }
 
     public SiteSettings(Parcel in) {
@@ -67,6 +82,7 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
         host = in.readString();
         isNotificationEnabled = in.readInt() == 1 ? true : false;
         in.readList(calls, SiteCall.class.getClassLoader());
+        in.readByteArray(favicon);
     }
 
     public String getHost() {
@@ -89,28 +105,28 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
         this.isNotificationEnabled = notificationEnabled;
     }
 
-    public List<SiteCall> getUnmodifiableCalls() {
-        return Collections.unmodifiableList(calls);
+    /**
+     * @return
+     * @deprecated only for json retreiving
+     */
+    public List<SiteCall> getCalls() {
+        return calls;
     }
 
-    public void add(SiteCall siteCall) {
-        calls.add(siteCall);
+    public Long getId() {
+        return id;
     }
 
-    public boolean isChecking() {
-        return isChecking;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setIsChecking(boolean isChecking) {
-        this.isChecking = isChecking;
+    public ForeignCollection<SiteCall> getSiteCalls() {
+        return siteCalls;
     }
 
-    public Bitmap getFavicon() {
-        return favicon;
-    }
-
-    public void setFavicon(Bitmap favicon) {
-        this.favicon = favicon;
+    public void setSiteCalls(ForeignCollection<SiteCall> siteCalls) {
+        this.siteCalls = siteCalls;
     }
 
     public boolean isForcedCertificate() {
@@ -119,6 +135,14 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
 
     public void setForcedCertificate(boolean forcedCertificate) {
         this.forcedCertificate = forcedCertificate;
+    }
+
+    public byte[] getFavicon() {
+        return favicon;
+    }
+
+    public void setFavicon(byte[] favicon) {
+        this.favicon = favicon;
     }
 
     @Override
@@ -145,7 +169,6 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
                 '}';
     }
 
-    @Override
     public int compareTo(SiteSettings another) {
         if (calls.size() == 0 && another.calls.size() == 0) {
             return host.compareTo(another.host);
@@ -165,66 +188,6 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
         return callResultCompare;
     }
 
-    public boolean isInFail() {
-        if (calls.size() == 0) {
-            return false;
-        }
-        return calls.get(calls.size() - 1).getResult() == NetworkCallResult.FAIL;
-    }
-
-    /**
-     * @return 2 site calls representing last fail period, null if none
-     */
-    public Pair<SiteCall, SiteCall> getLastFailPeriod() {
-        SiteCall start = null;
-        SiteCall last = null;
-        // read last calls first
-        for (int i = calls.size() - 1; i >= 0; i--) {
-            SiteCall siteCall = calls.get(i);
-            if (last == null && siteCall.getResult() == NetworkCallResult.FAIL) {
-                last = siteCall;
-                // last call in fail is first call
-                if (i == 0) {
-                    start = last;
-                    break;
-                }
-                continue;
-            }
-            // when find non fail call get previous it's period start
-            if (start == null && siteCall.getResult() != NetworkCallResult.FAIL) {
-                start = calls.get(i + 1);
-                break;
-            }
-        }
-        // no fail found
-        if (last == null) {
-            return null;
-        }
-        // first call is a fail
-        if (start == null) {
-            start = calls.get(0);
-        }
-        return new Pair<SiteCall, SiteCall>(start, last);
-    }
-
-    /**
-     * @return null if empty or last call
-     */
-    public SiteCall getLastCall() {
-        if (calls.isEmpty()) {
-            return null;
-        }
-        return calls.get(calls.size() - 1);
-    }
-
-    public boolean isLastCallIsCertError() {
-        SiteCall lastCall = getLastCall();
-        if (lastCall == null || lastCall.getResult() != NetworkCallResult.FAIL) {
-            return false;
-        }
-        return lastCall.getException().startsWith(CERT_PATH_EXCEPTION);
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -236,5 +199,7 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
         dest.writeString(host);
         dest.writeInt(isNotificationEnabled ? 1 : 0);
         dest.writeList(calls);
+        dest.writeByteArray(favicon);
     }
+
 }

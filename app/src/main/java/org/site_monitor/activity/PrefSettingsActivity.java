@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,8 +38,8 @@ import android.view.MenuItem;
 import org.site_monitor.GA;
 import org.site_monitor.GAHit;
 import org.site_monitor.R;
-import org.site_monitor.receiver.AlarmReceiver;
 import org.site_monitor.receiver.StartupBootReceiver;
+import org.site_monitor.util.AlarmUtil;
 import org.site_monitor.util.TimeUtil;
 
 import java.util.List;
@@ -71,7 +71,7 @@ public class PrefSettingsActivity extends PreferenceActivity {
      * shown on tablets.
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
-
+    private static AlarmUtil alarmUtil = AlarmUtil.instance();
     /**
      * A preference value change listener that updates the preference's summary to reflect its new value.
      */
@@ -90,7 +90,7 @@ public class PrefSettingsActivity extends PreferenceActivity {
                     String currentValue = preference.getSharedPreferences().getString(FREQUENCY, "");
                     if (!currentValue.equals(stringValue)) {
                         GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_frequency_changed, Long.parseLong(stringValue)).build());
-                        AlarmReceiver.rescheduleAlarm(preference.getContext(), Long.parseLong(stringValue) * TimeUtil.MINUTE_2_MILLISEC);
+                        alarmUtil.rescheduleAlarm(preference.getContext(), Long.parseLong(stringValue) * TimeUtil.MINUTE_2_MILLISEC);
                     }
                 }
 

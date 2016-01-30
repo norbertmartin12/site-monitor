@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,6 +23,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.InputType;
+import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -32,21 +34,30 @@ import org.site_monitor.GA;
 import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.fragment.SiteSettingsActivityFragment;
-import org.site_monitor.model.adapter.SiteSettingsManager;
+import org.site_monitor.model.adapter.SiteSettingsBusiness;
+import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
+import org.site_monitor.model.db.DBHelper;
+import org.site_monitor.model.db.DBSiteSettings;
+import org.site_monitor.service.NetworkService;
 import org.site_monitor.task.NetworkTask;
 import org.site_monitor.task.TaskCallback;
+import org.site_monitor.util.AlarmUtil;
 import org.site_monitor.widget.WidgetManager;
 
-public class SiteSettingsActivity extends FragmentActivity implements SiteSettingsActivityFragment.Callback, TaskCallback<NetworkTask, Void, SiteSettings> {
+import java.sql.SQLException;
 
+public class SiteSettingsActivity extends FragmentActivity implements SiteSettingsActivityFragment.Callback, TaskCallback<NetworkTask, Void, Pair<SiteSettings, SiteCall>> {
+
+    private static final String TAG = SiteSettingsActivity.class.getSimpleName();
     private static final String P_SITE_SETTINGS = "org.site_monitor.activity.SiteSettingsActivity.site";
     private static final String TAG_TASK_FRAGMENT = "site_settings_activity_task_fragment";
-    private SiteSettings siteSettings;
+    private static final String PARCEL_SITE = "site";
+    private SiteSettingsBusiness siteSettings;
     private MenuItem syncMenuItem;
     private SiteSettingsActivityFragment siteSettingsFragment;
     private Context context;
-    private boolean hasBeenModified = false;
+    private DBHelper dbHelper;
 
     public static void start(Context context, String siteSettingsUrl) {
         Intent intent = new Intent(context, SiteSettingsActivity.class).putExtra(P_SITE_SETTINGS, siteSettingsUrl);
@@ -56,13 +67,30 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = this;
         String url = getIntent().getStringExtra(P_SITE_SETTINGS);
         if (url == null) {
             Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
             finish();
         }
-        this.context = this;
-        this.siteSettings = SiteSettingsManager.instance(this).getBy(url);
+        if (savedInstanceState == null || savedInstanceState.isEmpty()) {
+            try {
+                startService(NetworkService.intentToLoadFavicon(this, url));
+                dbHelper = DBHelper.getHelper(context);
+                SiteSettings dbSiteSettings = dbHelper.getDBSiteSettings().findForHost(url);
+                if (dbSiteSettings == null) {
+                    Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                siteSettings = new SiteSettingsBusiness(dbSiteSettings);
+            } catch (SQLException e) {
+                Log.e(TAG, "search for host", e);
+                Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        } else {
+            siteSettings = savedInstanceState.getParcelable(PARCEL_SITE);
+        }
         setTitle(siteSettings.getName());
         setContentView(R.layout.activity_site_settings);
 
@@ -72,21 +100,19 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
             siteSettingsFragment = (SiteSettingsActivityFragment) fragmentManager.findFragmentById(R.id.fragment_site_settings);
         }
         siteSettingsFragment.setSiteSettings(siteSettings);
-
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (hasBeenModified) {
-            SiteSettingsManager.instance(this).saveSiteSettings(this);
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dbHelper != null) {
+            dbHelper.release();
         }
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        hasBeenModified = false;
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelable(PARCEL_SITE, siteSettings);
     }
 
     @Override
@@ -106,7 +132,7 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
                 return true;
             }
             syncMenuItem.setEnabled(false);
-            new NetworkTask(this, siteSettingsFragment).execute(siteSettings);
+            new NetworkTask(this, siteSettingsFragment).execute(siteSettings.getSiteSettings());
             GA.tracker().send(GAHit.builder().event(R.string.c_refresh, R.string.a_site_refresh).build());
             return true;
         }
@@ -126,10 +152,17 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
                     if (name.isEmpty()) {
                         name = getString(R.string.no_name);
                     }
-                    siteSettings.setName(name);
+                    siteSettings.getSiteSettings().setName(name);
                     setTitle(siteSettings.getName());
-                    hasBeenModified = true;
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_rename, R.string.l_done).build());
+                    try {
+                        DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                        dbSiteSettings.update(siteSettings.getSiteSettings());
+                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_rename, R.string.l_done).build());
+                        WidgetManager.refresh(context);
+                    } catch (SQLException e) {
+                        Log.e(TAG, "rename", e);
+                    }
+
                 }
             });
             builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
@@ -148,9 +181,15 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
             builder.setPositiveButton(R.string.action_remove, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    SiteSettingsManager.instance(context).remove(context, siteSettings);
-                    hasBeenModified = true;
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_remove, R.string.l_done).build());
+                    try {
+                        DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                        dbSiteSettings.delete(siteSettings.getSiteSettings());
+                        AlarmUtil.instance().stopAlarmIfNeeded(context);
+                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_remove, R.string.l_done).build());
+                    } catch (SQLException e) {
+                        Log.e(TAG, "remove", e);
+                    }
+                    WidgetManager.refresh(context);
                     finish();
                 }
             });
@@ -169,7 +208,12 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
 
     @Override
     public void hasChanged(SiteSettings siteSettings) {
-        hasBeenModified = true;
+        try {
+            DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+            dbSiteSettings.update(siteSettings);
+        } catch (SQLException e) {
+            Log.e(TAG, "hasChanged", e);
+        }
     }
 
     @Override
@@ -181,13 +225,11 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
     }
 
     @Override
-    public void onPostExecute(NetworkTask task, SiteSettings siteSettings) {
+    public void onPostExecute(NetworkTask task, Pair<SiteSettings, SiteCall> result) {
         if (this.siteSettings.getHost().equals(siteSettings.getHost())) {
             if (syncMenuItem != null) {
                 syncMenuItem.setEnabled(true);
             }
-            hasBeenModified = true;
-            WidgetManager.refresh(this);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,17 +17,26 @@ package org.site_monitor.task;
 
 import android.content.Context;
 import android.util.Log;
+import android.util.Pair;
 
 import org.site_monitor.BuildConfig;
 import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
+import org.site_monitor.model.db.DBHelper;
+import org.site_monitor.model.db.DBSiteCall;
 import org.site_monitor.service.NetworkService;
+import org.site_monitor.util.BroadcastUtil;
+import org.site_monitor.util.NetworkUtil;
+import org.site_monitor.widget.WidgetManager;
+
+import java.sql.SQLException;
 
 /**
- * Created by norbert on 16/07/2015.
+ * Runs a background task that send notifications and save result in database.
  */
-public class NetworkTask extends AsyncTaskWithCallback<SiteSettings, Void, SiteSettings> {
+public class NetworkTask extends AsyncTaskWithCallback<SiteSettings, Void, Pair<SiteSettings, SiteCall>> {
     private static final String TAG = "NetworkTask";
+    private NetworkUtil networkUtil = new NetworkUtil();
     private Context context;
 
     public NetworkTask(Context context, TaskCallback.Provider callbackProvider) {
@@ -36,7 +45,7 @@ public class NetworkTask extends AsyncTaskWithCallback<SiteSettings, Void, SiteS
     }
 
     @Override
-    protected SiteSettings doInBackground(SiteSettings... params) {
+    protected Pair<SiteSettings, SiteCall> doInBackground(SiteSettings... params) {
         if (params.length != 1) {
             if (BuildConfig.DEBUG) {
                 Log.w(TAG, "too many params: " + params.length);
@@ -47,14 +56,19 @@ public class NetworkTask extends AsyncTaskWithCallback<SiteSettings, Void, SiteS
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "doInBackground: " + siteSettings);
         }
-        siteSettings.setIsChecking(true);
-        NetworkService.broadcast(context, NetworkService.ACTION_SITE_UPDATED, siteSettings);
-        SiteCall siteCall = NetworkService.buildHeadHttpConnectionThenDoCall(context, siteSettings);
-        siteSettings.add(siteCall);
-        siteSettings.setIsChecking(false);
-        NetworkService.broadcast(context, NetworkService.ACTION_SITE_UPDATED, siteSettings);
-
-        return siteSettings;
+        BroadcastUtil.broadcast(context, NetworkService.ACTION_SITE_START_REFRESH, siteSettings);
+        SiteCall siteCall = networkUtil.buildHeadHttpConnectionThenDoCall(context, siteSettings);
+        siteCall.setSiteSettings(siteSettings);
+        DBHelper dbHelper = DBHelper.getHelper(context);
+        try {
+            DBSiteCall dbSiteCall = dbHelper.getDBSiteCall();
+            dbSiteCall.create(siteCall);
+            WidgetManager.refresh(context);
+        } catch (SQLException e) {
+            Log.e(TAG, "doInBackground", e);
+        }
+        BroadcastUtil.broadcast(context, NetworkService.ACTION_SITE_END_REFRESH, siteSettings, siteCall);
+        return new Pair<SiteSettings, SiteCall>(siteSettings, siteCall);
     }
 
 }

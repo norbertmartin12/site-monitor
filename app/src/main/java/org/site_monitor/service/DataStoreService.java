@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -33,16 +33,11 @@ import java.io.Serializable;
  */
 public class DataStoreService extends IntentService {
 
-
     public static final String KEY_JSON_SITE_SETTINGS = "org.site_monitor.activity.settings.json.siteSettings";
-    public static final String KEY_NEXT_ALARM = "org.site_monitor.nextAlarm";
-
-
     private static final String ACTION_SAVE_DATA = "org.site_monitor.service.action.SAVE_DATA";
-
     private static final String EXTRA_DATA = "org.site_monitor.service.extra.DATA";
     private static final String EXTRA_DATA_KEY = "org.site_monitor.service.extra.DATA_KEY";
-    private static final String TAG = "DataStoreService";
+    private static final String TAG = DataStoreService.class.getSimpleName();
 
     public DataStoreService() {
         super(TAG);
@@ -64,6 +59,8 @@ public class DataStoreService extends IntentService {
     }
 
     /**
+     * in default shard preferences
+     *
      * @param context
      * @param key
      * @return value for given key or 0 if none
@@ -74,6 +71,8 @@ public class DataStoreService extends IntentService {
     }
 
     /**
+     * in default shard preferences
+     *
      * @param context
      * @param key
      * @return value for given key or empty string if none
@@ -83,7 +82,9 @@ public class DataStoreService extends IntentService {
         return defaultSharedPreferences.getString(key, "");
     }
 
-    /** Saves value for given key
+    /**
+     * Saves value for given key in default shard preferences.
+     *
      * @param context
      * @param key
      * @param value
@@ -93,7 +94,9 @@ public class DataStoreService extends IntentService {
         defaultSharedPreferences.edit().putString(key, value).commit();
     }
 
-    /** Saves value for given key
+    /**
+     * Saves value for given key in default shard preferences.
+     *
      * @param context
      * @param key
      * @param value

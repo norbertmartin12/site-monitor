@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,11 +23,12 @@ import android.content.pm.PackageManager;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
-import org.site_monitor.model.adapter.SiteSettingsManager;
+import org.site_monitor.util.AlarmUtil;
 
 public class StartupBootReceiver extends BroadcastReceiver {
 
-    public static final String TAG = "StartupBootReceiver";
+    private static final String TAG = StartupBootReceiver.class.getSimpleName();
+    private AlarmUtil alarmUtil = AlarmUtil.instance();
 
     public static void setCanBeInitiatedBySystem(Context context, boolean enable) {
         ComponentName receiver = new ComponentName(context, StartupBootReceiver.class);
@@ -46,20 +47,12 @@ public class StartupBootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
             if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-                SiteSettingsManager siteSettingsManager = SiteSettingsManager.instance(context);
-                if (siteSettingsManager.size() > 0) {
-                    AlarmReceiver.startAlarm(context);
-                    if (BuildConfig.DEBUG) {
-                        Log.i(TAG, "starts on boot: " + siteSettingsManager.size() + " sites");
-                    }
-                } else {
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, "no start on boot: " + siteSettingsManager.size() + " site");
-                    }
+                boolean alarmStarted = alarmUtil.startAlarmIfNeeded(context);
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "onReceive, alarm started: " + alarmStarted);
                 }
             }
         }
     }
-
 }
 

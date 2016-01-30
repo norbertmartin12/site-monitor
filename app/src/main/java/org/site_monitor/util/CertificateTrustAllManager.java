@@ -15,6 +15,8 @@
 
 package org.site_monitor.util;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -32,12 +34,14 @@ import javax.net.ssl.X509TrustManager;
 
 /**
  * Bad implementation : must implements like http://developer.android.com/training/articles/security-ssl.html
+ * No risk for user cause no information are provided (credential, position or other sensible data)
  * Created by Martin Norbert on 30/01/2016.
  */
-public class TrustAllManager implements X509TrustManager {
+public class CertificateTrustAllManager implements X509TrustManager {
 
     public static final String TLS = "TLS";
-    private static final X509TrustManager INSTANCE = new TrustAllManager();
+    private static final X509TrustManager INSTANCE = new CertificateTrustAllManager();
+    private static final String TAG = CertificateTrustAllManager.class.getSimpleName();
 
     public static SSLSocketFactory sslSocketFactory() {
         try {
@@ -49,28 +53,20 @@ public class TrustAllManager implements X509TrustManager {
             SSLContext sslContext = SSLContext.getInstance(TLS);
             sslContext.init(null, trustAllCertManagers, new SecureRandom());
             return sslContext.getSocketFactory();
-        } catch (CertificateException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (KeyStoreException e) {
-            e.printStackTrace();
-        } catch (KeyManagementException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException | KeyManagementException | IOException e) {
+            Log.e(TAG, "sslSocketFactory", e);
+            return null;
         }
-        return null;
     }
 
     @Override
     public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
+        //Bad implementation - do nothing
     }
 
     @Override
     public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
+        //Bad implementation - do nothing
     }
 
     @Override

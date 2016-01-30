@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.site_monitor.model.adapter;
+package org.site_monitor.activity.adapter;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -29,37 +29,50 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.site_monitor.R;
-import org.site_monitor.activity.SiteSettingsActivity;
+import org.site_monitor.model.adapter.SiteSettingsBusiness;
 import org.site_monitor.model.bo.NetworkCallResult;
 import org.site_monitor.model.bo.SiteCall;
-import org.site_monitor.model.bo.SiteSettings;
 
 import java.util.List;
 
 /**
  * Created by norbert on 17/07/2015.
  */
-public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
+public class SiteSettingsAdapter extends ArrayAdapter<SiteSettingsBusiness> {
 
     public static final String EMPTY = "";
     private final LayoutInflater inflater;
-    private final SiteSettingsManager siteSettingsManager;
-    private final Context context;
+    private final Handler handler;
 
-    SiteSettingsAdapter(Context context, SiteSettingsManager siteSettingsManager) {
-        super(context, R.layout.cell_site_settings, R.id.nameText, siteSettingsManager.getSiteSettingsList());
-        this.siteSettingsManager = siteSettingsManager;
+    public SiteSettingsAdapter(Context context, Handler handler, List<SiteSettingsBusiness> siteSettingsList) {
+        super(context, R.layout.cell_site_settings, R.id.nameText, siteSettingsList);
         this.inflater = LayoutInflater.from(context);
-        this.context = context;
+        this.handler = handler;
+    }
+
+    @Override
+    public View getView(final int position, View convertView, ViewGroup parent) {
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.cell_site_settings, parent, false);
+        }
+        final ViewHandler viewHandler = new ViewHandler(position, convertView);
+        convertView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handler.touched(viewHandler.siteSettings);
+            }
+        });
+        updateView(viewHandler);
+        return convertView;
     }
 
     private void updateView(ViewHandler viewHandler) {
         viewHandler.nameTextView.setText(viewHandler.siteSettings.getName());
-        List<SiteCall> unmodifiableCalls = viewHandler.siteSettings.getUnmodifiableCalls();
+        List<SiteCall> calls = viewHandler.siteSettings.getCalls();
         Resources resources = viewHandler.view.getResources();
-        if (!unmodifiableCalls.isEmpty()) {
-            int lastCall = unmodifiableCalls.size() - 1;
-            SiteCall siteCall = unmodifiableCalls.get(lastCall);
+        if (!calls.isEmpty()) {
+            int lastCall = calls.size() - 1;
+            SiteCall siteCall = calls.get(lastCall);
             if (siteCall.getResult() == NetworkCallResult.SUCCESS) {
                 viewHandler.stateImage.getBackground().setColorFilter(resources.getColor(R.color.state_success), PorterDuff.Mode.SRC);
             } else if (siteCall.getResult() == NetworkCallResult.FAIL) {
@@ -70,11 +83,13 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         } else {
             viewHandler.stateImage.getBackground().setColorFilter(resources.getColor(R.color.state_unknown), PorterDuff.Mode.SRC);
         }
-        if (viewHandler.siteSettings.isChecking()) {
+        // HACK: is empty is a hack to show progress on create action cause listener is register to late to catch start refresh
+        if (viewHandler.siteSettings.isChecking() || viewHandler.siteSettings.getCalls().isEmpty()) {
             viewHandler.progressBar.setVisibility(View.VISIBLE);
         } else {
             viewHandler.progressBar.setVisibility(View.INVISIBLE);
         }
+
         if (viewHandler.siteSettings.isNotificationEnabled()) {
             viewHandler.notificationImage.setVisibility(View.INVISIBLE);
         } else {
@@ -93,25 +108,13 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
         }
     }
 
-    @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            convertView = inflater.inflate(R.layout.cell_site_settings, parent, false);
-        }
-        final ViewHandler viewHandler = new ViewHandler(position, convertView);
-        convertView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SiteSettingsActivity.start(getContext(), viewHandler.siteSettings.getHost());
-            }
-        });
-        updateView(viewHandler);
-        return convertView;
+    public interface Handler {
+        void touched(SiteSettingsBusiness siteSettings);
     }
 
     private class ViewHandler {
         final View view;
-        final SiteSettings siteSettings;
+        final SiteSettingsBusiness siteSettings;
         final TextView nameTextView;
         final ProgressBar progressBar;
         final TextView lastFailText;
@@ -130,5 +133,4 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettings> {
             this.stateImage = (ImageView) view.findViewById(R.id.stateImage);
         }
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Martin Norbert
+ * Copyright (c) 2016 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,124 +16,58 @@
 package org.site_monitor.model.adapter;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.google.gson.reflect.TypeToken;
 
+import org.site_monitor.BuildConfig;
+import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
-import org.site_monitor.receiver.AlarmReceiver;
+import org.site_monitor.model.db.DBHelper;
+import org.site_monitor.model.db.DBSiteCall;
+import org.site_monitor.model.db.DBSiteSettings;
 import org.site_monitor.service.DataStoreService;
 import org.site_monitor.util.GsonUtil;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
  * Created by norbert on 19/07/2015.
  */
 public class SiteSettingsManager {
-    private static final String TAG = "SiteSettingsManager";
-    private static SiteSettingsManager instance;
-    private final List<SiteSettings> siteSettingsList = new ArrayList<SiteSettings>();
-    private SiteSettingsAdapter siteSettingsAdapter;
 
-    public static SiteSettingsManager instance(Context context) {
-        if (instance == null) {
-            instance = new SiteSettingsManager();
-            instance.loadSiteSettings(context);
-        }
-        return instance;
-    }
+    private static final String TAG = SiteSettingsManager.class.getSimpleName();
 
-
-    public void stopAlarmIfNeeded(Context context) {
-        if (siteSettingsList.size() == 0) {
-            AlarmReceiver.stopAlarm(context);
-        }
-    }
-
-    public void startAlarmIfNeeded(Context context) {
-        if (siteSettingsList.size() > 0) {
-            AlarmReceiver.startAlarm(context);
-        }
-    }
-
-    public List<SiteSettings> getSiteSettingsUnmodifiableList() {
-        return Collections.unmodifiableList(new ArrayList<SiteSettings>(siteSettingsList));
-    }
-
-    public int size() {
-        return siteSettingsList.size();
-    }
-
-    public SiteSettingsAdapter getArrayAdapter(Context context) {
-        if (siteSettingsAdapter == null) {
-            siteSettingsAdapter = new SiteSettingsAdapter(context, this);
-        }
-        return siteSettingsAdapter;
-    }
-
-    public void add(Context context, SiteSettings siteSettings) {
-        siteSettingsList.add(siteSettings);
-        Collections.sort(siteSettingsList);
-        if (siteSettingsAdapter != null) {
-            siteSettingsAdapter.notifyDataSetChanged();
-        }
-        startAlarmIfNeeded(context);
-    }
-
-    public void remove(Context context, SiteSettings siteSettings) {
-        siteSettingsList.remove(siteSettings);
-        Collections.sort(siteSettingsList);
-        if (siteSettingsAdapter != null) {
-            siteSettingsAdapter.notifyDataSetChanged();
-        }
-        stopAlarmIfNeeded(context);
-    }
-
-    public synchronized void saveSiteSettings(Context context) {
-        DataStoreService.startActionSaveData(context, DataStoreService.KEY_JSON_SITE_SETTINGS, new ArrayList<SiteSettings>(siteSettingsList));
-    }
-
-    private synchronized void loadSiteSettings(Context context) {
+    public synchronized static void migrateDataFromJsonToDatabase(Context context) {
         String jsonData = DataStoreService.getStringNow(context, DataStoreService.KEY_JSON_SITE_SETTINGS);
-        if (!jsonData.isEmpty()) {
+        if (jsonData != null && !jsonData.isEmpty()) {
             List<SiteSettings> jsonList = GsonUtil.fromJson(jsonData, new TypeToken<List<SiteSettings>>() {
             });
-            siteSettingsList.clear();
-            siteSettingsList.addAll(jsonList);
-            refreshData();
-            startAlarmIfNeeded(context);
-        }
-    }
+            if (jsonList != null && !jsonList.isEmpty()) {
+                // store in db
+                DBHelper dbHelper = DBHelper.getHelper(context);
+                try {
+                    DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                    DBSiteCall dbSiteCall = dbHelper.getDBSiteCall();
 
-    List<SiteSettings> getSiteSettingsList() {
-        return siteSettingsList;
-    }
-
-    public boolean contains(SiteSettings siteSettings) {
-        return siteSettingsList.contains(siteSettings);
-    }
-
-    public void refreshData() {
-        Collections.sort(siteSettingsList);
-        if (this.siteSettingsAdapter != null) {
-            this.siteSettingsAdapter.notifyDataSetChanged();
-        }
-    }
-
-    /**
-     * @param host
-     * @return found object or null
-     */
-    public SiteSettings getBy(String host) {
-        for (SiteSettings siteSettings : siteSettingsList) {
-            if (siteSettings.getHost().equals(host)) {
-                return siteSettings;
+                    for (SiteSettings siteSettings : jsonList) {
+                        dbSiteSettings.create(siteSettings);
+                        for (SiteCall siteCall : siteSettings.getCalls()) {
+                            siteCall.setSiteSettings(siteSettings);
+                            dbSiteCall.create(siteCall);
+                        }
+                    }
+                    if (BuildConfig.DEBUG) {
+                        Log.i(TAG, "migrateDataFromJsonToDatabase - copy in database SUCCESS");
+                    }
+                    DataStoreService.saveNow(context, DataStoreService.KEY_JSON_SITE_SETTINGS, null);
+                } catch (SQLException e) {
+                    Log.e(TAG, "migrateDataFromJsonToDatabase - copy in database", e);
+                } finally {
+                    dbHelper.release();
+                }
             }
         }
-        return null;
     }
-
-
 }
