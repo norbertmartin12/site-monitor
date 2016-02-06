@@ -219,7 +219,7 @@ public class SiteSettings implements Comparable<SiteSettings>, Parcelable {
 
     public boolean isLastCallIsCertError() {
         SiteCall lastCall = getLastCall();
-        if (lastCall == null || lastCall.getResult() != NetworkCallResult.FAIL) {
+        if (lastCall == null || lastCall.getResult() != NetworkCallResult.FAIL || lastCall.getException() == null) {
             return false;
         }
         return lastCall.getException().startsWith(CERT_PATH_EXCEPTION);
