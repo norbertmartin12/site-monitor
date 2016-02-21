@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <!--
   ~ Copyright (c) 2016 Martin Norbert
   ~  Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +13,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <manifest
     package="org.site_monitor"
     xmlns:android="http://schemas.android.com/apk/res/android"
@@ -78,6 +76,7 @@
             android:name=".receiver.internal.AlarmBroadcastReceiver"
             android:enabled="false"
             android:exported="false"/>
+
         <service
             android:name=".service.NetworkService"
             android:enabled="true"
@@ -123,8 +122,7 @@
                 android:value=".activity.MainActivity"/>
         </activity>
 
-        <receiver
-            android:name=".widget.LineWidget">
+        <receiver android:name=".widget.LineWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -133,8 +131,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/line_widget_info"/>
         </receiver>
-        <receiver
-            android:name=".widget.SquareWidget">
+        <receiver android:name=".widget.SquareWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>

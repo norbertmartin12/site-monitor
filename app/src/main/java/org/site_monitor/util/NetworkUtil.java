@@ -42,7 +42,7 @@ public class NetworkUtil {
     private static final String TAG = NetworkUtil.class.getSimpleName();
 
     private static final String RECVFROM_FAILED_ECONNRESET = "recvfrom failed: ECONNRESET";
-    private static final String BOT_AGENT = "bot-on-web-monitor";
+    private static final String BOT_AGENT = "bot-site-monitor";
     private static final String USER_AGENT = "User-Agent";
     private static final String CLOSE = "close";
     private static final String CONNECTION = "Connection";
