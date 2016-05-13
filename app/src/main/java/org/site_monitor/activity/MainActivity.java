@@ -25,6 +25,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Parcelable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -226,7 +227,7 @@ public class MainActivity extends FragmentActivity implements SiteSettingsAdapte
         }
         if (id == R.id.action_inject) {
             try {
-                DummySiteInjector.inject(context, taskFragment, dbHelper.getDBSiteSettings());
+                DummySiteInjector.inject(item.getActionView(), taskFragment, dbHelper.getDBSiteSettings());
                 loadSiteSettingsBusinesses();
                 alarmUtil.startAlarmIfNeeded(context);
             } catch (SQLException e) {
@@ -330,7 +331,7 @@ public class MainActivity extends FragmentActivity implements SiteSettingsAdapte
         }
     }
 
-    public void floatingAddSite(View v) {
+    public void floatingAddSite(final View v) {
         GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_touched).build());
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.add_monitor);
@@ -348,7 +349,7 @@ public class MainActivity extends FragmentActivity implements SiteSettingsAdapte
                 try {
                     DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
                     if (dbSiteSettings.findForHost(host) != null) {
-                        Toast.makeText(context, host + getString(R.string.already_exists), Toast.LENGTH_SHORT).show();
+                        Snackbar.make(v, host + getString(R.string.already_exists), Snackbar.LENGTH_SHORT).show();
                         GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_already_exists).build());
                         return;
                     }

@@ -15,8 +15,8 @@
 
 package org.site_monitor.activity.fragment;
 
-import android.content.Context;
-import android.widget.Toast;
+import android.support.design.widget.Snackbar;
+import android.view.View;
 
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.model.db.DBSiteSettings;
@@ -32,12 +32,12 @@ public class DummySiteInjector {
 
     private static final String[] HOSTS = {"192.168.1.9", "http://www.alittlemarket.com/boutique/soanity-709555.html", "home.jbrieu.info"};
 
-    public static void inject(Context context, TaskCallback.Provider callbackProvider, DBSiteSettings dbSiteSettings) throws SQLException {
-        Toast.makeText(context, "inject dummy data", Toast.LENGTH_LONG).show();
+    public static void inject(View view, TaskCallback.Provider callbackProvider, DBSiteSettings dbSiteSettings) throws SQLException {
+        Snackbar.make(view, "inject dummy data", Snackbar.LENGTH_LONG).show();
         for (String host : HOSTS) {
             SiteSettings siteSettings = new SiteSettings(host);
             dbSiteSettings.create(siteSettings);
-            new NetworkTask(context, callbackProvider).execute(siteSettings);
+            new NetworkTask(view.getContext(), callbackProvider).execute(siteSettings);
         }
 
     }
