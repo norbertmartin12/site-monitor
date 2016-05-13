@@ -199,7 +199,9 @@ public class SiteSettings implements Parcelable {
         dest.writeString(host);
         dest.writeInt(isNotificationEnabled ? 1 : 0);
         dest.writeList(calls);
-        dest.writeByteArray(favicon);
+        if (favicon != null) {
+            dest.writeByteArray(favicon);
+        }
     }
 
 }
