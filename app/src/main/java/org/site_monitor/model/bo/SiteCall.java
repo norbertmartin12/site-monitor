@@ -22,6 +22,7 @@ import com.google.gson.annotations.Expose;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.Date;
 
@@ -66,7 +67,7 @@ public class SiteCall implements Parcelable {
     }
 
     public SiteCall(Date date, NetworkCallResult callResult) {
-        this(date, callResult, null, null);
+        this(date, callResult, 0L, null);
     }
 
     public SiteCall(Date date, NetworkCallResult callResult, Long responseTime, int responseCode) {
@@ -74,7 +75,7 @@ public class SiteCall implements Parcelable {
     }
 
     public SiteCall(Date date, NetworkCallResult callResult, Long responseTime, Exception e) {
-        this(date, callResult, null, responseTime, e);
+        this(date, callResult, HttpURLConnection.HTTP_NOT_FOUND, responseTime, e);
     }
 
     public SiteCall(Date date, NetworkCallResult callResult, Integer responseCode, Long responseTime, Exception e) {
