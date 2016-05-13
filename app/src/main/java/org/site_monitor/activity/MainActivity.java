@@ -227,7 +227,7 @@ public class MainActivity extends FragmentActivity implements SiteSettingsAdapte
         }
         if (id == R.id.action_inject) {
             try {
-                DummySiteInjector.inject(item.getActionView(), taskFragment, dbHelper.getDBSiteSettings());
+                DummySiteInjector.inject(this.getCurrentFocus(), taskFragment, dbHelper.getDBSiteSettings());
                 loadSiteSettingsBusinesses();
                 alarmUtil.startAlarmIfNeeded(context);
             } catch (SQLException e) {

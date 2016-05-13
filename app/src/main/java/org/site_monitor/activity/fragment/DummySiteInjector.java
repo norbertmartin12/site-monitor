@@ -30,7 +30,7 @@ import java.sql.SQLException;
  */
 public class DummySiteInjector {
 
-    private static final String[] HOSTS = {"192.168.1.9", "http://www.alittlemarket.com/boutique/soanity-709555.html", "home.jbrieu.info"};
+    private static final String[] HOSTS = {"192.168.1.9", "https://www.alittlemarket.com/boutique/soanity-709555.html", "home.jbrieu.info"};
 
     public static void inject(View view, TaskCallback.Provider callbackProvider, DBSiteSettings dbSiteSettings) throws SQLException {
         Snackbar.make(view, "inject dummy data", Snackbar.LENGTH_LONG).show();

@@ -28,7 +28,6 @@ import org.site_monitor.model.bo.SiteSettings;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.SocketException;
 import java.net.URL;
 import java.util.Date;
 
@@ -89,14 +88,15 @@ public class NetworkUtil {
                 urlConnection = buildHeadHttpConnection(siteSettings);
                 siteCall = doCall(urlConnection, timer);
             } catch (IOException e) {
-                siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
-                if (e instanceof SocketException && e.getLocalizedMessage().startsWith(RECVFROM_FAILED_ECONNRESET)) {
+                if (e.getLocalizedMessage() != null && e.getLocalizedMessage().startsWith(RECVFROM_FAILED_ECONNRESET)) {
                     try {
                         urlConnection = buildHeadHttpConnection(siteSettings);
                         siteCall = doCall(urlConnection, timer);
                     } catch (IOException e2) {
                         siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
                     }
+                } else {
+                    siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
                 }
             } finally {
                 if (urlConnection != null) {
