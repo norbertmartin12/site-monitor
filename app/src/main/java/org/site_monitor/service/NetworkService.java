@@ -123,6 +123,10 @@ public class NetworkService extends IntentService {
         }
         Log.d(TAG, "favicon: " + siteSettings);
         Bitmap favicon = NetworkUtil.loadFaviconFor(siteSettings.getHost());
+        if (favicon == null) {
+            Log.w(TAG, "refreshFavicon, not favicon for: " + url);
+            return;
+        }
         ByteBuffer buffer = ByteBuffer.allocate(favicon.getByteCount());
         favicon.copyPixelsToBuffer(buffer);
         siteSettings.setFavicon(buffer.array());
