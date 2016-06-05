@@ -23,7 +23,7 @@
         <item>1 hour</item>
         <item>3 hours</item>
     </string-array>
-    <string-array name="pref_frequency_values">
+    <string-array name="pref_frequency_values" translatable="false">
         <item>5</item>
         <item>15</item>
         <item>30</item>
@@ -44,7 +44,7 @@
         <item>Blue</item>
         <item>Red</item>
     </string-array>
-    <string-array name="pref_notification_light_color_values">
+    <string-array name="pref_notification_light_color_values" translatable="false">
         <item>-1</item>
         <item>-16776961</item>
         <item>-65536</item>
