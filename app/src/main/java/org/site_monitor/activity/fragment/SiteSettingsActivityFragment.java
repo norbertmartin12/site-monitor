@@ -23,11 +23,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import org.site_monitor.GA;
@@ -45,10 +45,12 @@ import org.site_monitor.service.NetworkService;
  */
 public class SiteSettingsActivityFragment extends TaskFragment implements NetworkBroadcastReceiver.Listener {
 
-    private CheckBox trustCertificateCheckbox;
+    private CompoundButton trustCertificateCheckable;
     private View trustCertificateView;
-    private CheckBox notificationCheckbox;
+    private CompoundButton notificationCheckable;
     private TextView hostTextView;
+    private TextView internalUrlTextView;
+    private ViewGroup internalUrlViewGroup;
     private ListView callListView;
     private ProgressBar progressBar;
     private ImageView faviconView;
@@ -73,11 +75,13 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_site_settings, container, false);
-        notificationCheckbox = (CheckBox) view.findViewById(R.id.notificationCheckbox);
-        trustCertificateCheckbox = (CheckBox) view.findViewById(R.id.trustCertificateCheckbox);
+        notificationCheckable = (Switch) view.findViewById(R.id.notificationSwitch);
+        trustCertificateCheckable = (Switch) view.findViewById(R.id.trustCertificateSwitch);
         trustCertificateView = view.findViewById(R.id.trustCertificateView);
         callListView = (ListView) view.findViewById(R.id.callListView);
         hostTextView = (TextView) view.findViewById(R.id.hostTextView);
+        internalUrlViewGroup = (ViewGroup) view.findViewById(R.id.internalIpLayout);
+        internalUrlTextView = (TextView) view.findViewById(R.id.internalIpTextView);
         progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
         faviconView = (ImageView) view.findViewById(R.id.faviconImage);
         return view;
@@ -87,7 +91,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     public void onResume() {
         super.onResume();
         updateView();
-        notificationCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        notificationCheckable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -99,7 +103,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
                 callback.hasChanged(siteSettings.getSiteSettings());
             }
         });
-        trustCertificateCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        trustCertificateCheckable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -123,27 +127,33 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     @Override
     public void onPause() {
         super.onPause();
-        notificationCheckbox.setOnCheckedChangeListener(null);
-        trustCertificateCheckbox.setOnCheckedChangeListener(null);
+        notificationCheckable.setOnCheckedChangeListener(null);
+        trustCertificateCheckable.setOnCheckedChangeListener(null);
         if (networkBroadcastReceiver != null) {
             LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(networkBroadcastReceiver);
         }
     }
 
-    private void updateView() {
+    void updateView() {
         if (siteSettings != null) {
             if (siteCallAdapter == null) {
                 siteCallAdapter = new SiteCallAdapter(getActivity(), siteSettings);
             }
             callListView.setAdapter(siteCallAdapter);
             hostTextView.setText(siteSettings.getHost());
-            if (notificationCheckbox.isChecked() != siteSettings.isNotificationEnabled()) {
-                notificationCheckbox.setChecked(siteSettings.isNotificationEnabled());
+            if (siteSettings.getInternalUrl() != null) {
+                internalUrlViewGroup.setVisibility(View.VISIBLE);
+                internalUrlTextView.setText(siteSettings.getInternalUrl());
+            } else {
+                internalUrlViewGroup.setVisibility(View.GONE);
             }
-            if (siteSettings.isForcedCertificate() || siteSettings.isLastCallIsCertError()) {
+            if (notificationCheckable.isChecked() != siteSettings.isNotificationEnabled()) {
+                notificationCheckable.setChecked(siteSettings.isNotificationEnabled());
+            }
+            if (siteSettings.isForcedCertificate() || siteSettings.isLastCallCertError()) {
                 trustCertificateView.setVisibility(View.VISIBLE);
-                if (trustCertificateCheckbox.isChecked() != siteSettings.isForcedCertificate()) {
-                    trustCertificateCheckbox.setChecked(siteSettings.isForcedCertificate());
+                if (trustCertificateCheckable.isChecked() != siteSettings.isForcedCertificate()) {
+                    trustCertificateCheckable.setChecked(siteSettings.isForcedCertificate());
                 }
             } else {
                 trustCertificateView.setVisibility(View.GONE);

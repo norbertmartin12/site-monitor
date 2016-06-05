@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.InputType;
@@ -55,8 +56,9 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
     private static final String PARCEL_SITE = "site";
     private SiteSettingsBusiness siteSettings;
     private MenuItem syncMenuItem;
+    private MenuItem addInternalIpMenuItem;
     private SiteSettingsActivityFragment siteSettingsFragment;
-    private Context context;
+    private SiteSettingsActivity context;
     private DBHelper dbHelper;
 
     public static void start(Context context, String siteSettingsUrl) {
@@ -73,10 +75,10 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
             Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
             finish();
         }
+        dbHelper = DBHelper.getHelper(context);
         if (savedInstanceState == null || savedInstanceState.isEmpty()) {
             try {
                 startService(NetworkService.intentToLoadFavicon(this, url));
-                dbHelper = DBHelper.getHelper(context);
                 SiteSettings dbSiteSettings = dbHelper.getDBSiteSettings().findForHost(url);
                 if (dbSiteSettings == null) {
                     Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
@@ -120,6 +122,8 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_site_settings, menu);
         syncMenuItem = menu.findItem(R.id.action_refresh);
+        addInternalIpMenuItem = menu.findItem(R.id.action_add_internal_ip);
+        addInternalIpMenuItem.setChecked(siteSettings.getInternalUrl() != null);
         return true;
     }
 
@@ -143,7 +147,7 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
             final EditText input = new EditText(context);
             input.setHint(R.string.hint_rename_site);
             input.setText(siteSettings.getName());
-            input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
             builder.setView(input);
             builder.setPositiveButton(R.string.action_rename, new DialogInterface.OnClickListener() {
                 @Override
@@ -201,6 +205,58 @@ public class SiteSettingsActivity extends FragmentActivity implements SiteSettin
                 }
             });
             builder.show();
+            return true;
+        }
+        if (id == R.id.action_add_internal_ip) {
+            if (addInternalIpMenuItem.isChecked()) {
+                try {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_remove, R.string.l_touched).build());
+                    siteSettings.getSiteSettings().setInternalUrl(null);
+                    DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                    dbSiteSettings.update(siteSettings.getSiteSettings());
+                    addInternalIpMenuItem.setChecked(!addInternalIpMenuItem.isChecked());
+                    Snackbar.make(this.getCurrentFocus(), R.string.internal_url_removed, Snackbar.LENGTH_SHORT).show();
+                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_remove, R.string.l_done).build());
+                    siteSettingsFragment.setSiteSettings(siteSettings);
+                } catch (SQLException e) {
+                    Log.e(TAG, "update", e);
+                }
+            } else {
+                GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_add, R.string.l_touched).build());
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle(R.string.add_internal_url);
+                final EditText input = new EditText(context);
+                input.setHint(R.string.hint_interval_site_url);
+                input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_URI);
+                builder.setView(input);
+                builder.setPositiveButton(R.string.action_add, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String internalIp = input.getText().toString().trim();
+                        if (internalIp.isEmpty()) {
+                            return;
+                        }
+                        try {
+                            siteSettings.getSiteSettings().setInternalUrl(internalIp);
+                            DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                            dbSiteSettings.update(siteSettings.getSiteSettings());
+                            GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_add, R.string.l_done).build());
+                            addInternalIpMenuItem.setChecked(!addInternalIpMenuItem.isChecked());
+                            Snackbar.make(context.getCurrentFocus(), R.string.internal_url_added, Snackbar.LENGTH_SHORT).show();
+                            siteSettingsFragment.setSiteSettings(siteSettings);
+                        } catch (SQLException e) {
+                            Log.e(TAG, "update", e);
+                        }
+                    }
+                });
+                builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_add, R.string.l_cancel).build());
+                    }
+                });
+                builder.show();
+            }
             return true;
         }
         return false;

@@ -36,7 +36,7 @@ import java.sql.SQLException;
 public class DBHelper extends OrmLiteSqliteOpenHelper {
 
     private static final String DATABASE_NAME = "sitemonitor.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String TAG = DBHelper.class.getSimpleName();
 
     public DBHelper(Context context) {
@@ -76,6 +76,14 @@ public class DBHelper extends OrmLiteSqliteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            try {
+                Dao<SiteSettings, Long> dao = getDao(SiteSettings.class);
+                dao.executeRaw("ALTER TABLE `sitesettings` ADD COLUMN internalUrl VARCHAR;");
+            } catch (SQLException e) {
+                Log.e(TAG, "onUpgrade < 2, oldVersion: " + oldVersion + " newVersion: " + newVersion, e);
+            }
+        }
     }
 
     /**

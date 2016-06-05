@@ -57,19 +57,18 @@ public class NetworkUtil {
      * @param url
      */
     public static Bitmap loadFaviconFor(String url) {
-        InputStream is = null;
         try {
-            is = (InputStream) new URL(FAVICON_SERVICE_URL + url).getContent();
+            InputStream is = (InputStream) new URL(FAVICON_SERVICE_URL + url).getContent();
+            if (BuildConfig.DEBUG) {
+                Log.v(TAG, "loadFaviconFor " + url + " succeed");
+            }
+            return BitmapFactory.decodeStream(is);
         } catch (IOException e) {
             if (BuildConfig.DEBUG) {
                 Log.w(TAG, "loadFaviconFor " + url + " fails: " + e, e);
             }
             return null;
         }
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "loadFaviconFor " + url + " succeed");
-        }
-        return BitmapFactory.decodeStream(is);
     }
 
     /**
@@ -85,28 +84,48 @@ public class NetworkUtil {
             HttpURLConnection urlConnection = null;
             Timer timer = new Timer();
             try {
-                urlConnection = buildHeadHttpConnection(siteSettings);
+                urlConnection = buildHeadHttpConnection(siteSettings.getHost(), siteSettings.isForcedCertificate());
                 siteCall = doCall(urlConnection, timer);
             } catch (IOException e) {
+                disconnect(urlConnection);
                 if (e.getLocalizedMessage() != null && e.getLocalizedMessage().startsWith(RECVFROM_FAILED_ECONNRESET)) {
+                    Log.d(TAG, "RECVFROM_FAILED_ECONNRESET - retry once: " + siteSettings);
                     try {
-                        urlConnection = buildHeadHttpConnection(siteSettings);
+                        timer = new Timer();
+                        urlConnection = buildHeadHttpConnection(siteSettings.getHost(), siteSettings.isForcedCertificate());
                         siteCall = doCall(urlConnection, timer);
-                    } catch (IOException e2) {
+                    } catch (IOException eConnReset) {
+                        disconnect(urlConnection);
                         siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
                     }
                 } else {
-                    siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
+                    try {
+                        if (siteSettings.getInternalUrl() != null) {
+                            Log.d(TAG, "retry with internal URL: " + siteSettings);
+                            timer = new Timer();
+                            urlConnection = buildHeadHttpConnection(siteSettings.getInternalUrl(), siteSettings.isForcedCertificate());
+                            siteCall = doCall(urlConnection, timer);
+                        } else {
+                            siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
+                        }
+                    } catch (IOException eInternalIp) {
+                        disconnect(urlConnection);
+                        siteCall = new SiteCall(timer.getReferenceDate(), NetworkCallResult.FAIL, timer.getElapsedTime(), e);
+                    }
                 }
             } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
+                disconnect(urlConnection);
             }
         } else {
             siteCall = new SiteCall(new Date(), NetworkCallResult.NO_CONNECTIVITY);
         }
         return siteCall;
+    }
+
+    public void disconnect(HttpURLConnection urlConnection) {
+        if (urlConnection != null) {
+            urlConnection.disconnect();
+        }
     }
 
     /**
@@ -129,16 +148,17 @@ public class NetworkUtil {
     /**
      * Builds HttpURLConnection (requestMethod = head, property = connection/close, no cache, follow redirects, connection/read timeout 10sec
      *
-     * @param siteSettings
+     * @param host
+     * @param forceTrust
      * @return HttpURLConnection
      * @throws IOException
      */
-    private HttpURLConnection buildHeadHttpConnection(SiteSettings siteSettings) throws IOException {
+    private HttpURLConnection buildHeadHttpConnection(String host, boolean forceTrust) throws IOException {
         URL url;
-        if (siteSettings.getHost().toLowerCase().startsWith(HTTP)) {
-            url = new URL(siteSettings.getHost());
+        if (host.toLowerCase().startsWith(HTTP)) {
+            url = new URL(host);
         } else {
-            url = new URL(HTTP + ROOT_PROTOCOL + siteSettings.getHost());
+            url = new URL(HTTP + ROOT_PROTOCOL + host);
         }
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setRequestMethod(METHOD_HEAD);
@@ -151,7 +171,7 @@ public class NetworkUtil {
         urlConnection.setInstanceFollowRedirects(true);
         urlConnection.setConnectTimeout(TIMEOUT_10);
         urlConnection.setReadTimeout(TIMEOUT_10);
-        if (siteSettings.isForcedCertificate()) {
+        if (forceTrust) {
             ((HttpsURLConnection) urlConnection).setSSLSocketFactory(CertificateTrustAllManager.sslSocketFactory());
         }
         return urlConnection;

@@ -35,6 +35,9 @@ import java.util.List;
 public class SiteSettingsBusiness implements Parcelable {
 
     public static final String CERT_PATH_EXCEPTION = "java.security.cert.CertPathValidatorException";
+
+    public static final String FAIL_TO_CONNECT_TO = "failed to connect to";
+
     public static final Creator<SiteSettingsBusiness> CREATOR = new Creator<SiteSettingsBusiness>() {
         @Override
         public SiteSettingsBusiness createFromParcel(Parcel in) {
@@ -46,13 +49,13 @@ public class SiteSettingsBusiness implements Parcelable {
             return new SiteSettingsBusiness[size];
         }
     };
-    private final SiteSettings siteSettings;
     public static final Comparator<SiteSettingsBusiness> NAME_COMPARATOR = new Comparator<SiteSettingsBusiness>() {
         @Override
         public int compare(SiteSettingsBusiness lhs, SiteSettingsBusiness rhs) {
             return lhs.getName().compareToIgnoreCase(rhs.getName());
         }
     };
+    private final SiteSettings siteSettings;
     private boolean isChecking;
     private List<SiteCall> siteCalls;
     private Bitmap faviconCache;
@@ -70,6 +73,20 @@ public class SiteSettingsBusiness implements Parcelable {
         siteSettings = in.readParcelable(SiteSettings.class.getClassLoader());
         isChecking = in.readByte() != 0;
         siteCalls = in.readArrayList(SiteCall.class.getClassLoader());
+    }
+
+    public static boolean isCallCertError(SiteCall siteCall) {
+        if (siteCall == null || siteCall.getResult() != NetworkCallResult.FAIL || siteCall.getException() == null) {
+            return false;
+        }
+        return siteCall.getException().startsWith(CERT_PATH_EXCEPTION);
+    }
+
+    public static boolean isCallFailToConnectError(SiteCall lastCall) {
+        if (lastCall == null || lastCall.getResult() != NetworkCallResult.FAIL || lastCall.getException() == null) {
+            return false;
+        }
+        return lastCall.getException().startsWith(FAIL_TO_CONNECT_TO);
     }
 
     /**
@@ -107,12 +124,12 @@ public class SiteSettingsBusiness implements Parcelable {
         return new Pair<SiteCall, SiteCall>(start, last);
     }
 
-    public boolean isLastCallIsCertError() {
-        SiteCall lastCall = getLastCall();
-        if (lastCall == null || lastCall.getResult() != NetworkCallResult.FAIL || lastCall.getException() == null) {
-            return false;
-        }
-        return lastCall.getException().startsWith(CERT_PATH_EXCEPTION);
+    public boolean isLastCallCertError() {
+        return isCallCertError(getLastCall());
+    }
+
+    public boolean isLastCalFailToConnectSError() {
+        return isCallFailToConnectError(getLastCall());
     }
 
     public List<SiteCall> getCalls() {
@@ -121,6 +138,10 @@ public class SiteSettingsBusiness implements Parcelable {
 
     public String getHost() {
         return siteSettings.getHost();
+    }
+
+    public String getInternalUrl() {
+        return siteSettings.getInternalUrl();
     }
 
     public Long getId() {

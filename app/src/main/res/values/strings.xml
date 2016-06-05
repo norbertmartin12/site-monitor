@@ -27,11 +27,13 @@
     <string name="action_cancel">Cancel</string>
 
     <string name="add_monitor">Add site</string>
+    <string name="add_internal_url">Add internal URL</string>
     <string name="no_name">[no name]</string>
     <string name="remove_current_monitor">Remove website ?</string>
 
     <string name="hint_rename_site">website short name</string>
     <string name="hint_site_url">ie: https://google.fr</string>
+    <string name="hint_interval_site_url">ie: http://192.168.1.14</string>
     <string name="notifications">Notifications</string>
     <string name="last_calls">Last calls</string>
     <string name="site_not_found">Oups site not found !!!</string>
@@ -43,13 +45,22 @@
 
     <string name="no_connectivity_available">No connectivity available</string>
     <string name="already_exists">" already exists"</string>
-    <string name="copy_right">Copyright 2016 Martin Norbert</string>
+    <string name="copy_right" translatable="false">Copyright 2016 Martin Norbert</string>
     <string name="contact">Developer: norbertmartin12@gmail.com</string>
-    <string name="apache_license">Apache License v2.0\nhttp://www.apache.org/licenses/LICENSE-2.0</string>
+    <string name="apache_license" translatable="false">Apache License v2.0\nhttp://www.apache.org/licenses/LICENSE-2.0</string>
     <string name="trello">Follow on Trello</string>
     <string name="rateApp">Rate on Play Store</string>
     <string name="widget_all_ok">You\'re on the web</string>
     <string name="widget_no_site">No website to monitor</string>
     <string name="imminent">imminent</string>
     <string name="trust_certificate">Force certificate trust</string>
+
+    <string name="tip_fail_to_connect">NOT REACHABLE SITE\n\n1/Your site is hosted on a local server without internal DNS ? Add a internal URL from the menu.\n\n2/Your site has a dynamic IP address that has changed: control your DNS record.</string>
+    <string name="tip_fail_cert_error">INVALID CERTIFICATE\n\nYour site has a invalid certificate, are you sure ? Use trust option that just appears to force trust.</string>
+    <string name="tip_unknown_state">Unknown state, no network available</string>
+    <string name="tip_all_ok">You\'re on the web</string>
+    <string name="tip_unknown_error_good_luck">No help for this error, good luck !</string>
+    <string name="action_add_internal_ip">Add internal URL</string>
+    <string name="internal_url_removed">Internal URL removed</string>
+    <string name="internal_url_added">Internal URL added</string>
 </resources>

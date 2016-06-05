@@ -51,4 +51,14 @@
     <string name="widget_no_site">Aucun site à surveiller</string>
     <string name="imminent">imminent</string>
     <string name="trust_certificate">Accepter le certificat du serveur</string>
+    <string name="tip_all_ok">Vous êtes sur le web</string>
+    <string name="tip_unknown_state">Etat inconnu, pas de connectivité</string>
+    <string name="tip_fail_cert_error">CERTIFICAT INVALIDE\n\nLe certificat du site est invalide, êtes vous sur ? Utilisez l\'option qui vient d\'apparaître pour accepter le certificat.</string>
+    <string name="tip_fail_to_connect">SITE INACCESSIBLE\n\n1/Votre site est hébergé sur un serveur local sans DNS interne ? Ajoutez une URL interne depuis le menu.\n\n2/Votre site a une IP dynamique, elle vient peut être de changer ?! Controler votre enregistrement DNS.</string>
+    <string name="tip_unknown_error_good_luck">Pas d\'aide pour cette erreur, bonne chance !</string>
+    <string name="action_add_internal_ip">URL interne</string>
+    <string name="hint_interval_site_url">ex: http://192.168.1.14</string>
+    <string name="add_internal_url">Ajouter une URL interne</string>
+    <string name="internal_url_removed">URL interne supprimée</string>
+    <string name="internal_url_added">URL interne ajoutée</string>
 </resources>

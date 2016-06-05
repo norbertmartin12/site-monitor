@@ -56,6 +56,9 @@ public class SiteSettings implements Parcelable {
     @DatabaseField(canBeNull = false, uniqueIndex = true)
     private String host;
     @Expose
+    @DatabaseField(canBeNull = true, uniqueIndex = true)
+    private String internalUrl;
+    @Expose
     @DatabaseField
     private boolean isNotificationEnabled = true;
     @Expose
@@ -80,6 +83,7 @@ public class SiteSettings implements Parcelable {
     public SiteSettings(Parcel in) {
         name = in.readString();
         host = in.readString();
+        internalUrl = in.readString();
         isNotificationEnabled = in.readInt() == 1 ? true : false;
         in.readList(calls, SiteCall.class.getClassLoader());
         in.readByteArray(favicon);
@@ -145,6 +149,14 @@ public class SiteSettings implements Parcelable {
         this.favicon = favicon;
     }
 
+    public String getInternalUrl() {
+        return internalUrl;
+    }
+
+    public void setInternalUrl(String internalUrl) {
+        this.internalUrl = internalUrl;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof SiteSettings) {
@@ -164,6 +176,7 @@ public class SiteSettings implements Parcelable {
         return "SiteSettings{" +
                 "name='" + name + '\'' +
                 ", host='" + host + '\'' +
+                ", internalUrl='" + internalUrl + '\'' +
                 ", isNotificationEnabled=" + isNotificationEnabled +
                 ", calls=" + calls.size() +
                 '}';
@@ -197,6 +210,7 @@ public class SiteSettings implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeString(host);
+        dest.writeString(internalUrl);
         dest.writeInt(isNotificationEnabled ? 1 : 0);
         dest.writeList(calls);
         if (favicon != null) {

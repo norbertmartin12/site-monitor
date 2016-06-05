@@ -15,8 +15,10 @@
 
 package org.site_monitor.activity.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Resources;
+import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +39,7 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
 
     public static final String MS = "ms";
     public static final String UNKNOWN = "?";
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
     private final LayoutInflater inflater;
 
     public SiteCallAdapter(Context context, SiteSettingsBusiness siteSettings) {
@@ -57,20 +59,20 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
         return convertView;
     }
 
-    private void updateView(ViewHandler viewHandler) {
-        String date = simpleDateFormat.format(viewHandler.siteCall.getDate());
+    private void updateView(final ViewHandler viewHandler) {
+        final String date = simpleDateFormat.format(viewHandler.siteCall.getDate());
         viewHandler.mainTextView.setText(date);
 
-        if (viewHandler.siteCall.getResponseCode() != null) {
-            viewHandler.secondCodeTextView.setText(viewHandler.siteCall.getResponseCode().toString());
-        } else if (viewHandler.siteCall.getException() != null) {
+        if (viewHandler.siteCall.getException() != null) {
             viewHandler.secondCodeTextView.setText(viewHandler.siteCall.getException());
         } else if (viewHandler.siteCall.getResult() == NetworkCallResult.NO_CONNECTIVITY) {
             viewHandler.secondCodeTextView.setText(R.string.no_connectivity_available);
+        } else if (viewHandler.siteCall.getResponseCode() != null) {
+            viewHandler.secondCodeTextView.setText(viewHandler.siteCall.getResponseCode().toString());
         } else {
             viewHandler.secondCodeTextView.setText(UNKNOWN);
         }
-        NetworkCallResult result = viewHandler.siteCall.getResult();
+        final NetworkCallResult result = viewHandler.siteCall.getResult();
         Resources resources = viewHandler.view.getResources();
         if (result == NetworkCallResult.SUCCESS) {
             viewHandler.view.setBackgroundColor(resources.getColor(R.color.state_success));
@@ -85,6 +87,32 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
         } else {
             viewHandler.responseTimeTextView.setText("");
         }
+
+        viewHandler.view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String prefixText = date + " - ";
+                if (result == NetworkCallResult.SUCCESS) {
+                    prefixText += getContext().getText(R.string.tip_all_ok);
+                    Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
+                } else if (result == NetworkCallResult.FAIL) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    if (SiteSettingsBusiness.isCallCertError(viewHandler.siteCall)) {
+                        builder.setMessage(R.string.tip_fail_cert_error);
+                    } else if (SiteSettingsBusiness.isCallFailToConnectError(viewHandler.siteCall)) {
+                        builder.setMessage(R.string.tip_fail_to_connect);
+                    } else {
+                        prefixText += getContext().getText(R.string.tip_unknown_error_good_luck);
+                        Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
+                        return;
+                    }
+                    builder.show();
+                } else {
+                    prefixText += getContext().getText(R.string.tip_unknown_state);
+                    Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private class ViewHandler {

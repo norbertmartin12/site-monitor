@@ -16,6 +16,7 @@
 
 <resources>
     <string name="c_monitor" translatable="false">monitor</string>
+    <string name="c_monitor_internal_url" translatable="false">monitor internal url</string>
     <string name="c_notification" translatable="false">notification</string>
     <string name="c_refresh" translatable="false">refresh</string>
     <string name="c_settings" translatable="false">settings</string>

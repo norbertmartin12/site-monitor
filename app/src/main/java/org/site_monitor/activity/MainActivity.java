@@ -337,7 +337,7 @@ public class MainActivity extends FragmentActivity implements SiteSettingsAdapte
         builder.setTitle(R.string.add_monitor);
         final EditText input = new EditText(context);
         input.setHint(R.string.hint_site_url);
-        input.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_URI);
         builder.setView(input);
         builder.setPositiveButton(R.string.action_add, new DialogInterface.OnClickListener() {
             @Override

@@ -82,7 +82,7 @@
         android:adjustViewBounds="true"
         android:maxHeight="22dp"
         android:maxWidth="22dp"
-        android:src="@drawable/ic_notification_off"/>
+        android:src="@drawable/ic_notifications_off_black_48dp"/>
 
     <TextView
         android:id="@+id/nameText"
