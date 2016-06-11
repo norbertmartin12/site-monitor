@@ -26,7 +26,7 @@ import org.site_monitor.BuildConfig;
 import org.site_monitor.activity.PrefSettingsActivity;
 import org.site_monitor.model.db.DBHelper;
 import org.site_monitor.receiver.AlarmReceiver;
-import org.site_monitor.service.DataStoreService;
+import org.site_monitor.service.SharedPreferencesService;
 
 import java.sql.SQLException;
 
@@ -191,10 +191,10 @@ public class AlarmUtil {
         if (currentInterval != null) {
             long intervalMilli = currentInterval * TimeUtil.MINUTE_2_MILLISEC;
             nextAlarm = System.currentTimeMillis() + intervalMilli;
-            DataStoreService.saveNow(context, KEY_NEXT_ALARM, nextAlarm);
+            SharedPreferencesService.saveNow(context, KEY_NEXT_ALARM, nextAlarm);
         } else {
             // no next alarm
-            DataStoreService.saveNow(context, KEY_NEXT_ALARM, 0);
+            SharedPreferencesService.saveNow(context, KEY_NEXT_ALARM, 0);
         }
         if (BuildConfig.DEBUG) {
             Log.i(TAG, "updateNextAlarmDate: " + nextAlarm);
@@ -221,7 +221,7 @@ public class AlarmUtil {
     }
 
     public long getNextAlarmTime(Context context) {
-        return DataStoreService.getLongNow(context, KEY_NEXT_ALARM);
+        return SharedPreferencesService.getLongNow(context, KEY_NEXT_ALARM);
     }
 
     public long getCountUntilNextAlarmTime(Context context) {

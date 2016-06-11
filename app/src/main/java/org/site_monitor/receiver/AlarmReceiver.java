@@ -22,6 +22,7 @@ import android.util.Log;
 
 import org.site_monitor.BuildConfig;
 import org.site_monitor.service.NetworkService;
+import org.site_monitor.service.PurgeDbService;
 import org.site_monitor.util.AlarmUtil;
 
 import java.util.Date;
@@ -43,6 +44,7 @@ public class AlarmReceiver extends WakefulBroadcastReceiver {
                 }
                 Thread.sleep(RANDOM.nextInt(10) * 100);
                 WakefulBroadcastReceiver.startWakefulService(context, NetworkService.intentToCheckSites(context));
+                WakefulBroadcastReceiver.startWakefulService(context, PurgeDbService.intent(context));
                 alarmUtil.updateNextAlarmDate(context);
             } catch (InterruptedException e) {
                 if (BuildConfig.DEBUG) {

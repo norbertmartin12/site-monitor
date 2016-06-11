@@ -16,10 +16,12 @@
 package org.site_monitor.model.db;
 
 import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.stmt.PreparedDelete;
 
 import org.site_monitor.model.bo.SiteCall;
 
 import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * Created by Martin Norbert on 31/01/2016.
@@ -36,4 +38,7 @@ public class DBSiteCall {
         return dao.create(siteCall);
     }
 
+    public void removeCallsBefore(Date date) throws SQLException {
+        dao.delete((PreparedDelete<SiteCall>) dao.deleteBuilder().where().lt("date", date).prepare());
+    }
 }

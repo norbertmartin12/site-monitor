@@ -26,9 +26,9 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Parcelable;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -77,7 +77,7 @@ import java.util.List;
 /**
  * Allow user to add and monitor site settings.
  */
-public class MainActivity extends FragmentActivity implements SiteSettingsAdapter.Handler, TaskCallback<NetworkTask, Void, Pair<SiteSettings, SiteCall>>, NetworkBroadcastReceiver.Listener, AlarmBroadcastReceiver.Listener {
+public class MainActivity extends AppCompatActivity implements SiteSettingsAdapter.Handler, TaskCallback<NetworkTask, Void, Pair<SiteSettings, SiteCall>>, NetworkBroadcastReceiver.Listener, AlarmBroadcastReceiver.Listener {
     private static final String TAG_TASK_FRAGMENT = "main_activity_task_fragment";
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String PARCEL_SITE_LIST = "SITE_LIST";
@@ -134,11 +134,25 @@ public class MainActivity extends FragmentActivity implements SiteSettingsAdapte
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        loadDataFromDb = true;
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(alarmBroadcastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(networkBroadcastReceiver);
+        unregisterReceiver(networkBroadcastReceiver);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (dbHelper != null) {
             dbHelper.release();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putParcelableArrayList(PARCEL_SITE_LIST, new ArrayList<Parcelable>(siteSettingsList));
     }
 
     @Override
@@ -157,20 +171,6 @@ public class MainActivity extends FragmentActivity implements SiteSettingsAdapte
         LocalBroadcastManager.getInstance(this).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_END_REFRESH));
         LocalBroadcastManager.getInstance(this).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_FAVICON_UPDATED));
         registerReceiver(networkBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        outState.putParcelableArrayList(PARCEL_SITE_LIST, new ArrayList<Parcelable>(siteSettingsList));
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        loadDataFromDb = true;
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(alarmBroadcastReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(networkBroadcastReceiver);
-        unregisterReceiver(networkBroadcastReceiver);
     }
 
     private void loadSiteSettingsBusinesses() {

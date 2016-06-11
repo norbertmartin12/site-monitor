@@ -13,10 +13,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest
-    package="org.site_monitor"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:installLocation="auto">
+<manifest package="org.site_monitor"
+          xmlns:android="http://schemas.android.com/apk/res/android"
+          android:installLocation="auto">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
@@ -82,10 +81,14 @@
             android:enabled="true"
             android:exported="false"/>
         <service
-            android:name=".service.DataStoreService"
+            android:name=".service.SharedPreferencesService"
             android:enabled="true"
-            android:exported="false">
-        </service>
+            android:exported="false"/>
+
+        <service
+            android:name=".service.PurgeDbService"
+            android:enabled="true"
+            android:exported="false"/>
 
         <activity
             android:name=".activity.MainActivity"
@@ -140,6 +143,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/square_widget_info"/>
         </receiver>
+
     </application>
 
 </manifest>

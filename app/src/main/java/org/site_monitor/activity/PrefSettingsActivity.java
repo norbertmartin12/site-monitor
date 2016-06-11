@@ -55,7 +55,7 @@ import java.util.List;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class PrefSettingsActivity extends PreferenceActivity {
+public class PrefSettingsActivity extends AppCompatPreferenceActivity {
 
     public static final String NOTIFICATIONS_VIBRATE = "notifications_vibrate";
     public static final String NOTIFICATIONS_RINGTONE = "notifications_ringtone";
@@ -189,6 +189,12 @@ public class PrefSettingsActivity extends PreferenceActivity {
         setupActionBar();
     }
 
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        setupSimplePreferencesScreen();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -223,12 +229,6 @@ public class PrefSettingsActivity extends PreferenceActivity {
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        setupSimplePreferencesScreen();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
     }
@@ -260,6 +260,7 @@ public class PrefSettingsActivity extends PreferenceActivity {
         // In the simplified UI, fragments are not used at all and we instead use the older PreferenceActivity APIs.
         addPreferencesFromResource(R.xml.pref_monitoring);
         addPreferencesFromResource(R.xml.pref_notification);
+        addPreferencesFromResource(R.xml.pref_history);
         addPreferencesFromResource(R.xml.pref_analytics);
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to their values. When their values change,
@@ -307,6 +308,19 @@ public class PrefSettingsActivity extends PreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(FREQUENCY));
 
             findPreference(BOOT_START).setOnPreferenceChangeListener(sPreferenceListener);
+        }
+    }
+
+
+    /**
+     * This fragment shows history preferences only.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static class HistoryPreferenceFragment extends PreferenceFragment {
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            addPreferencesFromResource(R.xml.pref_history);
         }
     }
 

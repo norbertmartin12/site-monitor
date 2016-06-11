@@ -26,7 +26,7 @@ import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.model.db.DBHelper;
 import org.site_monitor.model.db.DBSiteCall;
 import org.site_monitor.model.db.DBSiteSettings;
-import org.site_monitor.service.DataStoreService;
+import org.site_monitor.service.SharedPreferencesService;
 import org.site_monitor.util.GsonUtil;
 
 import java.sql.SQLException;
@@ -40,7 +40,7 @@ public class SiteSettingsManager {
     private static final String TAG = SiteSettingsManager.class.getSimpleName();
 
     public synchronized static void migrateDataFromJsonToDatabase(Context context) {
-        String jsonData = DataStoreService.getStringNow(context, DataStoreService.KEY_JSON_SITE_SETTINGS);
+        String jsonData = SharedPreferencesService.getStringNow(context, SharedPreferencesService.KEY_JSON_SITE_SETTINGS);
         if (jsonData != null && !jsonData.isEmpty()) {
             List<SiteSettings> jsonList = GsonUtil.fromJson(jsonData, new TypeToken<List<SiteSettings>>() {
             });
@@ -61,7 +61,7 @@ public class SiteSettingsManager {
                     if (BuildConfig.DEBUG) {
                         Log.i(TAG, "migrateDataFromJsonToDatabase - copy in database SUCCESS");
                     }
-                    DataStoreService.saveNow(context, DataStoreService.KEY_JSON_SITE_SETTINGS, null);
+                    SharedPreferencesService.saveNow(context, SharedPreferencesService.KEY_JSON_SITE_SETTINGS, null);
                 } catch (SQLException e) {
                     Log.e(TAG, "migrateDataFromJsonToDatabase - copy in database", e);
                 } finally {

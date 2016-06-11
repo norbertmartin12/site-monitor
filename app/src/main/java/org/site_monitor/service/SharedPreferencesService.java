@@ -31,15 +31,15 @@ import java.io.Serializable;
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  */
-public class DataStoreService extends IntentService {
+public class SharedPreferencesService extends IntentService {
 
     public static final String KEY_JSON_SITE_SETTINGS = "org.site_monitor.activity.settings.json.siteSettings";
     private static final String ACTION_SAVE_DATA = "org.site_monitor.service.action.SAVE_DATA";
     private static final String EXTRA_DATA = "org.site_monitor.service.extra.DATA";
     private static final String EXTRA_DATA_KEY = "org.site_monitor.service.extra.DATA_KEY";
-    private static final String TAG = DataStoreService.class.getSimpleName();
+    private static final String TAG = SharedPreferencesService.class.getSimpleName();
 
-    public DataStoreService() {
+    public SharedPreferencesService() {
         super(TAG);
     }
 
@@ -51,7 +51,7 @@ public class DataStoreService extends IntentService {
      * @param data
      */
     public static void startActionSaveData(Context context, String key, Serializable data) {
-        Intent intent = new Intent(context, DataStoreService.class);
+        Intent intent = new Intent(context, SharedPreferencesService.class);
         intent.setAction(ACTION_SAVE_DATA);
         intent.putExtra(EXTRA_DATA_KEY, key);
         intent.putExtra(EXTRA_DATA, data);

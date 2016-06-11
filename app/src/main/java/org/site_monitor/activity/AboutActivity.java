@@ -15,18 +15,18 @@
 
 package org.site_monitor.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.TextView;
 
 import org.site_monitor.R;
 
-public class AboutActivity extends Activity {
+public class AboutActivity extends AppCompatActivity {
 
     private static final String MARKET_SITE_MONITOR = "market://details?id=org.site_monitor";
     private static final String TRELLO_SITE_MONITOR = "https://trello.com/b/G0rQVzo8/site-monitor";

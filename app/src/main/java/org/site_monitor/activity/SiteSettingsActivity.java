@@ -21,8 +21,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.util.Pair;
@@ -48,7 +48,7 @@ import org.site_monitor.widget.WidgetManager;
 
 import java.sql.SQLException;
 
-public class SiteSettingsActivity extends FragmentActivity implements SiteSettingsActivityFragment.Callback, TaskCallback<NetworkTask, Void, Pair<SiteSettings, SiteCall>> {
+public class SiteSettingsActivity extends AppCompatActivity implements SiteSettingsActivityFragment.Callback, TaskCallback<NetworkTask, Void, Pair<SiteSettings, SiteCall>> {
 
     private static final String TAG = SiteSettingsActivity.class.getSimpleName();
     private static final String P_SITE_SETTINGS = "org.site_monitor.activity.SiteSettingsActivity.site";
