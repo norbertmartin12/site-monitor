@@ -60,7 +60,7 @@
     <string name="tip_unknown_state">Unknown state, no network available</string>
     <string name="tip_all_ok">You\'re on the web</string>
     <string name="tip_unknown_error_good_luck">No help for this error, good luck !</string>
-    <string name="action_add_internal_ip">Add internal URL</string>
+    <string name="action_add_internal_ip">Set internal URL</string>
     <string name="internal_url_removed">Internal URL removed</string>
-    <string name="internal_url_added">Internal URL added</string>
+    <string name="internal_url_added">Internal URL set</string>
 </resources>

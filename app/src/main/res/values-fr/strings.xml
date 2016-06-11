@@ -58,7 +58,7 @@
     <string name="tip_unknown_error_good_luck">Pas d\'aide pour cette erreur, bonne chance !</string>
     <string name="action_add_internal_ip">URL interne</string>
     <string name="hint_interval_site_url">ex: http://192.168.1.14</string>
-    <string name="add_internal_url">Ajouter une URL interne</string>
+    <string name="add_internal_url">Définir une URL interne</string>
     <string name="internal_url_removed">URL interne supprimée</string>
-    <string name="internal_url_added">URL interne ajoutée</string>
+    <string name="internal_url_added">URL interne définie</string>
 </resources>
