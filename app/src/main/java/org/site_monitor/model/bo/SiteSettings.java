@@ -18,15 +18,11 @@ package org.site_monitor.model.bo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.google.gson.annotations.Expose;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Martin Norbert on 11/07/2015.
@@ -49,25 +45,18 @@ public class SiteSettings implements Parcelable {
 
     @DatabaseField(generatedId = true)
     private Long id;
-    @Expose
     @DatabaseField
     private String name;
-    @Expose
     @DatabaseField(canBeNull = false, uniqueIndex = true)
     private String host;
-    @Expose
     @DatabaseField(canBeNull = true, uniqueIndex = true)
     private String internalUrl;
-    @Expose
     @DatabaseField
     private boolean isNotificationEnabled = true;
-    @Expose
     @DatabaseField
     private boolean forcedCertificate = false;
     @DatabaseField(dataType = DataType.BYTE_ARRAY)
     private byte[] favicon;
-    @Expose
-    private List<SiteCall> calls = new ArrayList<SiteCall>();
     @ForeignCollectionField(eager = true)
     private ForeignCollection<SiteCall> siteCalls;
 
@@ -85,7 +74,6 @@ public class SiteSettings implements Parcelable {
         host = in.readString();
         internalUrl = in.readString();
         isNotificationEnabled = in.readInt() == 1 ? true : false;
-        in.readList(calls, SiteCall.class.getClassLoader());
         in.readByteArray(favicon);
     }
 
@@ -107,14 +95,6 @@ public class SiteSettings implements Parcelable {
 
     public void setNotificationEnabled(boolean notificationEnabled) {
         this.isNotificationEnabled = notificationEnabled;
-    }
-
-    /**
-     * @return
-     * @deprecated only for json retreiving
-     */
-    public List<SiteCall> getCalls() {
-        return calls;
     }
 
     public Long getId() {
@@ -178,28 +158,10 @@ public class SiteSettings implements Parcelable {
                 ", host='" + host + '\'' +
                 ", internalUrl='" + internalUrl + '\'' +
                 ", isNotificationEnabled=" + isNotificationEnabled +
-                ", calls=" + calls.size() +
+                ", calls=" + siteCalls.size() +
                 '}';
     }
 
-    public int compareTo(SiteSettings another) {
-        if (calls.size() == 0 && another.calls.size() == 0) {
-            return host.compareTo(another.host);
-        }
-        if (calls.size() == 0) {
-            return -1;
-        }
-        if (another.calls.size() == 0) {
-            return 1;
-        }
-        SiteCall siteCall = calls.get(calls.size() - 1);
-        SiteCall anotherSiteCall = another.calls.get(another.calls.size() - 1);
-        int callResultCompare = siteCall.getResult().compareTo(anotherSiteCall.getResult());
-        if (callResultCompare == 0) {
-            return name.compareToIgnoreCase(another.name);
-        }
-        return callResultCompare;
-    }
 
     @Override
     public int describeContents() {
@@ -212,7 +174,6 @@ public class SiteSettings implements Parcelable {
         dest.writeString(host);
         dest.writeString(internalUrl);
         dest.writeInt(isNotificationEnabled ? 1 : 0);
-        dest.writeList(calls);
         if (favicon != null) {
             dest.writeByteArray(favicon);
         }

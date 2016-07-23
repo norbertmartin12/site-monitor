@@ -52,7 +52,6 @@ import org.site_monitor.activity.adapter.SiteSettingsAdapter;
 import org.site_monitor.activity.fragment.DummySiteInjector;
 import org.site_monitor.activity.fragment.TaskFragment;
 import org.site_monitor.model.adapter.SiteSettingsBusiness;
-import org.site_monitor.model.adapter.SiteSettingsManager;
 import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.model.db.DBHelper;
@@ -101,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        SiteSettingsManager.migrateDataFromJsonToDatabase(this);
         dbHelper = DBHelper.getHelper(this);
         listView = (ListView) this.findViewById(R.id.listView);
         connectivityAlertView = (TextView) this.findViewById(R.id.connectivityAlert);
