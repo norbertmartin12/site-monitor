@@ -130,7 +130,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
                     GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_boot_start_changed, 0L).build());
                 }
                 StartupBootReceiver.setCanBeInitiatedBySystem(preference.getContext(), state);
-                preference.setSummary("");
             } else if (preference.getKey().equals(NOTIFICATION_ENABLE)) {
                 if (state) {
                     GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_changed, 1L).build());
