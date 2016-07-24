@@ -158,7 +158,7 @@ public class SiteSettings implements Parcelable {
                 ", host='" + host + '\'' +
                 ", internalUrl='" + internalUrl + '\'' +
                 ", isNotificationEnabled=" + isNotificationEnabled +
-                ", calls=" + siteCalls.size() +
+                ", calls=" + (siteCalls == null ? "0" : siteCalls.size()) +
                 '}';
     }
 

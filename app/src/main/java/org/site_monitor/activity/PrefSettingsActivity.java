@@ -60,6 +60,8 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
     public static final String NOTIFICATIONS_VIBRATE = "notifications_vibrate";
     public static final String NOTIFICATIONS_RINGTONE = "notifications_ringtone";
     public static final String NOTIFICATION_ENABLE = "notifications_enable";
+    public static final String NOTIFICATION_LIMIT_TO_NEW_FAIL = "notifications_limit_to_new_fail";
+
     public static final String NOTIFICATION_LIGHT_COLOR = "notification_light_color";
     public static final String BOOT_START = "boot_start";
     public static final String FREQUENCY = "frequency";
@@ -134,6 +136,12 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
                     GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_changed, 1L).build());
                 } else {
                     GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_changed, 0L).build());
+                }
+            } else if (preference.getKey().equals(NOTIFICATION_LIMIT_TO_NEW_FAIL)) {
+                if (state) {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_limit_changed, 1L).build());
+                } else {
+                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_limit_changed, 0L).build());
                 }
             } else if (preference.getKey().equals(ANALYTICS)) {
                 if (state) {
@@ -270,6 +278,7 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
         bindPreferenceSummaryToValue(findPreference(NOTIFICATION_LIGHT_COLOR));
 
         findPreference(BOOT_START).setOnPreferenceChangeListener(sPreferenceListener);
+        findPreference(NOTIFICATION_LIMIT_TO_NEW_FAIL).setOnPreferenceChangeListener(sPreferenceListener);
         findPreference(NOTIFICATION_ENABLE).setOnPreferenceChangeListener(sPreferenceListener);
         findPreference(ANALYTICS).setOnPreferenceChangeListener(sPreferenceListener);
     }
@@ -290,14 +299,15 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
             bindPreferenceSummaryToValue(findPreference(NOTIFICATION_LIGHT_COLOR));
 
             findPreference(NOTIFICATION_ENABLE).setOnPreferenceChangeListener(sPreferenceListener);
+            findPreference(NOTIFICATION_LIMIT_TO_NEW_FAIL).setOnPreferenceChangeListener(sPreferenceListener);
         }
     }
 
     /**
-     * This fragment shows frequency preferences only.
+     * This fragment shows monitoring preferences only.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class FrequencyPreferenceFragment extends PreferenceFragment {
+    public static class MonitoringPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -334,7 +344,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_analytics);
 
-            findPreference(BOOT_START).setOnPreferenceChangeListener(sPreferenceListener);
             findPreference(ANALYTICS).setOnPreferenceChangeListener(sPreferenceListener);
         }
     }

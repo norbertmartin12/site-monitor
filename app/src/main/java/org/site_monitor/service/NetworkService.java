@@ -19,7 +19,9 @@ import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
@@ -30,6 +32,7 @@ import org.site_monitor.GA;
 import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.MainActivity;
+import org.site_monitor.activity.PrefSettingsActivity;
 import org.site_monitor.model.bo.NetworkCallResult;
 import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
@@ -43,6 +46,8 @@ import org.site_monitor.widget.WidgetManager;
 
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -58,6 +63,7 @@ public class NetworkService extends IntentService {
     public static final String REQUEST_REFRESH_SITES = "refreshSites";
     public static final String REQUEST_REFRESH_FAVICON = "loadFavicon";
     public static final String P_URL = "url";
+    public static final String COMA = ",";
     private static final String TAG = NetworkService.class.getSimpleName();
     private NetworkUtil networkUtil = new NetworkUtil();
 
@@ -152,21 +158,28 @@ public class NetworkService extends IntentService {
             dbSiteCall.create(siteCall);
         }
 
-        if (BuildConfig.DEBUG && siteSettingList.isEmpty()) {
-            Log.w(TAG, "called but nothing to run");
-        }
-
         boolean atLeastOneToNotify = false;
         if (!failsPairs.isEmpty()) {
             StringBuilder sb = new StringBuilder();
             for (Pair<SiteSettings, SiteCall> pair : failsPairs) {
                 if (sb.length() > 0) {
-                    sb.append(",");
-                }
-                if (pair.first.isNotificationEnabled()) {
-                    atLeastOneToNotify = true;
+                    sb.append(COMA);
                 }
                 sb.append(pair.first.getName());
+                if (pair.first.isNotificationEnabled()) {
+                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+                    boolean limitToNewFail = preferences.getBoolean(PrefSettingsActivity.NOTIFICATION_LIMIT_TO_NEW_FAIL, true);
+                    if (limitToNewFail) {
+                        List<SiteCall> siteCalls = new ArrayList<SiteCall>(pair.first.getSiteCalls());
+                        Collections.sort(siteCalls, SiteCall.DESC_DATE);
+                        SiteCall previousCall = siteCalls.get(0);
+                        if (previousCall.getResult() == NetworkCallResult.SUCCESS) {
+                            atLeastOneToNotify = true;
+                        }
+                    } else {
+                        atLeastOneToNotify = true;
+                    }
+                }
             }
             if (atLeastOneToNotify) {
                 PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);

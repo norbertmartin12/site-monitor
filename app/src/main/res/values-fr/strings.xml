@@ -17,9 +17,9 @@
 <resources>
 
     <string name="title_activity_about">A propos</string>
-    <string name="title_activity_settings">Réglages</string>
+    <string name="title_activity_settings">Paramètres</string>
 
-    <string name="action_settings">Réglages</string>
+    <string name="action_settings">Paramètres</string>
     <string name="action_about">A propos</string>
     <string name="action_refresh">Rafraîchir</string>
     <string name="action_rename">Renommer</string>

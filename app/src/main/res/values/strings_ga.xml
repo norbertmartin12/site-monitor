@@ -29,6 +29,7 @@
     <string name="a_global_refresh" translatable="false">global refresh</string>
     <string name="a_site_refresh" translatable="false">site refresh</string>
     <string name="a_notification_changed" translatable="false">notification changed</string>
+    <string name="a_notification_limit_changed" translatable="false">notification limit changed</string>
     <string name="a_trust_certificate_changed" translatable="false">trust certificate changed</string>
     <string name="a_frequency_changed" translatable="false">frequency changed</string>
     <string name="a_sent" translatable="false">sent</string>

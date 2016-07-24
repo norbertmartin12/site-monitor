@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright (c) 2015 Martin Norbert
+  ~ Copyright (c) 2016 Martin Norbert
   ~  Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
@@ -27,7 +27,6 @@
             android:title="@string/pref_title_notification_allowed"/>
 
         <!-- Allows the user to choose a ringtone in the 'notification' category. -->
-        <!-- NOTE: This preference will be enabled only when the checkbox above is checked. -->
         <!-- NOTE: RingtonePreference's summary should be set to its value by the activity code. -->
         <RingtonePreference
             android:defaultValue="content://settings/system/notification_sound"
@@ -35,13 +34,6 @@
             android:key="notifications_ringtone"
             android:ringtoneType="notification"
             android:title="@string/pref_title_ringtone"/>
-
-        <!-- NOTE: This preference will be enabled only when the checkbox above is checked. -->
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:dependency="notifications_enable"
-            android:key="notifications_vibrate"
-            android:title="@string/pref_title_vibrate"/>
 
         <ListPreference
             android:defaultValue="-1"
@@ -52,6 +44,20 @@
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
             android:title="@string/pref_notification_light_color"/>
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="notifications_enable"
+            android:key="notifications_vibrate"
+            android:title="@string/pref_title_vibrate"/>
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:dependency="notifications_enable"
+            android:key="notifications_limit_to_new_fail"
+            android:summary="@string/pref_limit_notification_summary"
+            android:title="@string/pref_limit_notification"/>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

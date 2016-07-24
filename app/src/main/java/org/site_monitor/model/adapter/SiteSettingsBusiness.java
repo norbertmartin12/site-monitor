@@ -26,6 +26,7 @@ import org.site_monitor.model.bo.SiteSettings;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -66,6 +67,8 @@ public class SiteSettingsBusiness implements Parcelable {
             this.siteCalls = new ArrayList<SiteCall>();
         } else {
             this.siteCalls = new ArrayList<SiteCall>(siteSettings.getSiteCalls());
+            Collections.sort(this.siteCalls, SiteCall.ASC_DATE);
+
         }
     }
 

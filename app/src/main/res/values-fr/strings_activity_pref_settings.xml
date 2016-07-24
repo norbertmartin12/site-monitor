@@ -15,7 +15,7 @@
   -->
 
 <resources>
-    <string name="pref_header_monitoring">Contrôle</string>
+    <string name="pref_header_monitoring">Monitoring</string>
     <string name="pref_title_frequency">Fréquence</string>
     <string-array name="pref_frequency_titles">
         <item>5 minutes</item>
@@ -40,6 +40,9 @@
         <item>Bleu</item>
         <item>Rouge</item>
     </string-array>
+
+    <string name="pref_limit_notification">Limiter les notifications</string>
+    <string name="pref_limit_notification_summary">Me notifier seulement lorsque le site devient inaccessible</string>
 
     <string name="pref_header_history">Historique</string>
     <string name="pref_title_purge">Purge</string>

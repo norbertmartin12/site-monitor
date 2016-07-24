@@ -24,6 +24,7 @@ import com.j256.ormlite.table.DatabaseTable;
 
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -41,6 +42,18 @@ public class SiteCall implements Parcelable {
         @Override
         public SiteCall[] newArray(int size) {
             return new SiteCall[size];
+        }
+    };
+    public static final Comparator<SiteCall> ASC_DATE = new Comparator<SiteCall>() {
+        @Override
+        public int compare(SiteCall lhs, SiteCall rhs) {
+            return lhs.date.compareTo(rhs.date);
+        }
+    };
+    public static final Comparator<SiteCall> DESC_DATE = new Comparator<SiteCall>() {
+        @Override
+        public int compare(SiteCall lhs, SiteCall rhs) {
+            return rhs.date.compareTo(lhs.date);
         }
     };
     @DatabaseField(generatedId = true)
