@@ -142,7 +142,7 @@ public class NetworkService extends IntentService {
 
     private void refreshSites(DBSiteSettings siteSettingDao, DBSiteCall dbSiteCall) throws SQLException {
         List<SiteSettings> siteSettingList = siteSettingDao.queryForAll();
-        List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<Pair<SiteSettings, SiteCall>>();
+        List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<>();
         for (SiteSettings siteSettings : siteSettingList) {
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "call: " + siteSettings);
@@ -153,7 +153,7 @@ public class NetworkService extends IntentService {
             BroadcastUtil.broadcast(this, ACTION_SITE_END_REFRESH, siteSettings, siteCall);
 
             if (siteCall.getResult() == NetworkCallResult.FAIL) {
-                failsPairs.add(new Pair<SiteSettings, SiteCall>(siteSettings, siteCall));
+                failsPairs.add(new Pair<>(siteSettings, siteCall));
             }
             dbSiteCall.create(siteCall);
         }
@@ -161,20 +161,25 @@ public class NetworkService extends IntentService {
         boolean atLeastOneToNotify = false;
         if (!failsPairs.isEmpty()) {
             StringBuilder sb = new StringBuilder();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            boolean limitToNewFail = preferences.getBoolean(PrefSettingsActivity.NOTIFICATION_LIMIT_TO_NEW_FAIL, true);
             for (Pair<SiteSettings, SiteCall> pair : failsPairs) {
+                // never break to get all sites in fail
                 if (sb.length() > 0) {
                     sb.append(COMA);
                 }
                 sb.append(pair.first.getName());
                 if (pair.first.isNotificationEnabled()) {
-                    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                    boolean limitToNewFail = preferences.getBoolean(PrefSettingsActivity.NOTIFICATION_LIMIT_TO_NEW_FAIL, true);
                     if (limitToNewFail) {
-                        List<SiteCall> siteCalls = new ArrayList<SiteCall>(pair.first.getSiteCalls());
-                        Collections.sort(siteCalls, SiteCall.DESC_DATE);
-                        SiteCall previousCall = siteCalls.get(0);
-                        if (previousCall.getResult() == NetworkCallResult.SUCCESS) {
+                        if (pair.first.getSiteCalls().isEmpty()){
                             atLeastOneToNotify = true;
+                        } else {
+                            List<SiteCall> siteCalls = new ArrayList<>(pair.first.getSiteCalls());
+                            Collections.sort(siteCalls, SiteCall.DESC_DATE);
+                            SiteCall previousCall = siteCalls.get(0);
+                            if (previousCall.getResult() == NetworkCallResult.SUCCESS) {
+                                atLeastOneToNotify = true;
+                            }
                         }
                     } else {
                         atLeastOneToNotify = true;
@@ -185,7 +190,7 @@ public class NetworkService extends IntentService {
                 PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
                 NotificationCompat.Builder notificationBuilder = NotificationUtil.build(this, failsPairs.size() + " " + getString(R.string.state_unreachable), sb.toString(), pendingIntent);
                 if (NotificationUtil.send(this, NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build())) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_notification, R.string.a_sent, new Long(failsPairs.size())).build());
+                    GA.tracker().send(GAHit.builder().event(R.string.c_notification, R.string.a_sent, Long.valueOf(failsPairs.size())).build());
                 }
             }
         }
