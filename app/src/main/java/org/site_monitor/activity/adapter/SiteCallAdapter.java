@@ -37,9 +37,12 @@ import java.text.SimpleDateFormat;
  */
 public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
 
-    public static final String MS = "ms";
-    public static final String UNKNOWN = "?";
+    private static final String MS = "ms";
+    private static final String UNKNOWN = "?";
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+    private static final String HTTP = "HTTP-";
+    private static final String SPACE = " ";
+    private static final String EMPTY = "";
     private final LayoutInflater inflater;
 
     public SiteCallAdapter(Context context, SiteSettingsBusiness siteSettings) {
@@ -68,7 +71,7 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
         } else if (viewHandler.siteCall.getResult() == NetworkCallResult.NO_CONNECTIVITY) {
             viewHandler.secondCodeTextView.setText(R.string.no_connectivity_available);
         } else if (viewHandler.siteCall.getResponseCode() != null) {
-            viewHandler.secondCodeTextView.setText(viewHandler.siteCall.getResponseCode().toString());
+            viewHandler.secondCodeTextView.setText(HTTP + viewHandler.siteCall.getResponseCode().toString());
         } else {
             viewHandler.secondCodeTextView.setText(UNKNOWN);
         }
@@ -85,13 +88,13 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
         if (viewHandler.siteCall.getResponseTime() != null) {
             viewHandler.responseTimeTextView.setText(viewHandler.siteCall.getResponseTime() + MS);
         } else {
-            viewHandler.responseTimeTextView.setText("");
+            viewHandler.responseTimeTextView.setText(EMPTY);
         }
 
         viewHandler.view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String prefixText = date + " - ";
+                String prefixText = date + " - " ;
                 if (result == NetworkCallResult.SUCCESS) {
                     prefixText += getContext().getText(R.string.tip_all_ok);
                     Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
@@ -102,7 +105,7 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
                     } else if (SiteSettingsBusiness.isCallFailToConnectError(viewHandler.siteCall)) {
                         builder.setMessage(R.string.tip_fail_to_connect);
                     } else {
-                        prefixText += getContext().getText(R.string.tip_unknown_error_good_luck);
+                        prefixText +=  getContext().getText(R.string.tip_unknown_error_good_luck);
                         Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
                         return;
                     }
