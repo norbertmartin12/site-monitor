@@ -45,7 +45,7 @@
 
     <string name="no_connectivity_available">No connectivity available</string>
     <string name="already_exists">" already exists"</string>
-    <string name="copy_right" translatable="false">Copyright 2016 Martin Norbert</string>
+    <string name="copy_right" translatable="false">Copyright 2016-2018 Martin Norbert</string>
     <string name="contact">Developer: norbertmartin12@gmail.com</string>
     <string name="apache_license" translatable="false">Apache License v2.0\nhttp://www.apache.org/licenses/LICENSE-2.0</string>
     <string name="trello">Follow on Trello</string>
