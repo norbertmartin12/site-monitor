@@ -20,12 +20,12 @@ android {
         config {
         }
     }
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "org.site_monitor"
         minSdkVersion 19
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 26
         versionName '0.13'
     }
@@ -44,10 +44,11 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:26.1.0'
+    compile 'com.android.support:support-v4:27.0.2'
+    compile 'com.android.support:design:27.0.2'
+
     compile 'com.google.code.gson:gson:2.8.2'
-    compile 'com.google.android.gms:play-services-analytics:9.0.0'
-    compile 'com.android.support:design:26.1.0'
+    compile 'com.google.android.gms:play-services-analytics:11.4.2'
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'com.j256.ormlite:ormlite-android:4.48'
 }
