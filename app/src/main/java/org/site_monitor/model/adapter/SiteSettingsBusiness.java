@@ -16,6 +16,7 @@
 package org.site_monitor.model.adapter;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Pair;
@@ -178,8 +179,7 @@ public class SiteSettingsBusiness implements Parcelable {
         if (siteSettings.getFavicon() == null) {
             return null;
         }
-        faviconCache = Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888);
-        faviconCache.copyPixelsFromBuffer(ByteBuffer.wrap(siteSettings.getFavicon()));
+        faviconCache = BitmapFactory.decodeByteArray(siteSettings.getFavicon(), 0, siteSettings.getFavicon().length);
         return faviconCache;
     }
 

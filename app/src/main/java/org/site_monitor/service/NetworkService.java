@@ -44,7 +44,7 @@ import org.site_monitor.util.NetworkUtil;
 import org.site_monitor.util.NotificationUtil;
 import org.site_monitor.widget.WidgetManager;
 
-import java.nio.ByteBuffer;
+import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -133,9 +133,9 @@ public class NetworkService extends IntentService {
             Log.w(TAG, "refreshFavicon, not favicon for: " + url);
             return;
         }
-        ByteBuffer buffer = ByteBuffer.allocate(favicon.getByteCount());
-        favicon.copyPixelsToBuffer(buffer);
-        siteSettings.setFavicon(buffer.array());
+        ByteArrayOutputStream blob = new ByteArrayOutputStream();
+        favicon.compress(Bitmap.CompressFormat.PNG, 0 /* Ignored for PNGs */, blob);
+        siteSettings.setFavicon(blob.toByteArray());
         siteSettingDao.update(siteSettings);
         BroadcastUtil.broadcast(this, ACTION_FAVICON_UPDATED, siteSettings, BroadcastUtil.EXTRA_FAVICON, favicon);
     }
