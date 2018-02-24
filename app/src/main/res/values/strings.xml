@@ -22,7 +22,7 @@
     <string name="action_about">About</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_rename">Rename</string>
-    <string name="action_remove">Remove</string>
+    <string name="action_delete">Delete</string>
     <string name="action_add">Add</string>
     <string name="action_cancel">Cancel</string>
 
