@@ -114,6 +114,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putParcelable(PARCEL_SITE, siteSettings);
     }
 

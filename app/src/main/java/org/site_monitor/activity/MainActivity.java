@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(PARCEL_SITE_LIST, new ArrayList<Parcelable>(siteSettingsList));
     }
 
