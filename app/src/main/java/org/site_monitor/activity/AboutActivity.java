@@ -30,7 +30,6 @@ public class AboutActivity extends AppCompatActivity {
 
     private static final String MARKET_SITE_MONITOR = "market://details?id=org.site_monitor";
     private static final String TRELLO_SITE_MONITOR = "https://trello.com/b/G0rQVzo8/site-monitor";
-    private TextView versionTextView;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, AboutActivity.class);
@@ -41,7 +40,7 @@ public class AboutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        versionTextView = (TextView) findViewById(R.id.version);
+        TextView versionTextView = (TextView) findViewById(R.id.version);
 
         try {
             versionTextView.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);

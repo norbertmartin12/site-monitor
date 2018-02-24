@@ -101,9 +101,9 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         dbHelper = DBHelper.getHelper(this);
-        listView = (ListView) this.findViewById(R.id.listView);
-        connectivityAlertView = (TextView) this.findViewById(R.id.connectivityAlert);
-        chronometer = (Chronometer) this.findViewById(R.id.chronometer);
+        listView = this.findViewById(R.id.listView);
+        connectivityAlertView = this.findViewById(R.id.connectivityAlert);
+        chronometer = this.findViewById(R.id.chronometer);
         timerBannerView = this.findViewById(R.id.timerBanner);
 
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -114,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         }
 
         if (savedInstanceState == null || savedInstanceState.isEmpty()) {
-            siteSettingsList = new ArrayList<SiteSettingsBusiness>();
+            siteSettingsList = new ArrayList<>();
             loadDataFromDb = true;
         } else {
             siteSettingsList = savedInstanceState.getParcelableArrayList(PARCEL_SITE_LIST);

@@ -15,7 +15,6 @@
 
 package org.site_monitor.activity;
 
-import android.annotation.TargetApi;
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +22,6 @@ import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -168,7 +166,7 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
      * "simplified" settings UI should be shown.
      */
     private static boolean isSimplePreferences(Context context) {
-        return ALWAYS_SIMPLE_PREFS || Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB || !isXLargeTablet(context);
+        return !isXLargeTablet(context) || ALWAYS_SIMPLE_PREFS;
     }
 
     /**
@@ -214,7 +212,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
      * {@inheritDoc}
      */
     @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void onBuildHeaders(List<Header> target) {
         if (!isSimplePreferences(this)) {
             loadHeadersFromResource(R.xml.pref_headers, target);
@@ -222,16 +219,13 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
     }
 
     /**
-     * Set up the {@link android.app.ActionBar}, if the API is available.
+     * Set up the {@link android.app.ActionBar}
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void setupActionBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            // Show the Up button in the action bar.
-            ActionBar actionBar = getActionBar();
-            if (actionBar != null) {
-                actionBar.setDisplayHomeAsUpEnabled(true);
-            }
+        // Show the Up button in the action bar.
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -253,6 +247,11 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected boolean isValidFragment(String fragmentName) {
+        return true;
     }
 
     /**
@@ -285,7 +284,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
     /**
      * This fragment shows notification preferences only. It is used when the activity is showing a two-pane settings UI.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class NotificationPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -305,7 +303,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
     /**
      * This fragment shows monitoring preferences only.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class MonitoringPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -324,7 +321,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
     /**
      * This fragment shows history preferences only.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class HistoryPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
@@ -336,7 +332,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
     /**
      * This fragment shows analytics preferences only.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class AnalyticsPreferenceFragment extends PreferenceFragment {
         @Override
         public void onCreate(Bundle savedInstanceState) {
