@@ -31,8 +31,6 @@ import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import org.site_monitor.GA;
-import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.fragment.SiteSettingsActivityFragment;
 import org.site_monitor.model.adapter.SiteSettingsBusiness;
@@ -133,16 +131,13 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             if (siteSettings.isChecking()) {
-                GA.tracker().send(GAHit.builder().event(R.string.c_refresh, R.string.a_site_refresh, R.string.l_in_progress).build());
                 return true;
             }
             syncMenuItem.setEnabled(false);
             new NetworkTask(this, siteSettingsFragment).execute(siteSettings.getSiteSettings());
-            GA.tracker().send(GAHit.builder().event(R.string.c_refresh, R.string.a_site_refresh).build());
             return true;
         }
         if (id == R.id.action_rename) {
-            GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_rename, R.string.l_touched).build());
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setTitle(R.string.action_rename);
             final EditText input = new EditText(context);
@@ -162,7 +157,6 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
                     try {
                         DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
                         dbSiteSettings.update(siteSettings.getSiteSettings());
-                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_rename, R.string.l_done).build());
                         WidgetManager.refresh(context);
                     } catch (SQLException e) {
                         Log.e(TAG, "rename", e);
@@ -173,14 +167,12 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
             builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_rename, R.string.l_cancel).build());
                 }
             });
             builder.show();
             return true;
         }
         if (id == R.id.action_delete) {
-            GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_remove, R.string.l_touched).build());
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.remove_current_monitor);
             builder.setPositiveButton(R.string.action_delete, new DialogInterface.OnClickListener() {
@@ -190,7 +182,6 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
                         DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
                         dbSiteSettings.delete(siteSettings.getSiteSettings());
                         AlarmUtil.instance().stopAlarmIfNeeded(context);
-                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_remove, R.string.l_done).build());
                     } catch (SQLException e) {
                         Log.e(TAG, "remove", e);
                     }
@@ -202,7 +193,6 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
             builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_remove, R.string.l_cancel).build());
                 }
             });
             builder.show();
@@ -211,19 +201,16 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
         if (id == R.id.action_add_internal_ip) {
             if (addInternalIpMenuItem.isChecked()) {
                 try {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_remove, R.string.l_touched).build());
                     siteSettings.getSiteSettings().setInternalUrl(null);
                     DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
                     dbSiteSettings.update(siteSettings.getSiteSettings());
                     addInternalIpMenuItem.setChecked(!addInternalIpMenuItem.isChecked());
                     Snackbar.make(this.getCurrentFocus(), R.string.internal_url_removed, Snackbar.LENGTH_SHORT).show();
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_remove, R.string.l_done).build());
                     siteSettingsFragment.setSiteSettings(siteSettings);
                 } catch (SQLException e) {
                     Log.e(TAG, "update", e);
                 }
             } else {
-                GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_add, R.string.l_touched).build());
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle(R.string.add_internal_url);
                 final EditText input = new EditText(context);
@@ -241,7 +228,6 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
                             siteSettings.getSiteSettings().setInternalUrl(internalIp);
                             DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
                             dbSiteSettings.update(siteSettings.getSiteSettings());
-                            GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_add, R.string.l_done).build());
                             addInternalIpMenuItem.setChecked(!addInternalIpMenuItem.isChecked());
                             Snackbar.make(context.getCurrentFocus(), R.string.internal_url_added, Snackbar.LENGTH_SHORT).show();
                             siteSettingsFragment.setSiteSettings(siteSettings);
@@ -253,7 +239,6 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
                 builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor_internal_url, R.string.a_add, R.string.l_cancel).build());
                     }
                 });
                 builder.show();

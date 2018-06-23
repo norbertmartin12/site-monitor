@@ -57,7 +57,4 @@
     <string name="pref_title_purge">Purge</string>
     <string name="pref_title_purge_description">The history is limited to 30 days, we let free space for your data and we preserve app reactivity !</string>
 
-    <string name="pref_header_analytics">Analytics</string>
-    <string name="pref_title_allow_analytics">Take part</string>
-    <string name="pref_title_allow_analytics_description">Collect anonymous data about app usage</string>
 </resources>

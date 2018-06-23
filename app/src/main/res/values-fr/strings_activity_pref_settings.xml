@@ -48,7 +48,4 @@
     <string name="pref_title_purge">Purge</string>
     <string name="pref_title_purge_description">L\'historique est limité à 30 jours, on laisse la place à vos données et l\'appli reste fluide !</string>
 
-    <string name="pref_header_analytics">Analytics</string>
-    <string name="pref_title_allow_analytics">Participer</string>
-    <string name="pref_title_allow_analytics_description">Autoriser la collecte de données anonymes sur l\'utilisation de l\'appli</string>
 </resources>

@@ -28,8 +28,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import org.site_monitor.BuildConfig;
-import org.site_monitor.GA;
-import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.MainActivity;
 import org.site_monitor.activity.PrefSettingsActivity;
@@ -189,9 +187,7 @@ public class NetworkService extends IntentService {
             if (atLeastOneToNotify) {
                 PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
                 NotificationCompat.Builder notificationBuilder = NotificationUtil.build(this, failsPairs.size() + " " + getString(R.string.state_unreachable), sb.toString(), pendingIntent);
-                if (NotificationUtil.send(this, NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build())) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_notification, R.string.a_sent, Long.valueOf(failsPairs.size())).build());
-                }
+                NotificationUtil.send(this, NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build());
             }
         }
         WidgetManager.refresh(this);

@@ -20,8 +20,6 @@ import android.app.Application;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.google.android.gms.analytics.Tracker;
-
 /**
  * Created by Martin Norbert on 16/08/2015.
  */
@@ -37,9 +35,6 @@ public class App extends Application implements Application.ActivityLifecycleCal
     public void onCreate() {
         super.onCreate();
         registerActivityLifecycleCallbacks(this);
-        GA.initialize(this);
-        GAHit.initialize(this);
-        Tracker tracker = GA.tracker();
     }
 
     @Override

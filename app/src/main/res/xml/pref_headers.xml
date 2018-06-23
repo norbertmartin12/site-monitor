@@ -28,8 +28,4 @@
         android:fragment="org.site_monitor.activity.PrefSettingsActivity$HistoryPreferenceFragment"
         android:title="@string/pref_header_history"/>
 
-    <header
-        android:fragment="org.site_monitor.activity.PrefSettingsActivity$AnalyticsPreferenceFragment"
-        android:title="@string/pref_header_analytics"/>
-
 </preference-headers>

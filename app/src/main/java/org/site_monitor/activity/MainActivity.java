@@ -42,11 +42,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-
 import org.site_monitor.BuildConfig;
-import org.site_monitor.GA;
-import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.adapter.SiteSettingsAdapter;
 import org.site_monitor.activity.fragment.DummySiteInjector;
@@ -212,7 +208,6 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "global refresh requested");
             }
-            GA.tracker().send(GAHit.builder().event(R.string.c_refresh, R.string.a_global_refresh).build());
             startService(NetworkService.intentToCheckSites(this));
             return true;
         }
@@ -243,7 +238,6 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
             sb.append("StartupBoot state: ").append(startupBootEnable).append("\n");
             sb.append("Alarm set: ").append(alarmUtil.hasAlarm()).append(" ").append(alarmUtil.getCurrentInterval()).append("\n");
             sb.append("Battery: ").append(BatteryLevelReceiver.getLastAction()).append("\n");
-            sb.append("Analytics: ").append(!GoogleAnalytics.getInstance(this).getAppOptOut()).append("\n");
             Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();
             return true;
         }
@@ -331,7 +325,6 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
     }
 
     public void floatingAddSite(final View v) {
-        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_touched).build());
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(R.string.add_monitor);
         final EditText input = new EditText(context);
@@ -349,12 +342,10 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
                     DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
                     if (dbSiteSettings.findForHost(host) != null) {
                         Snackbar.make(v, host + getString(R.string.already_exists), Snackbar.LENGTH_SHORT).show();
-                        GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_already_exists).build());
                         return;
                     }
                     SiteSettings siteSettings = new SiteSettings(host);
                     dbSiteSettings.create(siteSettings);
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add).build());
                     alarmUtil.startAlarmIfNeeded(context);
                     new NetworkTask(context, taskFragment).execute(siteSettings);
                     SiteSettingsActivity.start(context, siteSettings.getHost());
@@ -366,7 +357,6 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_add, R.string.l_cancel).build());
             }
         });
         builder.show();

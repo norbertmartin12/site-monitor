@@ -30,8 +30,6 @@ import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import org.site_monitor.GA;
-import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.activity.adapter.SiteCallAdapter;
 import org.site_monitor.model.adapter.SiteSettingsBusiness;
@@ -78,12 +76,12 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         notificationCheckable = (Switch) view.findViewById(R.id.notificationSwitch);
         trustCertificateCheckable = (Switch) view.findViewById(R.id.trustCertificateSwitch);
         trustCertificateView = view.findViewById(R.id.trustCertificateView);
-        callListView = (ListView) view.findViewById(R.id.callListView);
-        hostTextView = (TextView) view.findViewById(R.id.hostTextView);
-        internalUrlViewGroup = (ViewGroup) view.findViewById(R.id.internalIpLayout);
-        internalUrlTextView = (TextView) view.findViewById(R.id.internalIpTextView);
-        progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-        faviconView = (ImageView) view.findViewById(R.id.faviconImage);
+        callListView = view.findViewById(R.id.callListView);
+        hostTextView = view.findViewById(R.id.hostTextView);
+        internalUrlViewGroup = view.findViewById(R.id.internalIpLayout);
+        internalUrlTextView = view.findViewById(R.id.internalIpTextView);
+        progressBar = view.findViewById(R.id.progressBar);
+        faviconView = view.findViewById(R.id.faviconImage);
         return view;
     }
 
@@ -94,11 +92,6 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         notificationCheckable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 1L).build());
-                } else {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_notification_changed, 0L).build());
-                }
                 siteSettings.getSiteSettings().setNotificationEnabled(isChecked);
                 callback.hasChanged(siteSettings.getSiteSettings());
             }
@@ -106,11 +99,6 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         trustCertificateCheckable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_trust_certificate_changed, 1L).build());
-                } else {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_monitor, R.string.a_trust_certificate_changed, 0L).build());
-                }
                 siteSettings.getSiteSettings().setForcedCertificate(isChecked);
                 callback.hasChanged(siteSettings.getSiteSettings());
             }

@@ -14,7 +14,6 @@
  */
 
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.gms.google-services'
 android {
     signingConfigs {
         config {
@@ -43,12 +42,11 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:support-v4:27.0.2'
-    compile 'com.android.support:design:27.0.2'
+    api fileTree(dir: 'libs', include: ['*.jar'])
+    api 'com.android.support:support-v4:27.1.1'
+    api 'com.android.support:design:27.1.1'
 
-    compile 'com.google.code.gson:gson:2.8.2'
-    compile 'com.google.android.gms:play-services-analytics:11.4.2'
-    compile 'com.j256.ormlite:ormlite-core:4.48'
-    compile 'com.j256.ormlite:ormlite-android:4.48'
+    api 'com.google.code.gson:gson:2.8.2'
+    api 'com.j256.ormlite:ormlite-core:4.48'
+    api 'com.j256.ormlite:ormlite-android:4.48'
 }

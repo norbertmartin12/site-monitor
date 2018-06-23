@@ -23,9 +23,6 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
-import org.site_monitor.GA;
-import org.site_monitor.GAHit;
-import org.site_monitor.R;
 import org.site_monitor.activity.MainActivity;
 import org.site_monitor.service.NetworkService;
 
@@ -39,8 +36,8 @@ abstract class SiteMonitorWidget extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         final int N = appWidgetIds.length;
-        for (int i = 0; i < N; i++) {
-            updateAppWidget(context, appWidgetManager, appWidgetIds[i]);
+        for (int appWidgetId : appWidgetIds) {
+            updateAppWidget(context, appWidgetManager, appWidgetId);
         }
     }
 
@@ -49,7 +46,6 @@ abstract class SiteMonitorWidget extends AppWidgetProvider {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onEnabled");
         }
-        GA.tracker().send(GAHit.builder().event(R.string.c_widget, R.string.a_add).build());
         context.startService(NetworkService.intentToCheckSites(context));
     }
 
@@ -58,7 +54,6 @@ abstract class SiteMonitorWidget extends AppWidgetProvider {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onDisabled");
         }
-        GA.tracker().send(GAHit.builder().event(R.string.c_widget, R.string.a_remove).build());
     }
 
     PendingIntent onClickIntent(Context context) {

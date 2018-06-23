@@ -33,8 +33,6 @@ import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
-import org.site_monitor.GA;
-import org.site_monitor.GAHit;
 import org.site_monitor.R;
 import org.site_monitor.receiver.StartupBootReceiver;
 import org.site_monitor.util.AlarmUtil;
@@ -63,7 +61,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
     public static final String NOTIFICATION_LIGHT_COLOR = "notification_light_color";
     public static final String BOOT_START = "boot_start";
     public static final String FREQUENCY = "frequency";
-    public static final String ANALYTICS = "allow_analytics";
     /**
      * Determines whether to always show the simplified settings UI, where
      * settings are presented in a single list. When false, settings are shown
@@ -89,7 +86,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
                 if (preference.getKey().equals(FREQUENCY)) {
                     String currentValue = preference.getSharedPreferences().getString(FREQUENCY, "");
                     if (!currentValue.equals(stringValue)) {
-                        GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_frequency_changed, Long.parseLong(stringValue)).build());
                         alarmUtil.rescheduleAlarm(preference.getContext(), Long.parseLong(stringValue) * TimeUtil.MINUTE_2_MILLISEC);
                     }
                 }
@@ -122,30 +118,7 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
         public boolean onPreferenceChange(Preference preference, Object value) {
             boolean state = (Boolean) value;
             if (preference.getKey().equals(BOOT_START)) {
-                if (state) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_boot_start_changed, 1L).build());
-                } else {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_boot_start_changed, 0L).build());
-                }
                 StartupBootReceiver.setCanBeInitiatedBySystem(preference.getContext(), state);
-            } else if (preference.getKey().equals(NOTIFICATION_ENABLE)) {
-                if (state) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_changed, 1L).build());
-                } else {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_changed, 0L).build());
-                }
-            } else if (preference.getKey().equals(NOTIFICATION_LIMIT_TO_NEW_FAIL)) {
-                if (state) {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_limit_changed, 1L).build());
-                } else {
-                    GA.tracker().send(GAHit.builder().event(R.string.c_settings, R.string.a_notification_limit_changed, 0L).build());
-                }
-            } else if (preference.getKey().equals(ANALYTICS)) {
-                if (state) {
-                    GA.getInstance().startTracking();
-                } else {
-                    GA.getInstance().stopTracking();
-                }
             }
             return true;
         }
@@ -267,7 +240,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
         addPreferencesFromResource(R.xml.pref_monitoring);
         addPreferencesFromResource(R.xml.pref_notification);
         addPreferencesFromResource(R.xml.pref_history);
-        addPreferencesFromResource(R.xml.pref_analytics);
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to their values. When their values change,
         // their summaries are dataChanged to reflect the new value, per the Android Design guidelines.
@@ -278,7 +250,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
         findPreference(BOOT_START).setOnPreferenceChangeListener(sPreferenceListener);
         findPreference(NOTIFICATION_LIMIT_TO_NEW_FAIL).setOnPreferenceChangeListener(sPreferenceListener);
         findPreference(NOTIFICATION_ENABLE).setOnPreferenceChangeListener(sPreferenceListener);
-        findPreference(ANALYTICS).setOnPreferenceChangeListener(sPreferenceListener);
     }
 
     /**
@@ -326,19 +297,6 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_history);
-        }
-    }
-
-    /**
-     * This fragment shows analytics preferences only.
-     */
-    public static class AnalyticsPreferenceFragment extends PreferenceFragment {
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_analytics);
-
-            findPreference(ANALYTICS).setOnPreferenceChangeListener(sPreferenceListener);
         }
     }
 }
