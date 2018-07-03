@@ -38,17 +38,19 @@ public class WidgetManager {
     public static void refresh(Context context) {
         sendRefreshTo(context, LineWidget.class);
         sendRefreshTo(context, SquareWidget.class);
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "refresh");
-        }
     }
 
     private static void sendRefreshTo(Context context, Class clazz) {
         Intent intent = new Intent(context, clazz);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         int ids[] = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, clazz));
-        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-        context.sendBroadcast(intent);
+        if (ids.length > 0) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "refresh: " + clazz.getSimpleName());
+            }
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+            context.sendBroadcast(intent);
+        }
     }
 
 }
