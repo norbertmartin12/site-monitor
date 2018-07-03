@@ -57,8 +57,9 @@ public class NetworkUtil {
      * @param url
      */
     public static Bitmap loadFaviconFor(String url) {
+        InputStream is = null;
         try {
-            InputStream is = (InputStream) new URL(FAVICON_SERVICE_URL + url).getContent();
+            is = (InputStream) new URL(FAVICON_SERVICE_URL + url).getContent();
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "loadFaviconFor " + url + " succeed");
             }
@@ -68,6 +69,17 @@ public class NetworkUtil {
                 Log.w(TAG, "loadFaviconFor " + url + " fails: " + e, e);
             }
             return null;
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    if (BuildConfig.DEBUG) {
+                        Log.w(TAG, "loadFaviconFor " + url + " fails: " + e, e);
+                    }
+                    return null;
+                }
+            }
         }
     }
 
