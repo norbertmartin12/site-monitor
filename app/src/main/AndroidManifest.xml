@@ -41,12 +41,13 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.REBOOT" />
             </intent-filter>
         </receiver>
         <receiver
             android:name=".receiver.AlarmReceiver"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
         <receiver
             android:name=".receiver.BatteryLevelReceiver"
             android:enabled="true"

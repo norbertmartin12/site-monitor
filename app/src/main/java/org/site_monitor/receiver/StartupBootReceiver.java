@@ -46,7 +46,7 @@ public class StartupBootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
-            if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
+            if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) || intent.getAction().equals(Intent.ACTION_REBOOT)) {
                 boolean alarmStarted = alarmUtil.startAlarmIfNeeded(context);
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "onReceive, alarm started: " + alarmStarted);
