@@ -38,7 +38,7 @@ public class DBSiteCall {
         return dao.create(siteCall);
     }
 
-    public void removeCallsBefore(Date date) throws SQLException {
-        dao.delete((PreparedDelete<SiteCall>) dao.deleteBuilder().where().lt("date", date).prepare());
+    public int removeCallsBefore(Date date) throws SQLException {
+        return dao.delete((PreparedDelete<SiteCall>) dao.deleteBuilder().where().lt("date", date).prepare());
     }
 }
