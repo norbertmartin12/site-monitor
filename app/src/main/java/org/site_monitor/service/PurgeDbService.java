@@ -65,8 +65,11 @@ public class PurgeDbService extends IntentService {
             DBHelper dbHelper = DBHelper.getHelper(this);
             DBSiteCall dbSiteCall = dbHelper.getDBSiteCall();
             Calendar calendar = Calendar.getInstance();
-            calendar.roll(Calendar.DAY_OF_MONTH, -5);
-            dbSiteCall.removeCallsBefore(calendar.getTime());
+            calendar.add(Calendar.MONTH, -1);
+            int nbDeleted = dbSiteCall.removeCallsBefore(calendar.getTime());
+            if (BuildConfig.DEBUG) {
+                Log.i(TAG, "purgeCalls: " + nbDeleted + " before: " + calendar.getTime());
+            }
         } catch (SQLException e) {
             if (BuildConfig.DEBUG) {
                 Log.e(TAG, "purgeCalls", e);
