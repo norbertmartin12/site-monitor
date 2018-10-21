@@ -30,6 +30,12 @@ public class StartupBootReceiver extends BroadcastReceiver {
     private static final String TAG = StartupBootReceiver.class.getSimpleName();
     private AlarmUtil alarmUtil = AlarmUtil.instance();
 
+    /**
+     * Enables or disables startup boot receiver on demand
+     *
+     * @param context
+     * @param enable
+     */
     public static void setCanBeInitiatedBySystem(Context context, boolean enable) {
         ComponentName receiver = new ComponentName(context, StartupBootReceiver.class);
         PackageManager pm = context.getPackageManager();
@@ -43,6 +49,12 @@ public class StartupBootReceiver extends BroadcastReceiver {
         }
     }
 
+    /**
+     * Launches background alarm work on boot or reboot
+     *
+     * @param context
+     * @param intent
+     */
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {

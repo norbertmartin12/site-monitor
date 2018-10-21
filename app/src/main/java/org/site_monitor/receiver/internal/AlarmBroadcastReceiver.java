@@ -24,6 +24,8 @@ import org.site_monitor.BuildConfig;
 import org.site_monitor.util.AlarmUtil;
 import org.site_monitor.util.BroadcastUtil;
 
+import java.util.Date;
+
 /**
  * Created by Martin Norbert on 20/02/2016.
  */
@@ -41,10 +43,10 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
-            if (intent.getAction().equals(AlarmUtil.ACTION_NEXT_ALARM_SET)) {
+            if (AlarmUtil.ACTION_NEXT_ALARM_SET.equals(intent.getAction())) {
                 long nextAlarm = intent.getLongExtra(BroadcastUtil.EXTRA_ALARM, 0);
                 if (BuildConfig.DEBUG) {
-                    Log.d(TAG, "ACTION_NEXT_ALARM_SET: " + nextAlarm);
+                    Log.d(TAG, "ACTION_NEXT_ALARM_SET: " + new Date(nextAlarm));
                 }
                 listener.onNextAlarmChange(nextAlarm);
             }

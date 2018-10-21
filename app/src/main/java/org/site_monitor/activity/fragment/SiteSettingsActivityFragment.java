@@ -36,6 +36,7 @@ import org.site_monitor.model.adapter.SiteSettingsBusiness;
 import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.receiver.internal.NetworkBroadcastReceiver;
+import org.site_monitor.service.FavIconService;
 import org.site_monitor.service.NetworkService;
 
 /**
@@ -109,7 +110,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         }
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_START_REFRESH));
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_END_REFRESH));
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_FAVICON_UPDATED));
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(FavIconService.ACTION_FAVICON_UPDATED));
     }
 
     @Override

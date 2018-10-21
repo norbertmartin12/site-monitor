@@ -20,10 +20,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 import android.util.Pair;
 
@@ -42,7 +42,6 @@ import org.site_monitor.util.NetworkUtil;
 import org.site_monitor.util.NotificationUtil;
 import org.site_monitor.widget.WidgetManager;
 
-import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,21 +52,14 @@ import java.util.List;
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  */
-public class NetworkService extends IntentService {
+public class NetworkService extends JobIntentService {
 
     public static final String ACTION_SITE_START_REFRESH = "org.site_monitor.service.action.SITE_START_REFRESH";
     public static final String ACTION_SITE_END_REFRESH = "org.site_monitor.service.action.SITE_END_REFRESH";
-    public static final String ACTION_FAVICON_UPDATED = "org.site_monitor.service.action.FAVICON_UPDATED";
     public static final String REQUEST_REFRESH_SITES = "refreshSites";
-    public static final String REQUEST_REFRESH_FAVICON = "loadFavicon";
-    public static final String P_URL = "url";
     public static final String COMA = ",";
     private static final String TAG = NetworkService.class.getSimpleName();
     private NetworkUtil networkUtil = new NetworkUtil();
-
-    public NetworkService() {
-        super(TAG);
-    }
 
     /**
      * @param context
@@ -77,16 +69,27 @@ public class NetworkService extends IntentService {
         return new Intent(context, NetworkService.class).setAction(REQUEST_REFRESH_SITES);
     }
 
-    /**
-     * @param context
-     * @return intent to call start service
-     */
-    public static Intent intentToLoadFavicon(Context context, String url) {
-        return new Intent(context, NetworkService.class).setAction(REQUEST_REFRESH_FAVICON).putExtra(P_URL, url);
+    public static void enqueueCheckSitesWork(@NonNull Context context) {
+        NetworkService.enqueueWork(context, NetworkService.class, JobEnum.CHECK_SITES.ordinal(), intentToCheckSites(context));
     }
 
+    /**
+     * Called serially for each work dispatched to and processed by the service.  This
+     * method is called on a background thread, so you can do long blocking operations
+     * here.  Upon returning, that work will be considered complete and either the next
+     * pending work dispatched here or the overall service destroyed now that it has
+     * nothing else to do.
+     * <p>
+     * <p>Be aware that when running as a job, you are limited by the maximum job execution
+     * time and any single or total sequential items of work that exceeds that limit will
+     * cause the service to be stopped while in progress and later restarted with the
+     * last unfinished work.  (There is currently no limit on execution duration when
+     * running as a pre-O plain Service.)</p>
+     *
+     * @param intent The intent describing the work to now be processed.
+     */
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public void onHandleWork(@NonNull Intent intent) {
         if (intent.getAction() == null) {
             if (BuildConfig.DEBUG) {
                 Log.e(TAG, "onHandleIntent: no action");
@@ -97,50 +100,24 @@ public class NetworkService extends IntentService {
         try {
             DBSiteSettings siteSettingDao = dbHelper.getDBSiteSettings();
             if (intent.getAction().equals(REQUEST_REFRESH_SITES)) {
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "action: " + REQUEST_REFRESH_SITES);
-                }
                 DBSiteCall dbSiteCall = dbHelper.getDBSiteCall();
                 refreshSites(siteSettingDao, dbSiteCall);
-            } else if (intent.getAction().equals(REQUEST_REFRESH_FAVICON)) {
-                String url = intent.getStringExtra(P_URL);
-                if (BuildConfig.DEBUG) {
-                    Log.i(TAG, "action: " + REQUEST_REFRESH_FAVICON + " " + url);
-                }
-                refreshFavicon(siteSettingDao, url);
             }
         } catch (SQLException e) {
-            Log.e(TAG, "onHandleIntent", e);
+            Log.e(TAG, "onHandleWork", e);
         } finally {
             if (dbHelper != null) {
                 dbHelper.release();
             }
-            WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
     }
 
-    private void refreshFavicon(DBSiteSettings siteSettingDao, String url) throws SQLException {
-        SiteSettings siteSettings = siteSettingDao.findForHost(url);
-        if (siteSettings == null) {
-            Log.w(TAG, "refreshFavicon, not site for: " + url);
-            return;
-        }
-        Log.d(TAG, "favicon: " + siteSettings);
-        Bitmap favicon = NetworkUtil.loadFaviconFor(siteSettings.getHost());
-        if (favicon == null) {
-            Log.w(TAG, "refreshFavicon, not favicon for: " + url);
-            return;
-        }
-        ByteArrayOutputStream blob = new ByteArrayOutputStream();
-        favicon.compress(Bitmap.CompressFormat.PNG, 0 /* Ignored for PNGs */, blob);
-        siteSettings.setFavicon(blob.toByteArray());
-        siteSettingDao.update(siteSettings);
-        BroadcastUtil.broadcast(this, ACTION_FAVICON_UPDATED, siteSettings, BroadcastUtil.EXTRA_FAVICON, favicon);
-    }
-
-    private void refreshSites(DBSiteSettings siteSettingDao, DBSiteCall dbSiteCall) throws SQLException {
+    public void refreshSites(DBSiteSettings siteSettingDao, DBSiteCall dbSiteCall) throws SQLException {
         List<SiteSettings> siteSettingList = siteSettingDao.queryForAll();
         List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<>();
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "action: " + REQUEST_REFRESH_SITES + " nbSites: " + siteSettingList.size());
+        }
         for (SiteSettings siteSettings : siteSettingList) {
             if (BuildConfig.DEBUG) {
                 Log.v(TAG, "call: " + siteSettings);
@@ -169,7 +146,7 @@ public class NetworkService extends IntentService {
                 sb.append(pair.first.getName());
                 if (pair.first.isNotificationEnabled()) {
                     if (limitToNewFail) {
-                        if (pair.first.getSiteCalls().isEmpty()){
+                        if (pair.first.getSiteCalls().isEmpty()) {
                             atLeastOneToNotify = true;
                         } else {
                             List<SiteCall> siteCalls = new ArrayList<>(pair.first.getSiteCalls());
@@ -192,4 +169,5 @@ public class NetworkService extends IntentService {
         }
         WidgetManager.refresh(this);
     }
+
 }

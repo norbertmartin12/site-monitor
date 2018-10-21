@@ -18,7 +18,8 @@ package org.site_monitor.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.content.WakefulBroadcastReceiver;
+import android.support.annotation.NonNull;
+import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
@@ -32,21 +33,32 @@ import java.util.Calendar;
  * An {@link IntentService} subclass for handling asynchronous task requests in
  * a service on a separate handler thread.
  */
-public class PurgeDbService extends IntentService {
+public class PurgeDbService extends JobIntentService {
 
     private static final String ACTION_PURGE_CALLS = "org.site_monitor.service.action.PURGE_CALLS";
     private static final String TAG = PurgeDbService.class.getSimpleName();
-
-    public PurgeDbService() {
-        super(TAG);
-    }
 
     public static Intent intent(Context context) {
         return new Intent(context, PurgeDbService.class).setAction(ACTION_PURGE_CALLS);
     }
 
+    /**
+     * Called serially for each work dispatched to and processed by the service.  This
+     * method is called on a background thread, so you can do long blocking operations
+     * here.  Upon returning, that work will be considered complete and either the next
+     * pending work dispatched here or the overall service destroyed now that it has
+     * nothing else to do.
+     * <p>
+     * <p>Be aware that when running as a job, you are limited by the maximum job execution
+     * time and any single or total sequential items of work that exceeds that limit will
+     * cause the service to be stopped while in progress and later restarted with the
+     * last unfinished work.  (There is currently no limit on execution duration when
+     * running as a pre-O plain Service.)</p>
+     *
+     * @param intent The intent describing the work to now be processed.
+     */
     @Override
-    protected void onHandleIntent(Intent intent) {
+    protected void onHandleWork(@NonNull Intent intent) {
         final String action = intent.getAction();
         if (action == null) {
             if (BuildConfig.DEBUG) {
@@ -56,7 +68,6 @@ public class PurgeDbService extends IntentService {
         }
         if (ACTION_PURGE_CALLS.equals(action)) {
             purgeCalls();
-            WakefulBroadcastReceiver.completeWakefulIntent(intent);
         }
     }
 

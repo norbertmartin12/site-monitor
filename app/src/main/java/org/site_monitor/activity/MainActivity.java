@@ -56,8 +56,9 @@ import org.site_monitor.receiver.BatteryLevelReceiver;
 import org.site_monitor.receiver.StartupBootReceiver;
 import org.site_monitor.receiver.internal.AlarmBroadcastReceiver;
 import org.site_monitor.receiver.internal.NetworkBroadcastReceiver;
+import org.site_monitor.service.FavIconService;
 import org.site_monitor.service.NetworkService;
-import org.site_monitor.task.NetworkTask;
+import org.site_monitor.task.CallSiteTask;
 import org.site_monitor.task.TaskCallback;
 import org.site_monitor.util.AlarmUtil;
 import org.site_monitor.util.ConnectivityUtil;
@@ -72,7 +73,7 @@ import java.util.List;
 /**
  * Allow user to add and monitor site settings.
  */
-public class MainActivity extends AppCompatActivity implements SiteSettingsAdapter.Handler, TaskCallback<NetworkTask, Void, Pair<SiteSettings, SiteCall>>, NetworkBroadcastReceiver.Listener, AlarmBroadcastReceiver.Listener {
+public class MainActivity extends AppCompatActivity implements SiteSettingsAdapter.Handler, TaskCallback<CallSiteTask, Void, List<Pair<SiteSettings, SiteCall>>>, NetworkBroadcastReceiver.Listener, AlarmBroadcastReceiver.Listener {
     private static final String TAG_TASK_FRAGMENT = "main_activity_task_fragment";
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String PARCEL_SITE_LIST = "SITE_LIST";
@@ -164,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         LocalBroadcastManager.getInstance(this).registerReceiver(alarmBroadcastReceiver, new IntentFilter(AlarmUtil.ACTION_NEXT_ALARM_SET));
         LocalBroadcastManager.getInstance(this).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_START_REFRESH));
         LocalBroadcastManager.getInstance(this).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_END_REFRESH));
-        LocalBroadcastManager.getInstance(this).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_FAVICON_UPDATED));
+        LocalBroadcastManager.getInstance(this).registerReceiver(networkBroadcastReceiver, new IntentFilter(FavIconService.ACTION_FAVICON_UPDATED));
         registerReceiver(networkBroadcastReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
@@ -208,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
             if (BuildConfig.DEBUG) {
                 Log.i(TAG, "global refresh requested");
             }
-            startService(NetworkService.intentToCheckSites(this));
+            NetworkService.enqueueCheckSitesWork(this);
             return true;
         }
         if (id == R.id.action_settings) {
@@ -236,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
             int startupBootState = context.getPackageManager().getComponentEnabledSetting(new ComponentName(context, StartupBootReceiver.class));
             boolean startupBootEnable = (startupBootState == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT || startupBootState == PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
             sb.append("StartupBoot state: ").append(startupBootEnable).append("\n");
-            sb.append("Alarm set: ").append(alarmUtil.hasAlarm()).append(" ").append(alarmUtil.getCurrentInterval()).append("\n");
+            sb.append("Alarm set: ").append(alarmUtil.getCurrentInterval()).append("\n");
             sb.append("Battery: ").append(BatteryLevelReceiver.getLastAction()).append("\n");
             Toast.makeText(this, sb.toString(), Toast.LENGTH_LONG).show();
             return true;
@@ -246,20 +247,20 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
     }
 
     @Override
-    public void onPreExecute(NetworkTask task) {
+    public void onPreExecute(CallSiteTask task) {
     }
 
     @Override
-    public void onProgressUpdate(NetworkTask task, Void... percent) {
+    public void onProgressUpdate(CallSiteTask task, Void... percent) {
     }
 
     @Override
-    public void onPostExecute(NetworkTask task, Pair<SiteSettings, SiteCall> result) {
+    public void onPostExecute(CallSiteTask task, List<Pair<SiteSettings, SiteCall>> result) {
     }
 
 
     @Override
-    public void onCancelled(NetworkTask task) {
+    public void onCancelled(CallSiteTask task) {
     }
 
     @Override
@@ -347,7 +348,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
                     SiteSettings siteSettings = new SiteSettings(host);
                     dbSiteSettings.create(siteSettings);
                     alarmUtil.startAlarmIfNeeded(context);
-                    new NetworkTask(context, taskFragment).execute(siteSettings);
+                    new CallSiteTask(context, taskFragment).execute(siteSettings);
                     SiteSettingsActivity.start(context, siteSettings.getHost());
                 } catch (SQLException e) {
                     Log.e(TAG, "create", e);

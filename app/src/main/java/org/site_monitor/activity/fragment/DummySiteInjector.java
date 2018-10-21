@@ -20,7 +20,7 @@ import android.view.View;
 
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.model.db.DBSiteSettings;
-import org.site_monitor.task.NetworkTask;
+import org.site_monitor.task.CallSiteTask;
 import org.site_monitor.task.TaskCallback;
 
 import java.sql.SQLException;
@@ -37,7 +37,7 @@ public class DummySiteInjector {
         for (String host : HOSTS) {
             SiteSettings siteSettings = new SiteSettings(host);
             dbSiteSettings.create(siteSettings);
-            new NetworkTask(view.getContext(), callbackProvider).execute(siteSettings);
+            new CallSiteTask(view.getContext(), callbackProvider).execute(siteSettings);
         }
 
     }

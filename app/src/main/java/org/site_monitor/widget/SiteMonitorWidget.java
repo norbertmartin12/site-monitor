@@ -46,7 +46,7 @@ abstract class SiteMonitorWidget extends AppWidgetProvider {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onEnabled");
         }
-        context.startService(NetworkService.intentToCheckSites(context));
+        NetworkService.enqueueCheckSitesWork(context);
     }
 
     @Override

@@ -38,15 +38,16 @@ import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.model.db.DBHelper;
 import org.site_monitor.model.db.DBSiteSettings;
-import org.site_monitor.service.NetworkService;
-import org.site_monitor.task.NetworkTask;
+import org.site_monitor.service.FavIconService;
+import org.site_monitor.task.CallSiteTask;
 import org.site_monitor.task.TaskCallback;
 import org.site_monitor.util.AlarmUtil;
 import org.site_monitor.widget.WidgetManager;
 
 import java.sql.SQLException;
+import java.util.List;
 
-public class SiteSettingsActivity extends AppCompatActivity implements SiteSettingsActivityFragment.Callback, TaskCallback<NetworkTask, Void, Pair<SiteSettings, SiteCall>> {
+public class SiteSettingsActivity extends AppCompatActivity implements SiteSettingsActivityFragment.Callback, TaskCallback<CallSiteTask, Void, List<Pair<SiteSettings, SiteCall>>> {
 
     private static final String TAG = SiteSettingsActivity.class.getSimpleName();
     private static final String P_SITE_SETTINGS = "org.site_monitor.activity.SiteSettingsActivity.site";
@@ -76,7 +77,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
         dbHelper = DBHelper.getHelper(context);
         if (savedInstanceState == null || savedInstanceState.isEmpty()) {
             try {
-                startService(NetworkService.intentToLoadFavicon(this, url));
+                FavIconService.enqueueLoadFavIcoWork(this, url);
                 SiteSettings dbSiteSettings = dbHelper.getDBSiteSettings().findForHost(url);
                 if (dbSiteSettings == null) {
                     Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
@@ -134,7 +135,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
                 return true;
             }
             syncMenuItem.setEnabled(false);
-            new NetworkTask(this, siteSettingsFragment).execute(siteSettings.getSiteSettings());
+            new CallSiteTask(this, siteSettingsFragment).execute(siteSettings.getSiteSettings());
             return true;
         }
         if (id == R.id.action_rename) {
@@ -259,16 +260,16 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
     }
 
     @Override
-    public void onPreExecute(NetworkTask task) {
+    public void onPreExecute(CallSiteTask task) {
     }
 
     @Override
-    public void onProgressUpdate(NetworkTask task, Void... percent) {
+    public void onProgressUpdate(CallSiteTask task, Void... percent) {
     }
 
     @Override
-    public void onPostExecute(NetworkTask task, Pair<SiteSettings, SiteCall> result) {
-        if (this.siteSettings.getHost().equals(siteSettings.getHost())) {
+    public void onPostExecute(CallSiteTask task, List<Pair<SiteSettings, SiteCall>> result) {
+        if (this.siteSettings.getHost().equals(result.get(0).first.getHost())) {
             if (syncMenuItem != null) {
                 syncMenuItem.setEnabled(true);
             }
@@ -276,7 +277,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
     }
 
     @Override
-    public void onCancelled(NetworkTask task) {
+    public void onCancelled(CallSiteTask task) {
     }
 
 }

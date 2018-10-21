@@ -25,6 +25,7 @@ import android.util.Log;
 import org.site_monitor.BuildConfig;
 import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
+import org.site_monitor.service.FavIconService;
 import org.site_monitor.service.NetworkService;
 import org.site_monitor.util.BroadcastUtil;
 import org.site_monitor.util.ConnectivityUtil;
@@ -44,27 +45,27 @@ public class NetworkBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
-            if (intent.getAction().equals(NetworkService.ACTION_SITE_START_REFRESH)) {
+            if (NetworkService.ACTION_SITE_START_REFRESH.equals(intent.getAction())) {
                 SiteSettings siteSettings = intent.getParcelableExtra(BroadcastUtil.EXTRA_SITE);
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "ACTION_SITE_START_REFRESH: " + siteSettings);
                 }
                 listener.onSiteStartRefresh(siteSettings);
-            } else if (intent.getAction().equals(NetworkService.ACTION_SITE_END_REFRESH)) {
+            } else if (NetworkService.ACTION_SITE_END_REFRESH.equals(intent.getAction())) {
                 SiteSettings siteSettings = intent.getParcelableExtra(BroadcastUtil.EXTRA_SITE);
                 SiteCall siteCall = intent.getParcelableExtra(BroadcastUtil.EXTRA_CALL);
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "ACTION_SITE_END_REFRESH: " + siteSettings + " " + siteCall);
                 }
                 listener.onSiteEndRefresh(siteSettings, siteCall);
-            } else if (intent.getAction().equals(NetworkService.ACTION_FAVICON_UPDATED)) {
+            } else if (FavIconService.ACTION_FAVICON_UPDATED.equals(intent.getAction())) {
                 SiteSettings siteSettings = intent.getParcelableExtra(BroadcastUtil.EXTRA_SITE);
                 Bitmap favicon = intent.getParcelableExtra(BroadcastUtil.EXTRA_FAVICON);
                 if (BuildConfig.DEBUG) {
                     Log.d(TAG, "ACTION_FAVICON_UPDATED: " + siteSettings);
                 }
                 listener.onFaviconUpdated(siteSettings, favicon);
-            } else if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+            } else if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
                 boolean isConnected = ConnectivityUtil.isConnected(context);
                 if (BuildConfig.DEBUG) {
                     Log.v(TAG, "CONNECTIVITY_ACTION: " + isConnected);

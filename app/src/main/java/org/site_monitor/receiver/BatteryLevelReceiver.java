@@ -24,7 +24,7 @@ import org.site_monitor.BuildConfig;
 import org.site_monitor.util.AlarmUtil;
 
 /**
- * Receives battery level event and stop or start AlarmReceiver to optimize battery life and monitoring.
+ * Receives battery level event and stop or start AlarmJobService to optimize battery life and monitoring.
  */
 public class BatteryLevelReceiver extends BroadcastReceiver {
     private static final String TAG = BatteryLevelReceiver.class.getSimpleName();
@@ -39,27 +39,27 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
-            if (intent.getAction().equals(Intent.ACTION_BATTERY_LOW)) {
+            if (Intent.ACTION_BATTERY_LOW.equals(intent.getAction())) {
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "ACTION_BATTERY_LOW");
                 }
                 batteryOk = false;
                 alarmUtil.stopAlarm(context);
                 lastAction = "ACTION_BATTERY_LOW";
-            } else if (intent.getAction().equals(Intent.ACTION_BATTERY_OKAY)) {
+            } else if (Intent.ACTION_BATTERY_OKAY.equals(intent.getAction())) {
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "ACTION_BATTERY_OKAY");
                 }
                 batteryOk = true;
                 alarmUtil.startAlarmIfNeeded(context);
                 lastAction = "ACTION_BATTERY_OKAY";
-            } else if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
+            } else if (Intent.ACTION_POWER_CONNECTED.equals(intent.getAction())) {
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "ACTION_POWER_CONNECTED");
                 }
                 alarmUtil.startAlarmIfNeeded(context);
                 lastAction = "ACTION_POWER_CONNECTED";
-            } else if (intent.getAction().equals(Intent.ACTION_POWER_DISCONNECTED)) {
+            } else if (Intent.ACTION_POWER_DISCONNECTED.equals(intent.getAction())) {
                 if (BuildConfig.DEBUG) {
                     Log.i(TAG, "ACTION_POWER_DISCONNECTED");
                 }
@@ -67,6 +67,8 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
                     alarmUtil.stopAlarm(context);
                 }
                 lastAction = "ACTION_POWER_DISCONNECTED";
+            } else {
+                Log.d(TAG, "unmanaged action: " + intent.getAction());
             }
         }
     }

@@ -16,19 +16,22 @@
 package org.site_monitor.util;
 
 import android.app.AlarmManager;
-import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
 import org.site_monitor.activity.PrefSettingsActivity;
 import org.site_monitor.model.db.DBHelper;
-import org.site_monitor.receiver.AlarmReceiver;
+import org.site_monitor.service.AlarmJobService;
+import org.site_monitor.service.JobEnum;
 import org.site_monitor.service.SharedPreferencesService;
 
 import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * Created by Martin Norbert on 31/01/2016.
@@ -44,7 +47,6 @@ public class AlarmUtil {
         ALARM_SERVICE = new AlarmUtil();
     }
 
-    private PendingIntent pendingIntent;
     private Long currentInterval;
 
     private AlarmUtil() {
@@ -79,45 +81,38 @@ public class AlarmUtil {
      */
     public boolean startAlarmIfNeeded(Context context) {
         if (hasAlarm()) {
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "startAlarmIfNeeded does nothing - already started");
+            }
             return true;
         }
         if (countSites(context) > 0) {
-            startAlarm(context);
+            scheduleAlarm(context, getAlarmInterval(context));
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "startAlarmIfNeeded - started");
+            }
             return true;
+        }
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "startAlarmIfNeeded does nothing - no sites");
         }
         return false;
     }
 
-    /**
-     * Starts alarm if none set.
-     *
-     * @param context
-     * @return
-     */
-    public PendingIntent startAlarm(Context context) {
-        if (hasAlarm()) {
-            if (BuildConfig.DEBUG) {
-                Log.i(TAG, "startAlarm: already set");
-            }
-            return pendingIntent;
-        }
-
+    private long getAlarmInterval(Context context) {
         String intervalString = PreferenceManager.getDefaultSharedPreferences(context).getString(PrefSettingsActivity.FREQUENCY, "60");
-        if (intervalString == null || intervalString.isEmpty()) {
-            return null;
+        // PATCH 0.14 - REMOVE 5 VALUE
+        if ("5".equals(intervalString)) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putString(PrefSettingsActivity.FREQUENCY, "15").apply();
+            return AlarmManager.INTERVAL_FIFTEEN_MINUTES;
         }
-        long interval = AlarmManager.INTERVAL_HOUR;
-        if (intervalString != null && !intervalString.isEmpty()) {
-            interval = Long.parseLong(intervalString) * TimeUtil.MINUTE_2_MILLISEC;
-        } else {
-            if (BuildConfig.DEBUG) {
-                Log.w(TAG, "intervalString is null, default interval: " + interval);
-            }
+        // SECURITY IF NOT SET
+        if (Long.parseLong(intervalString) <= 0) {
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putString(PrefSettingsActivity.FREQUENCY, "60").apply();
+            return AlarmManager.INTERVAL_HOUR;
         }
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "startAlarm");
-        }
-        return scheduleAlarm(context, interval);
+        return Long.parseLong(intervalString) * TimeUtil.MINUTE_2_MILLISEC;
     }
 
     /**
@@ -132,14 +127,7 @@ public class AlarmUtil {
             }
             return;
         }
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pendingIntent);
-        pendingIntent = null;
-        currentInterval = null;
-        updateNextAlarmDate(context);
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "stop alarm");
-        }
+        killAlarm(context, JobEnum.CHECK_SITES.ordinal());
     }
 
     /**
@@ -159,31 +147,26 @@ public class AlarmUtil {
         scheduleAlarm(context, newFrequency);
     }
 
-    /**
-     * @return true if has current alarm set
-     */
-    public boolean hasAlarm() {
-        return pendingIntent != null;
-    }
-
-    /**
-     * @return current alarm interval, or null if no alarm set
-     */
-    public Long getCurrentInterval() {
-        return currentInterval;
-    }
-
-    private PendingIntent scheduleAlarm(Context context, long interval) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent newPendingIntent = PendingIntent.getBroadcast(context, 0, new Intent(context, AlarmReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, interval, interval, newPendingIntent);
-        currentInterval = interval / TimeUtil.MINUTE_2_MILLISEC;
-        pendingIntent = newPendingIntent;
-        if (BuildConfig.DEBUG) {
-            Log.i(TAG, "schedule alarm every: " + currentInterval + " (" + interval + ")");
+    private void scheduleAlarm(Context context, long interval) {
+        ComponentName serviceComponent = new ComponentName(context, AlarmJobService.class);
+        JobInfo.Builder builder = new JobInfo.Builder(JobEnum.CHECK_SITES_JS.ordinal(), serviceComponent);
+        builder.setPeriodic(interval);
+        builder.setPersisted(true);
+        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        if (jobScheduler != null) {
+            if (jobScheduler.schedule(builder.build()) == JobScheduler.RESULT_FAILURE) {
+                if (BuildConfig.DEBUG) {
+                    Log.e(TAG, "failed to schedule alarm every: " + currentInterval + "min (" + interval + ")");
+                }
+                currentInterval = null;
+            } else {
+                currentInterval = interval / TimeUtil.MINUTE_2_MILLISEC;
+                if (BuildConfig.DEBUG) {
+                    Log.i(TAG, "scheduled alarm every: " + currentInterval + "min (" + interval + ")");
+                }
+            }
+            updateNextAlarmDate(context);
         }
-        updateNextAlarmDate(context);
-        return pendingIntent;
     }
 
     public void updateNextAlarmDate(Context context) {
@@ -197,9 +180,34 @@ public class AlarmUtil {
             SharedPreferencesService.saveNow(context, KEY_NEXT_ALARM, 0);
         }
         if (BuildConfig.DEBUG) {
-            Log.i(TAG, "updateNextAlarmDate: " + nextAlarm);
+            Log.i(TAG, "updateNextAlarmDate: " + new Date(nextAlarm));
         }
         BroadcastUtil.broadcast(context, ACTION_NEXT_ALARM_SET, BroadcastUtil.EXTRA_ALARM, nextAlarm);
+    }
+
+    /**
+     * Kills current alarm an notifies this update
+     *
+     * @param context
+     * @param jobId
+     */
+    public void killAlarm(Context context, int jobId) {
+        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        if (jobScheduler != null) {
+            jobScheduler.cancel(jobId);
+            currentInterval = null;
+            updateNextAlarmDate(context);
+            if (BuildConfig.DEBUG) {
+                Log.d(TAG, "killAlarm jobSchedule: " + jobId);
+            }
+        }
+    }
+
+    /**
+     * @return true if has current alarm set
+     */
+    private boolean hasAlarm() {
+        return currentInterval != null;
     }
 
     /**
@@ -220,11 +228,27 @@ public class AlarmUtil {
         }
     }
 
+    /**
+     * @param context
+     * @return next alarm timestamp
+     */
     public long getNextAlarmTime(Context context) {
         return SharedPreferencesService.getLongNow(context, KEY_NEXT_ALARM);
     }
 
+    /**
+     * @param context
+     * @return next alarm delay
+     */
     public long getCountUntilNextAlarmTime(Context context) {
         return getNextAlarmTime(context) - System.currentTimeMillis();
     }
+
+    /**
+     * @return current alarm interval, or null if no alarm set
+     */
+    public Long getCurrentInterval() {
+        return currentInterval;
+    }
+
 }
