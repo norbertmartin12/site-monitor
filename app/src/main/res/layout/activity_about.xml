@@ -87,6 +87,13 @@
             android:layout_marginTop="@dimen/size_medium"
             android:autoLink="web"
             android:text="@string/apache_license"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/size_medium"
+            android:autoLink="web"
+            android:text="@string/github_link" />
     </LinearLayout>
 
 </ScrollView>

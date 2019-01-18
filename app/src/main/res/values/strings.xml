@@ -45,9 +45,10 @@
 
     <string name="no_connectivity_available">No connectivity available</string>
     <string name="already_exists">" already exists"</string>
-    <string name="copy_right" translatable="false">Copyright 2016-2018 Martin Norbert</string>
+    <string name="copy_right" translatable="false">Copyright 2016-2019 Norbert Martin</string>
     <string name="contact">Developer: norbertmartin12@gmail.com</string>
     <string name="apache_license" translatable="false">Apache License v2.0\nhttp://www.apache.org/licenses/LICENSE-2.0</string>
+    <string name="github_link" translatable="false">GitHub\nhttps://github.com/norbertmartin12/site-monitor</string>
     <string name="trello">Follow on Trello</string>
     <string name="rateApp">Rate on Play Store</string>
     <string name="widget_all_ok">You\'re on the web</string>
