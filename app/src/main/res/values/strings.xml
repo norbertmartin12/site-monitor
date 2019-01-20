@@ -64,4 +64,7 @@
     <string name="action_add_internal_ip">Set internal URL</string>
     <string name="internal_url_removed">Internal URL removed</string>
     <string name="internal_url_added">Internal URL set</string>
+
+    <string name="channel_title">Alerts</string>
+    <string name="channel_description">Notification when your web site is unavailable</string>
 </resources>

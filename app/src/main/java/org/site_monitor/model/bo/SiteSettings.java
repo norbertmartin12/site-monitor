@@ -73,7 +73,7 @@ public class SiteSettings implements Parcelable {
         name = in.readString();
         host = in.readString();
         internalUrl = in.readString();
-        isNotificationEnabled = in.readInt() == 1 ? true : false;
+        isNotificationEnabled = in.readInt() == 1;
         in.readByteArray(favicon);
     }
 

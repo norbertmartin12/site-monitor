@@ -40,7 +40,7 @@ public class AboutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-        TextView versionTextView = (TextView) findViewById(R.id.version);
+        TextView versionTextView = findViewById(R.id.version);
 
         try {
             versionTextView.setText(getPackageManager().getPackageInfo(getPackageName(), 0).versionName);

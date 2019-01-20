@@ -62,6 +62,7 @@ import org.site_monitor.task.CallSiteTask;
 import org.site_monitor.task.TaskCallback;
 import org.site_monitor.util.AlarmUtil;
 import org.site_monitor.util.ConnectivityUtil;
+import org.site_monitor.util.NotificationUtil;
 import org.site_monitor.util.TimeUtil;
 
 import java.sql.SQLException;
@@ -124,6 +125,8 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         if (alarmBroadcastReceiver == null) {
             alarmBroadcastReceiver = new AlarmBroadcastReceiver(this);
         }
+
+        NotificationUtil.createNotificationChannel(this);
         // start alarm on 1st install or if not started on system boot
         alarmUtil.startAlarmIfNeeded(this);
     }

@@ -125,12 +125,12 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettingsBusiness> {
         ViewHandler(int position, View view) {
             this.siteSettings = getItem(position);
             this.view = view;
-            this.nameTextView = (TextView) view.findViewById(R.id.nameText);
-            this.progressBar = (ProgressBar) view.findViewById(R.id.progressBar);
-            this.faviconImage = (ImageView) view.findViewById(R.id.faviconImage);
-            this.notificationImage = (ImageView) view.findViewById(R.id.notificationImage);
-            this.lastFailText = (TextView) view.findViewById(R.id.lastFailText);
-            this.stateImage = (ImageView) view.findViewById(R.id.stateImage);
+            this.nameTextView = view.findViewById(R.id.nameText);
+            this.progressBar = view.findViewById(R.id.progressBar);
+            this.faviconImage = view.findViewById(R.id.faviconImage);
+            this.notificationImage = view.findViewById(R.id.notificationImage);
+            this.lastFailText = view.findViewById(R.id.lastFailText);
+            this.stateImage = view.findViewById(R.id.stateImage);
         }
     }
 }

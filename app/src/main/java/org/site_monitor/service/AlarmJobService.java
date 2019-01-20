@@ -15,12 +15,20 @@
 
 package org.site_monitor.service;
 
+import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.Intent;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.util.Pair;
 
 import org.site_monitor.BuildConfig;
+import org.site_monitor.R;
+import org.site_monitor.activity.MainActivity;
+import org.site_monitor.model.bo.NetworkCallResult;
+import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.model.db.DBHelper;
 import org.site_monitor.model.db.DBSiteSettings;
@@ -28,8 +36,11 @@ import org.site_monitor.task.CallSiteTask;
 import org.site_monitor.task.TaskCallback;
 import org.site_monitor.task.TaskCallbackDefault;
 import org.site_monitor.util.AlarmUtil;
+import org.site_monitor.util.NotificationUtil;
 
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class AlarmJobService extends JobService {
 
@@ -52,7 +63,6 @@ public class AlarmJobService extends JobService {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onStartJob");
         }
-
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -65,6 +75,19 @@ public class AlarmJobService extends JobService {
                             return new TaskCallbackDefault() {
                                 @Override
                                 public void onPostExecute(Object o, Object o2) {
+                                    List<Pair<SiteSettings, SiteCall>> results = (List<Pair<SiteSettings, SiteCall>>) o2;
+                                    List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<>();
+                                    for (Pair<SiteSettings, SiteCall> siteResult : results) {
+                                        if (siteResult.second.getResult() == NetworkCallResult.FAIL) {
+                                            failsPairs.add(siteResult);
+                                        }
+                                    }
+                                    String notificationMessage = NetworkService.performNotifyMessage(failsPairs, getApplicationContext());
+                                    if (notificationMessage != null) {
+                                        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(getApplicationContext(), MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+                                        NotificationCompat.Builder notificationBuilder = NotificationUtil.build(getApplicationContext(), failsPairs.size() + " " + getString(R.string.state_unreachable), notificationMessage, pendingIntent);
+                                        NotificationUtil.send(getApplicationContext(), NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build());
+                                    }
                                     alarmUtil.updateNextAlarmDate(getApplicationContext());
                                     jobFinished(params, true);
                                 }

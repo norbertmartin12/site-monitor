@@ -24,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.JobIntentService;
 import android.support.v4.app.NotificationCompat;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.util.Pair;
 
@@ -132,42 +133,54 @@ public class NetworkService extends JobIntentService {
             }
             dbSiteCall.create(siteCall);
         }
-
-        boolean atLeastOneToNotify = false;
-        if (!failsPairs.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            boolean limitToNewFail = preferences.getBoolean(PrefSettingsActivity.NOTIFICATION_LIMIT_TO_NEW_FAIL, true);
-            for (Pair<SiteSettings, SiteCall> pair : failsPairs) {
-                // never break to get all sites in fail
-                if (sb.length() > 0) {
-                    sb.append(COMA);
-                }
-                sb.append(pair.first.getName());
-                if (pair.first.isNotificationEnabled()) {
-                    if (limitToNewFail) {
-                        if (pair.first.getSiteCalls().isEmpty()) {
-                            atLeastOneToNotify = true;
-                        } else {
-                            List<SiteCall> siteCalls = new ArrayList<>(pair.first.getSiteCalls());
-                            Collections.sort(siteCalls, SiteCall.DESC_DATE);
-                            SiteCall previousCall = siteCalls.get(0);
-                            if (previousCall.getResult() == NetworkCallResult.SUCCESS) {
-                                atLeastOneToNotify = true;
-                            }
-                        }
-                    } else {
-                        atLeastOneToNotify = true;
-                    }
-                }
-            }
-            if (atLeastOneToNotify) {
-                PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-                NotificationCompat.Builder notificationBuilder = NotificationUtil.build(this, failsPairs.size() + " " + getString(R.string.state_unreachable), sb.toString(), pendingIntent);
-                NotificationUtil.send(this, NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build());
-            }
+        String notificationMessage = performNotifyMessage(failsPairs, this);
+        if (notificationMessage != null) {
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationCompat.Builder notificationBuilder = NotificationUtil.build(this, failsPairs.size() + " " + getString(R.string.state_unreachable), notificationMessage, pendingIntent);
+            NotificationUtil.send(this, NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build());
         }
         WidgetManager.refresh(this);
     }
 
+    public static String performNotifyMessage(List<Pair<SiteSettings, SiteCall>> failsPairs, Context context) {
+        boolean atLeastOneToNotify = false;
+        if (failsPairs.isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        boolean limitToNewFail = preferences.getBoolean(PrefSettingsActivity.NOTIFICATION_LIMIT_TO_NEW_FAIL, true);
+        for (Pair<SiteSettings, SiteCall> pair : failsPairs) {
+            // never break to get all sites in fail
+            if (sb.length() > 0) {
+                sb.append(COMA);
+            }
+            sb.append(pair.first.getName());
+            if (pair.first.isNotificationEnabled()) {
+                if (limitToNewFail) {
+                    if (pair.first.getSiteCalls().isEmpty()) {
+                        atLeastOneToNotify = true;
+                    } else {
+                        List<SiteCall> siteCalls = new ArrayList<>(pair.first.getSiteCalls());
+                        Collections.sort(siteCalls, SiteCall.DESC_DATE);
+                        SiteCall previousCall = siteCalls.get(0);
+                        if (previousCall.getResult() == NetworkCallResult.SUCCESS) {
+                            atLeastOneToNotify = true;
+                        }
+                        if (previousCall.getResult() == NetworkCallResult.FAIL) {
+                            if (!DateUtils.isToday(previousCall.getDate().getTime())) {
+                                atLeastOneToNotify = true;
+                            }
+                        }
+                    }
+                } else {
+                    atLeastOneToNotify = true;
+                }
+            }
+        }
+        if (atLeastOneToNotify) {
+            return sb.toString();
+        }
+        return null;
+    }
 }

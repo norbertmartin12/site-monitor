@@ -129,9 +129,9 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
         ViewHandler(View view, int position) {
             this.view = view;
             this.siteCall = getItem(position);
-            this.mainTextView = (TextView) view.findViewById(R.id.mainTextView);
-            this.secondCodeTextView = (TextView) view.findViewById(R.id.secondTextView);
-            this.responseTimeTextView = (TextView) view.findViewById(R.id.responseTimeTextView);
+            this.mainTextView = view.findViewById(R.id.mainTextView);
+            this.secondCodeTextView = view.findViewById(R.id.secondTextView);
+            this.responseTimeTextView = view.findViewById(R.id.responseTimeTextView);
         }
     }
 }

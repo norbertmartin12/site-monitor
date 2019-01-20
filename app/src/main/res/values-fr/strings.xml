@@ -61,4 +61,7 @@
     <string name="add_internal_url">Définir une URL interne</string>
     <string name="internal_url_removed">URL interne supprimée</string>
     <string name="internal_url_added">URL interne définie</string>
+
+    <string name="channel_title">Alertes</string>
+    <string name="channel_description">Notifications lorsque votre site web est indisponible</string>
 </resources>

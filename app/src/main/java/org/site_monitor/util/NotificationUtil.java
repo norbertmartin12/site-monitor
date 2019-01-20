@@ -16,6 +16,7 @@
 package org.site_monitor.util;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -39,20 +40,27 @@ import org.site_monitor.activity.PrefSettingsActivity;
 public class NotificationUtil {
 
     private static final String TAG = NotificationUtil.class.getSimpleName();
+    private static final String CHANNEL_ID_ALERTS = "ALERTS";
     public static int ID_NOT_REACHABLE = 1;
+
+    public static void createNotificationChannel(Context context) {
+        // Create the NotificationChannel, but only on API 26+ because the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID_ALERTS, context.getString(R.string.channel_title), NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription(context.getString(R.string.channel_description));
+            // Register the channel with the system; you can't change the importance or other notification behaviors after this
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
 
     /**
      * Pre builds notification.
-     *
-     * @param context
-     * @param title
-     * @param text
-     * @param pendingIntent
      */
     public static NotificationCompat.Builder build(Context context, String title, String text, PendingIntent pendingIntent) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(context, CHANNEL_ID_ALERTS);
         notificationBuilder.setSmallIcon(R.drawable.ic_app);
         if (!BuildConfig.DEBUG) {
             notificationBuilder.setColor(context.getResources().getColor(R.color.primary));
@@ -82,22 +90,18 @@ public class NotificationUtil {
     }
 
     /**
-     * @param context
-     * @param typeId
-     * @param notification
      * @return false if not sent {@see #shouldNotify}
      */
     public static boolean send(Context context, int typeId, Notification notification) {
-        if (!shouldNotify(context)) {
-            return false;
-        }
+        //if (!shouldNotify(context)) {
+        //     return false;
+        // }
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(typeId, notification);
         return true;
     }
 
     /**
-     * @param context
      * @return false if app foreground or notification disabled
      */
     public static boolean shouldNotify(Context context) {

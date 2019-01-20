@@ -49,12 +49,10 @@ public class NetworkUtil {
     private static final String ROOT_PROTOCOL = "://";
     private static final int TIMEOUT_10 = (int) (10 * TimeUtil.SEC_2_MILLISEC);
     private static final String METHOD_HEAD = "HEAD";
-    private static final String FAVICON_SERVICE_URL = "http://www.google.com/s2/favicons?domain=";
+    private static final String FAVICON_SERVICE_URL = "https://www.google.com/s2/favicons?domain=";
 
     /**
      * Retrieves favicon for given url
-     *
-     * @param url
      */
     public static Bitmap loadFaviconFor(String url) {
         InputStream is = null;
@@ -85,9 +83,6 @@ public class NetworkUtil {
 
     /**
      * Builds and performs http request for given siteSettings
-     *
-     * @param context
-     * @param siteSettings
      * @return SiteCall result
      */
     public SiteCall buildHeadHttpConnectionThenDoCall(Context context, SiteSettings siteSettings) {
