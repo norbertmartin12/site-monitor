@@ -17,9 +17,11 @@ package org.site_monitor.activity.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 
 import org.site_monitor.task.TaskCallback;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 /**
  * Created by norbert on 19/07/2015.
@@ -42,7 +44,7 @@ public class TaskFragment extends Fragment implements TaskCallback.Provider {
      * each configuration change.
      */
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.callback = (TaskCallback) context;
     }

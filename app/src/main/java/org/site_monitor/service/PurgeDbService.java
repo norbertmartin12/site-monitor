@@ -18,8 +18,6 @@ package org.site_monitor.service;
 import android.app.IntentService;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
@@ -28,6 +26,9 @@ import org.site_monitor.model.db.DBSiteCall;
 
 import java.sql.SQLException;
 import java.util.Calendar;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in

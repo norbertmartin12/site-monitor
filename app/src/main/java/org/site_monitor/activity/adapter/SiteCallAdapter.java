@@ -18,12 +18,13 @@ package org.site_monitor.activity.adapter;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.site_monitor.R;
 import org.site_monitor.model.adapter.SiteSettingsBusiness;
@@ -31,6 +32,9 @@ import org.site_monitor.model.bo.NetworkCallResult;
 import org.site_monitor.model.bo.SiteCall;
 
 import java.text.SimpleDateFormat;
+import java.util.Locale;
+
+import androidx.annotation.NonNull;
 
 /**
  * Created by norbert on 26/07/2015.
@@ -39,7 +43,7 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
 
     private static final String MS = "ms";
     private static final String UNKNOWN = "?";
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm", Locale.getDefault());
     private static final String HTTP = "HTTP-";
     private static final String SPACE = " ";
     private static final String EMPTY = "";
@@ -51,7 +55,7 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.cell_site_call, parent, false);
         }
@@ -63,7 +67,7 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
     }
 
     private void updateView(final ViewHandler viewHandler) {
-        final String date = simpleDateFormat.format(viewHandler.siteCall.getDate());
+        final String date = DATE_FORMAT.format(viewHandler.siteCall.getDate());
         viewHandler.mainTextView.setText(date);
 
         if (viewHandler.siteCall.getException() != null) {
@@ -91,29 +95,26 @@ public class SiteCallAdapter extends ArrayAdapter<SiteCall> {
             viewHandler.responseTimeTextView.setText(EMPTY);
         }
 
-        viewHandler.view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String prefixText = date + " - " ;
-                if (result == NetworkCallResult.SUCCESS) {
-                    prefixText += getContext().getText(R.string.tip_all_ok);
-                    Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
-                } else if (result == NetworkCallResult.FAIL) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    if (SiteSettingsBusiness.isCallCertError(viewHandler.siteCall)) {
-                        builder.setMessage(R.string.tip_fail_cert_error);
-                    } else if (SiteSettingsBusiness.isCallFailToConnectError(viewHandler.siteCall)) {
-                        builder.setMessage(R.string.tip_fail_to_connect);
-                    } else {
-                        prefixText +=  getContext().getText(R.string.tip_unknown_error_good_luck);
-                        Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
-                        return;
-                    }
-                    builder.show();
+        viewHandler.view.setOnClickListener(v -> {
+            String prefixText = date + " - ";
+            if (result == NetworkCallResult.SUCCESS) {
+                prefixText += getContext().getText(R.string.tip_all_ok);
+                Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
+            } else if (result == NetworkCallResult.FAIL) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                if (SiteSettingsBusiness.isCallCertError(viewHandler.siteCall)) {
+                    builder.setMessage(R.string.tip_fail_cert_error);
+                } else if (SiteSettingsBusiness.isCallFailToConnectError(viewHandler.siteCall)) {
+                    builder.setMessage(R.string.tip_fail_to_connect);
                 } else {
-                    prefixText += getContext().getText(R.string.tip_unknown_state);
+                    prefixText += getContext().getText(R.string.tip_unknown_error_good_luck);
                     Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
+                    return;
                 }
+                builder.show();
+            } else {
+                prefixText += getContext().getText(R.string.tip_unknown_state);
+                Snackbar.make(v, prefixText, Snackbar.LENGTH_SHORT).show();
             }
         });
     }

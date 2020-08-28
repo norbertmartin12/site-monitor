@@ -18,10 +18,11 @@ package org.site_monitor.util;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.support.v4.content.LocalBroadcastManager;
 
 import org.site_monitor.model.bo.SiteCall;
 import org.site_monitor.model.bo.SiteSettings;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * Created by Martin Norbert on 31/01/2016.

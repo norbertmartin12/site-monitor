@@ -17,12 +17,8 @@ package org.site_monitor.activity;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.util.Log;
 import android.util.Pair;
@@ -30,6 +26,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.site_monitor.R;
 import org.site_monitor.activity.fragment.SiteSettingsActivityFragment;
@@ -46,6 +44,10 @@ import org.site_monitor.widget.WidgetManager;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 public class SiteSettingsActivity extends AppCompatActivity implements SiteSettingsActivityFragment.Callback, TaskCallback<CallSiteTask, Void, List<Pair<SiteSettings, SiteCall>>> {
 
@@ -112,7 +114,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelable(PARCEL_SITE, siteSettings);
     }
@@ -146,29 +148,23 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
             input.setText(siteSettings.getName());
             input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
             builder.setView(input);
-            builder.setPositiveButton(R.string.action_rename, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    String name = input.getText().toString().trim();
-                    if (name.isEmpty()) {
-                        name = getString(R.string.no_name);
-                    }
-                    siteSettings.getSiteSettings().setName(name);
-                    setTitle(siteSettings.getName());
-                    try {
-                        DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
-                        dbSiteSettings.update(siteSettings.getSiteSettings());
-                        WidgetManager.refresh(context);
-                    } catch (SQLException e) {
-                        Log.e(TAG, "rename", e);
-                    }
+            builder.setPositiveButton(R.string.action_rename, (dialog, which) -> {
+                String name = input.getText().toString().trim();
+                if (name.isEmpty()) {
+                    name = getString(R.string.no_name);
+                }
+                siteSettings.getSiteSettings().setName(name);
+                setTitle(siteSettings.getName());
+                try {
+                    DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                    dbSiteSettings.update(siteSettings.getSiteSettings());
+                    WidgetManager.refresh(context);
+                } catch (SQLException e) {
+                    Log.e(TAG, "rename", e);
+                }
 
-                }
             });
-            builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
+            builder.setNegativeButton(R.string.action_cancel, (dialog, which) -> {
             });
             builder.show();
             return true;
@@ -176,25 +172,19 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
         if (id == R.id.action_delete) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(R.string.remove_current_monitor);
-            builder.setPositiveButton(R.string.action_delete, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    try {
-                        DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
-                        dbSiteSettings.delete(siteSettings.getSiteSettings());
-                        AlarmUtil.instance().stopAlarmIfNeeded(context);
-                    } catch (SQLException e) {
-                        Log.e(TAG, "remove", e);
-                    }
-                    WidgetManager.refresh(context);
-                    finish();
+            builder.setPositiveButton(R.string.action_delete, (dialog, which) -> {
+                try {
+                    DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                    dbSiteSettings.delete(siteSettings.getSiteSettings());
+                    AlarmUtil.instance().stopAlarmIfNeeded(context);
+                } catch (SQLException e) {
+                    Log.e(TAG, "remove", e);
                 }
+                WidgetManager.refresh(context);
+                finish();
             });
 
-            builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                }
+            builder.setNegativeButton(R.string.action_cancel, (dialog, which) -> {
             });
             builder.show();
             return true;
@@ -218,29 +208,23 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
                 input.setHint(R.string.hint_interval_site_url);
                 input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_URI);
                 builder.setView(input);
-                builder.setPositiveButton(R.string.action_add, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String internalIp = input.getText().toString().trim();
-                        if (internalIp.isEmpty()) {
-                            return;
-                        }
-                        try {
-                            siteSettings.getSiteSettings().setInternalUrl(internalIp);
-                            DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
-                            dbSiteSettings.update(siteSettings.getSiteSettings());
-                            addInternalIpMenuItem.setChecked(!addInternalIpMenuItem.isChecked());
-                            Snackbar.make(context.getCurrentFocus(), R.string.internal_url_added, Snackbar.LENGTH_SHORT).show();
-                            siteSettingsFragment.setSiteSettings(siteSettings);
-                        } catch (SQLException e) {
-                            Log.e(TAG, "update", e);
-                        }
+                builder.setPositiveButton(R.string.action_add, (dialog, which) -> {
+                    String internalIp = input.getText().toString().trim();
+                    if (internalIp.isEmpty()) {
+                        return;
+                    }
+                    try {
+                        siteSettings.getSiteSettings().setInternalUrl(internalIp);
+                        DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                        dbSiteSettings.update(siteSettings.getSiteSettings());
+                        addInternalIpMenuItem.setChecked(!addInternalIpMenuItem.isChecked());
+                        Snackbar.make(context.getCurrentFocus(), R.string.internal_url_added, Snackbar.LENGTH_SHORT).show();
+                        siteSettingsFragment.setSiteSettings(siteSettings);
+                    } catch (SQLException e) {
+                        Log.e(TAG, "update", e);
                     }
                 });
-                builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
+                builder.setNegativeButton(R.string.action_cancel, (dialog, which) -> {
                 });
                 builder.show();
             }

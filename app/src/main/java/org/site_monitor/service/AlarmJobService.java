@@ -20,7 +20,6 @@ import android.app.job.JobInfo;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.util.Pair;
 
@@ -33,7 +32,6 @@ import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.model.db.DBHelper;
 import org.site_monitor.model.db.DBSiteSettings;
 import org.site_monitor.task.CallSiteTask;
-import org.site_monitor.task.TaskCallback;
 import org.site_monitor.task.TaskCallbackDefault;
 import org.site_monitor.util.AlarmUtil;
 import org.site_monitor.util.NotificationUtil;
@@ -41,6 +39,8 @@ import org.site_monitor.util.NotificationUtil;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
+
+import androidx.core.app.NotificationCompat;
 
 public class AlarmJobService extends JobService {
 
@@ -63,45 +63,37 @@ public class AlarmJobService extends JobService {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onStartJob");
         }
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                DBHelper dbHelper = DBHelper.getHelper(getApplicationContext());
-                try {
-                    DBSiteSettings siteSettingDao = dbHelper.getDBSiteSettings();
-                    new CallSiteTask(getApplicationContext(), new TaskCallback.Provider() {
-                        @Override
-                        public TaskCallback getCallback() {
-                            return new TaskCallbackDefault() {
-                                @Override
-                                public void onPostExecute(Object o, Object o2) {
-                                    List<Pair<SiteSettings, SiteCall>> results = (List<Pair<SiteSettings, SiteCall>>) o2;
-                                    List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<>();
-                                    for (Pair<SiteSettings, SiteCall> siteResult : results) {
-                                        if (siteResult.second.getResult() == NetworkCallResult.FAIL) {
-                                            failsPairs.add(siteResult);
-                                        }
-                                    }
-                                    String notificationMessage = NetworkService.performNotifyMessage(failsPairs, getApplicationContext());
-                                    if (notificationMessage != null) {
-                                        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(getApplicationContext(), MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-                                        NotificationCompat.Builder notificationBuilder = NotificationUtil.build(getApplicationContext(), failsPairs.size() + " " + getString(R.string.state_unreachable), notificationMessage, pendingIntent);
-                                        NotificationUtil.send(getApplicationContext(), NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build());
-                                    }
-                                    alarmUtil.updateNextAlarmDate(getApplicationContext());
-                                    jobFinished(params, true);
-                                }
-                            };
+        new Thread(() -> {
+            DBHelper dbHelper = DBHelper.getHelper(getApplicationContext());
+            try {
+                DBSiteSettings siteSettingDao = dbHelper.getDBSiteSettings();
+                new CallSiteTask(getApplicationContext(), () -> new TaskCallbackDefault() {
+                    @Override
+                    public void onPostExecute(Object o, Object o2) {
+                        List<Pair<SiteSettings, SiteCall>> results = (List<Pair<SiteSettings, SiteCall>>) o2;
+                        List<Pair<SiteSettings, SiteCall>> failsPairs = new LinkedList<>();
+                        for (Pair<SiteSettings, SiteCall> siteResult : results) {
+                            if (siteResult.second.getResult() == NetworkCallResult.FAIL) {
+                                failsPairs.add(siteResult);
+                            }
                         }
-                    }).execute(siteSettingDao.queryForAll().toArray(new SiteSettings[]{}));
-                } catch (SQLException e) {
-                    Log.e(TAG, "onHandleWork", e);
-                } finally {
-                    if (dbHelper != null) {
-                        dbHelper.release();
+                        String notificationMessage = NetworkService.performNotifyMessage(failsPairs, getApplicationContext());
+                        if (notificationMessage != null) {
+                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(getApplicationContext(), MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+                            NotificationCompat.Builder notificationBuilder = NotificationUtil.build(getApplicationContext(), failsPairs.size() + " " + getString(R.string.state_unreachable), notificationMessage, pendingIntent);
+                            NotificationUtil.send(getApplicationContext(), NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build());
+                        }
+                        alarmUtil.updateNextAlarmDate(getApplicationContext());
+                        jobFinished(params, true);
                     }
-                    PurgeDbService.enqueueWork(getApplicationContext(), PurgeDbService.class, JobEnum.PURGE_DB.ordinal(), PurgeDbService.intent((getApplicationContext())));
+                }).execute(siteSettingDao.queryForAll().toArray(new SiteSettings[]{}));
+            } catch (SQLException e) {
+                Log.e(TAG, "onHandleWork", e);
+            } finally {
+                if (dbHelper != null) {
+                    dbHelper.release();
                 }
+                PurgeDbService.enqueueWork(getApplicationContext(), PurgeDbService.class, JobEnum.PURGE_DB.ordinal(), PurgeDbService.intent((getApplicationContext())));
             }
         }).start();
         return true;

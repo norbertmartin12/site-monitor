@@ -15,8 +15,9 @@
 
 package org.site_monitor.activity.fragment;
 
-import android.support.design.widget.Snackbar;
 import android.view.View;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.model.db.DBSiteSettings;

@@ -19,7 +19,6 @@ import android.app.Activity;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +37,9 @@ import org.site_monitor.model.bo.SiteSettings;
 import org.site_monitor.receiver.internal.NetworkBroadcastReceiver;
 import org.site_monitor.service.FavIconService;
 import org.site_monitor.service.NetworkService;
+
+import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -62,7 +64,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     private NetworkBroadcastReceiver networkBroadcastReceiver;
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(@NonNull Activity activity) {
         super.onAttach(activity);
         try {
             this.callback = (Callback) activity;
@@ -90,19 +92,13 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     public void onResume() {
         super.onResume();
         updateView();
-        notificationCheckable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                siteSettings.getSiteSettings().setNotificationEnabled(isChecked);
-                callback.hasChanged(siteSettings.getSiteSettings());
-            }
+        notificationCheckable.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            siteSettings.getSiteSettings().setNotificationEnabled(isChecked);
+            callback.hasChanged(siteSettings.getSiteSettings());
         });
-        trustCertificateCheckable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                siteSettings.getSiteSettings().setForcedCertificate(isChecked);
-                callback.hasChanged(siteSettings.getSiteSettings());
-            }
+        trustCertificateCheckable.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            siteSettings.getSiteSettings().setForcedCertificate(isChecked);
+            callback.hasChanged(siteSettings.getSiteSettings());
         });
 
         if (networkBroadcastReceiver == null && siteCallAdapter != null) {

@@ -3,8 +3,6 @@ package org.site_monitor.service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
-import android.support.v4.app.JobIntentService;
 import android.util.Log;
 
 import org.site_monitor.BuildConfig;
@@ -16,6 +14,9 @@ import org.site_monitor.util.NetworkUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.JobIntentService;
 
 public class FavIconService extends JobIntentService {
 

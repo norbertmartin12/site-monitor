@@ -19,14 +19,14 @@ android {
         config {
         }
     }
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 30
+    buildToolsVersion '29.0.2'
     defaultConfig {
         applicationId "org.site_monitor"
         minSdkVersion 21
-        targetSdkVersion 28
-        versionCode 28
-        versionName '0.15'
+        targetSdkVersion 30
+        versionCode 29
+        versionName '0.16'
     }
     buildTypes {
         debug {
@@ -36,17 +36,20 @@ android {
         }
         release {
             proguardFiles 'proguard-rules.pro'
-            signingConfig signingConfigs.config
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api 'com.android.support:support-v4:28.0.0'
-    api 'com.android.support:design:28.0.0'
+    api 'androidx.legacy:legacy-support-v4:1.0.0'
+    api 'com.google.android.material:material:1.2.0'
 
-    api 'com.google.code.gson:gson:2.8.2'
-    api 'com.j256.ormlite:ormlite-core:4.48'
-    api 'com.j256.ormlite:ormlite-android:4.48'
+    api 'com.google.code.gson:gson:2.8.6'
+    api 'com.j256.ormlite:ormlite-core:5.1'
+    api 'com.j256.ormlite:ormlite-android:5.1'
 }

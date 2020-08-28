@@ -29,7 +29,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
-import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.view.MenuItem;
 
@@ -39,6 +38,8 @@ import org.site_monitor.util.AlarmUtil;
 import org.site_monitor.util.TimeUtil;
 
 import java.util.List;
+
+import androidx.core.app.NavUtils;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -256,6 +257,10 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
      * This fragment shows notification preferences only. It is used when the activity is showing a two-pane settings UI.
      */
     public static class NotificationPreferenceFragment extends PreferenceFragment {
+        public NotificationPreferenceFragment() {
+            super();
+        }
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -275,6 +280,10 @@ public class PrefSettingsActivity extends AppCompatPreferenceActivity {
      * This fragment shows monitoring preferences only.
      */
     public static class MonitoringPreferenceFragment extends PreferenceFragment {
+        public MonitoringPreferenceFragment() {
+            super();
+        }
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);

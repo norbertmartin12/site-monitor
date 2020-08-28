@@ -26,13 +26,14 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import org.site_monitor.App;
 import org.site_monitor.BuildConfig;
 import org.site_monitor.R;
 import org.site_monitor.activity.PrefSettingsActivity;
+
+import androidx.core.app.NotificationCompat;
 
 /**
  * Created by norbert on 04/07/2015.
@@ -79,7 +80,7 @@ public class NotificationUtil {
 
         notificationBuilder.setSound(ringtoneUri);
         String colorString = preferences.getString(PrefSettingsActivity.NOTIFICATION_LIGHT_COLOR, Color.WHITE + "");
-        int color = Integer.valueOf(colorString);
+        int color = Integer.parseInt(colorString);
         notificationBuilder.setLights(color, TimeUtil._1_SEC_INT * 2, TimeUtil._1_SEC_INT * 10);
         if (preferences.getBoolean(PrefSettingsActivity.NOTIFICATIONS_VIBRATE, false)) {
             long[] pattern = {NotificationCompat.DEFAULT_VIBRATE * TimeUtil.SEC_2_MILLISEC};

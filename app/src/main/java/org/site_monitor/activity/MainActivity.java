@@ -17,7 +17,6 @@ package org.site_monitor.activity;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
-import android.content.DialogInterface;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -25,10 +24,6 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Parcelable;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -41,6 +36,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.site_monitor.BuildConfig;
 import org.site_monitor.R;
@@ -69,6 +66,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
 /**
@@ -149,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(PARCEL_SITE_LIST, new ArrayList<Parcelable>(siteSettingsList));
     }
@@ -159,8 +161,6 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         super.onResume();
         if (loadDataFromDb) {
             loadSiteSettingsBusinesses();
-        } else {
-            loadDataFromDb = false;
         }
         scheduleTimer();
         onNetworkStateChanged(ConnectivityUtil.isConnected(this));
@@ -335,33 +335,27 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         input.setHint(R.string.hint_site_url);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_URI);
         builder.setView(input);
-        builder.setPositiveButton(R.string.action_add, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String host = input.getText().toString().trim();
-                if (host.isEmpty()) {
+        builder.setPositiveButton(R.string.action_add, (dialog, which) -> {
+            String host = input.getText().toString().trim();
+            if (host.isEmpty()) {
+                return;
+            }
+            try {
+                DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                if (dbSiteSettings.findForHost(host) != null) {
+                    Snackbar.make(v, host + getString(R.string.already_exists), Snackbar.LENGTH_SHORT).show();
                     return;
                 }
-                try {
-                    DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
-                    if (dbSiteSettings.findForHost(host) != null) {
-                        Snackbar.make(v, host + getString(R.string.already_exists), Snackbar.LENGTH_SHORT).show();
-                        return;
-                    }
-                    SiteSettings siteSettings = new SiteSettings(host);
-                    dbSiteSettings.create(siteSettings);
-                    alarmUtil.startAlarmIfNeeded(context);
-                    new CallSiteTask(context, taskFragment).execute(siteSettings);
-                    SiteSettingsActivity.start(context, siteSettings.getHost());
-                } catch (SQLException e) {
-                    Log.e(TAG, "create", e);
-                }
+                SiteSettings siteSettings = new SiteSettings(host);
+                dbSiteSettings.create(siteSettings);
+                alarmUtil.startAlarmIfNeeded(context);
+                new CallSiteTask(context, taskFragment).execute(siteSettings);
+                SiteSettingsActivity.start(context, siteSettings.getHost());
+            } catch (SQLException e) {
+                Log.e(TAG, "create", e);
             }
         });
-        builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-            }
+        builder.setNegativeButton(R.string.action_cancel, (dialog, which) -> {
         });
         builder.show();
     }
