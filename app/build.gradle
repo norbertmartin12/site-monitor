@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Martin Norbert
+ * Copyright (c) 2023 Martin Norbert
  *  Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,18 +15,20 @@
 
 apply plugin: 'com.android.application'
 android {
+
+    buildToolsVersion = '34.0.0'
+
     signingConfigs {
         config {
         }
     }
-    compileSdkVersion 30
-    buildToolsVersion '29.0.2'
     defaultConfig {
         applicationId "org.site_monitor"
         minSdkVersion 21
-        targetSdkVersion 30
-        versionCode 30
-        versionName '0.16'
+        targetSdkVersion 34
+        compileSdk 34
+        versionCode 31
+        versionName '1.0'
     }
     buildTypes {
         debug {
@@ -42,14 +44,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'org.site_monitor'
 }
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     api 'androidx.legacy:legacy-support-v4:1.0.0'
-    api 'com.google.android.material:material:1.2.0'
-
-    api 'com.google.code.gson:gson:2.8.6'
+    api 'com.google.android.material:material:1.9.0'
+    api 'com.google.code.gson:gson:2.8.9'
     api 'com.j256.ormlite:ormlite-core:5.1'
     api 'com.j256.ormlite:ormlite-android:5.1'
 }

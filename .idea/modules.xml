@@ -2,8 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="site-monitor/app" />
-      <module fileurl="file://$PROJECT_DIR$/site-monitor.iml" filepath="$PROJECT_DIR$/site-monitor.iml" group="site-monitor" />
+      <module fileurl="file://$PROJECT_DIR$/site-monitor.iml" filepath="$PROJECT_DIR$/site-monitor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/site-monitor.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/site-monitor.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/site-monitor.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/site-monitor.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/site-monitor.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/site-monitor.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/site-monitor.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/site-monitor.app.unitTest.iml" />
     </modules>
   </component>
 </project>
