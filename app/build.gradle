@@ -50,7 +50,7 @@ android {
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
     api 'androidx.legacy:legacy-support-v4:1.0.0'
-    api 'com.google.android.material:material:1.9.0'
+    api 'com.google.android.material:material:1.11.0'
     api 'com.google.code.gson:gson:2.8.9'
     api 'com.j256.ormlite:ormlite-core:5.1'
     api 'com.j256.ormlite:ormlite-android:5.1'
