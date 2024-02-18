@@ -41,6 +41,9 @@ android {
     }
     namespace 'org.site_monitor'
     compileSdk 34
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {

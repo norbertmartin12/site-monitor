@@ -61,10 +61,10 @@ public class NetworkService extends JobIntentService {
     public static final String REQUEST_REFRESH_SITES = "refreshSites";
     public static final String COMA = ",";
     private static final String TAG = NetworkService.class.getSimpleName();
-    private NetworkUtil networkUtil = new NetworkUtil();
+    private final NetworkUtil networkUtil = new NetworkUtil();
 
     /**
-     * @param context
+     * @param context to pass in the intent
      * @return intent to call start service
      */
     public static Intent intentToCheckSites(Context context) {
@@ -136,7 +136,7 @@ public class NetworkService extends JobIntentService {
         }
         String notificationMessage = performNotifyMessage(failsPairs, this);
         if (notificationMessage != null) {
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_IMMUTABLE);
             NotificationCompat.Builder notificationBuilder = NotificationUtil.build(this, failsPairs.size() + " " + getString(R.string.state_unreachable), notificationMessage, pendingIntent);
             NotificationUtil.send(this, NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build());
         }

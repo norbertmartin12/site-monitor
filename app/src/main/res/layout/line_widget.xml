@@ -26,7 +26,8 @@
         android:id="@+id/widgetBackgroundImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/state_unknown"/>
+        android:background="@color/state_unknown"
+        android:contentDescription="@string/colored_state_icon" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -40,7 +41,8 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/size_small"
-            android:src="@drawable/ic_app"/>
+            android:src="@drawable/ic_app"
+            android:contentDescription="@string/app_icon" />
 
         <TextView
             android:id="@+id/widgetTextView"
@@ -52,9 +54,10 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:padding="@dimen/size_tiny"
-            android:text="..."
+            android:text="@string/dots_3"
             android:textColor="@android:color/white"
             android:textSize="16sp"/>
+
 
     </RelativeLayout>
 </FrameLayout>

@@ -46,7 +46,7 @@ public class AlarmJobService extends JobService {
 
     private static final String TAG = AlarmJobService.class.getSimpleName();
 
-    private AlarmUtil alarmUtil = AlarmUtil.instance();
+    private final AlarmUtil alarmUtil = AlarmUtil.instance();
 
     /**
      * Override this method with the callback logic for your job. Any such logic needs to be
@@ -79,7 +79,7 @@ public class AlarmJobService extends JobService {
                         }
                         String notificationMessage = NetworkService.performNotifyMessage(failsPairs, getApplicationContext());
                         if (notificationMessage != null) {
-                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(getApplicationContext(), MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+                            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, new Intent(getApplicationContext(), MainActivity.class), PendingIntent.FLAG_IMMUTABLE);
                             NotificationCompat.Builder notificationBuilder = NotificationUtil.build(getApplicationContext(), failsPairs.size() + " " + getString(R.string.state_unreachable), notificationMessage, pendingIntent);
                             NotificationUtil.send(getApplicationContext(), NotificationUtil.ID_NOT_REACHABLE, notificationBuilder.build());
                         }

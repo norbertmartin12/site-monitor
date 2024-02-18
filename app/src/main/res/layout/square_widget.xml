@@ -26,7 +26,8 @@
         android:id="@+id/widgetBackgroundImage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/state_unknown"/>
+        android:background="@color/state_unknown"
+        android:contentDescription="@string/colored_state_icon" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -42,7 +43,8 @@
             android:minHeight="40dp"
             android:minWidth="40dp"
             android:padding="@dimen/size_tiny"
-            android:src="@drawable/ic_app"/>
+            android:src="@drawable/ic_app"
+            android:contentDescription="@string/app_icon" />
 
     </RelativeLayout>
 </FrameLayout>

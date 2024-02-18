@@ -33,17 +33,17 @@ public class WidgetManager {
     /**
      * Sends broadcast to existing widgets for refresh.
      *
-     * @param context
+     * @param context to use to build new intent
      */
     public static void refresh(Context context) {
         sendRefreshTo(context, LineWidget.class);
         sendRefreshTo(context, SquareWidget.class);
     }
 
-    private static void sendRefreshTo(Context context, Class clazz) {
+    private static void sendRefreshTo(Context context, Class<?> clazz) {
         Intent intent = new Intent(context, clazz);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-        int ids[] = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, clazz));
+        int[] ids = AppWidgetManager.getInstance(context).getAppWidgetIds(new ComponentName(context, clazz));
         if (ids.length > 0) {
             if (BuildConfig.DEBUG) {
                 Log.d(TAG, "refresh: " + clazz.getSimpleName());

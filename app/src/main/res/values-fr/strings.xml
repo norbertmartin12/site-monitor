@@ -64,4 +64,7 @@
 
     <string name="channel_title">Alertes</string>
     <string name="channel_description">Notifications lorsque votre site web est indisponible</string>
+    <string name="colored_state_icon">Icone couleur d\'état</string>
+    <string name="app_icon">Icone de l\'app</string>
+    <string name="dots_3">...</string>
 </resources>

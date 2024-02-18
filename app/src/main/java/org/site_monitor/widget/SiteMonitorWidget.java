@@ -35,7 +35,6 @@ abstract class SiteMonitorWidget extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        final int N = appWidgetIds.length;
         for (int appWidgetId : appWidgetIds) {
             updateAppWidget(context, appWidgetManager, appWidgetId);
         }
@@ -57,7 +56,7 @@ abstract class SiteMonitorWidget extends AppWidgetProvider {
     }
 
     PendingIntent onClickIntent(Context context) {
-        return PendingIntent.getActivity(context, 1, new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getActivity(context, 1, new Intent(context, MainActivity.class), PendingIntent.FLAG_IMMUTABLE);
     }
 
     abstract void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId);
