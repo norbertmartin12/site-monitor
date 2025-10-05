@@ -16,41 +16,40 @@
 apply plugin: 'com.android.application'
 android {
 
-    buildToolsVersion = '34.0.0'
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
-        applicationId "org.site_monitor"
+        applicationId = "org.site_monitor"
         minSdkVersion 21
-        targetSdkVersion 34
-        versionCode 32
-        versionName '1.0.1'
+        targetSdkVersion 36
+        versionCode 33
+        versionName = "1.0.2"
     }
     buildTypes {
         debug {
-            applicationIdSuffix '.debug'
-            versionNameSuffix '.debug'
-            proguardFiles 'proguard-rules.pro'
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = ".debug"
+            proguardFiles "proguard-rules.pro"
         }
         release {
-            proguardFiles 'proguard-rules.pro'
+            proguardFiles "proguard-rules.pro"
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    namespace 'org.site_monitor'
-    compileSdk 34
+    /* compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }*/
+    namespace = "org.site_monitor"
+    compileSdk = 36
     buildFeatures {
-        buildConfig true
+        buildConfig = true
     }
 }
 
 dependencies {
-    api fileTree(dir: 'libs', include: ['*.jar'])
-    api 'androidx.legacy:legacy-support-v4:1.0.0'
-    api 'com.google.android.material:material:1.11.0'
-    api 'com.google.code.gson:gson:2.10'
-    api 'com.j256.ormlite:ormlite-core:5.1'
-    api 'com.j256.ormlite:ormlite-android:5.1'
+    implementation  fileTree(dir: "libs", include: ["*.jar"])
+    implementation  "androidx.legacy:legacy-support-v4:1.0.0"
+    implementation  "com.google.android.material:material:1.13.0"
+    implementation  "com.google.code.gson:gson:2.13.2"
+    implementation  "com.j256.ormlite:ormlite-android:6.1"
 }

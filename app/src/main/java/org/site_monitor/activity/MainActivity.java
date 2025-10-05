@@ -17,10 +17,13 @@ package org.site_monitor.activity;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Parcelable;
@@ -66,6 +69,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -81,8 +85,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String PARCEL_SITE_LIST = "SITE_LIST";
 
-    private MainActivity context = this;
-    private ListView listView;
+    private final MainActivity context = this;
     private TextView connectivityAlertView;
     private TaskFragment taskFragment;
     private Chronometer chronometer;
@@ -91,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
     private AlarmBroadcastReceiver alarmBroadcastReceiver;
     private View timerBannerView;
     private DBHelper dbHelper;
-    private AlarmUtil alarmUtil = AlarmUtil.instance();
+    private final AlarmUtil alarmUtil = AlarmUtil.instance();
     private SiteSettingsAdapter siteSettingsAdapter;
     private List<SiteSettingsBusiness> siteSettingsList;
     private boolean loadDataFromDb;
@@ -101,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         dbHelper = DBHelper.getHelper(this);
-        listView = this.findViewById(R.id.listView);
+        ListView listView = this.findViewById(R.id.listView);
         connectivityAlertView = this.findViewById(R.id.connectivityAlert);
         chronometer = this.findViewById(R.id.chronometer);
         timerBannerView = this.findViewById(R.id.timerBanner);
@@ -270,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
     public void onSiteStartRefresh(SiteSettings siteSettings) {
         int position = siteSettingsAdapter.getPosition(new SiteSettingsBusiness(siteSettings));
         if (position != -1) {
-            siteSettingsAdapter.getItem(position).setIsChecking(true);
+            Objects.requireNonNull(siteSettingsAdapter.getItem(position)).setIsChecking(true);
         }
         siteSettingsAdapter.notifyDataSetChanged();
     }
@@ -280,10 +283,31 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         int position = siteSettingsAdapter.getPosition(new SiteSettingsBusiness(siteSettings));
         if (position != -1) {
             SiteSettingsBusiness siteSettingsView = siteSettingsAdapter.getItem(position);
+            assert siteSettingsView != null;
             siteSettingsView.setIsChecking(false);
             siteSettingsView.getCalls().add(siteCall);
             siteSettingsAdapter.notifyDataSetChanged();
         }
+
+        this.startNewActivity(context);
+    }
+
+    public void startNewActivity(Context context) {
+        String packageName = "org.ntj_workout";
+        Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
+        if (intent == null) {
+            // Bring user to the market if app not found on device
+            intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("market://details?id=" + packageName));
+        }
+        // prepare arguments
+        intent.setAction(Intent.ACTION_SYNC);
+        intent.addCategory(Intent.CATEGORY_DEFAULT);
+        intent.setType("text/plain");
+        intent.putExtra("CODE", "81521ED"); // CODE TO DEFINE FOR THE SEASON
+        intent.putExtra("VALIDITY_DATE", "2024-11-01"); // FORMAT YYYY-MM-DD TO CHANGE EACH SEASON
+        // open app
+        context.startActivity(intent);
     }
 
     @Override
@@ -291,6 +315,7 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
         int position = siteSettingsAdapter.getPosition(new SiteSettingsBusiness(siteSettings));
         if (position != -1) {
             SiteSettingsBusiness siteSettingsView = siteSettingsAdapter.getItem(position);
+            assert siteSettingsView != null;
             siteSettingsView.setFavicon(favicon);
             siteSettingsAdapter.notifyDataSetChanged();
         }

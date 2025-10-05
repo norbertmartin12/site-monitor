@@ -25,6 +25,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
+    <queries>
+        <package android:name="org.ntj_workout"/>
+    </queries>
+
     <application
         android:name=".App"
         android:allowBackup="true"
@@ -153,7 +157,5 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/square_widget_info" />
         </receiver>
-
     </application>
-
 </manifest>
