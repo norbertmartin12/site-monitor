@@ -53,3 +53,8 @@ dependencies {
     implementation  "com.google.code.gson:gson:2.13.2"
     implementation  "com.j256.ormlite:ormlite-android:6.1"
 }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
