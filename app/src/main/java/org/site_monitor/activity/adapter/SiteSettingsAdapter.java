@@ -28,6 +28,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import org.site_monitor.R;
 import org.site_monitor.model.adapter.SiteSettingsBusiness;
 import org.site_monitor.model.bo.NetworkCallResult;
@@ -50,8 +52,9 @@ public class SiteSettingsAdapter extends ArrayAdapter<SiteSettingsBusiness> {
         this.handler = handler;
     }
 
+    @NonNull
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, @NonNull ViewGroup parent) {
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.cell_site_settings, parent, false);
         }

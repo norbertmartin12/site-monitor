@@ -44,6 +44,7 @@ import org.site_monitor.widget.WidgetManager;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,6 +86,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
                     Toast.makeText(this, R.string.site_not_found, Toast.LENGTH_SHORT).show();
                     finish();
                 }
+                assert dbSiteSettings != null;
                 siteSettings = new SiteSettingsBusiness(dbSiteSettings);
             } catch (SQLException e) {
                 Log.e(TAG, "search for host", e);
@@ -94,6 +96,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
         } else {
             siteSettings = savedInstanceState.getParcelable(PARCEL_SITE);
         }
+        assert siteSettings != null;
         setTitle(siteSettings.getName());
         setContentView(R.layout.activity_site_settings);
 
@@ -102,6 +105,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
         if (siteSettingsFragment == null) {
             siteSettingsFragment = (SiteSettingsActivityFragment) fragmentManager.findFragmentById(R.id.fragment_site_settings);
         }
+        assert siteSettingsFragment != null;
         siteSettingsFragment.setSiteSettings(siteSettings);
     }
 
@@ -130,7 +134,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(final MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             if (siteSettings.isChecking()) {
@@ -141,51 +145,12 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
             return true;
         }
         if (id == R.id.action_rename) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(R.string.action_rename);
-            final EditText input = new EditText(context);
-            input.setHint(R.string.hint_rename_site);
-            input.setText(siteSettings.getName());
-            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-            builder.setView(input);
-            builder.setPositiveButton(R.string.action_rename, (dialog, which) -> {
-                String name = input.getText().toString().trim();
-                if (name.isEmpty()) {
-                    name = getString(R.string.no_name);
-                }
-                siteSettings.getSiteSettings().setName(name);
-                setTitle(siteSettings.getName());
-                try {
-                    DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
-                    dbSiteSettings.update(siteSettings.getSiteSettings());
-                    WidgetManager.refresh(context);
-                } catch (SQLException e) {
-                    Log.e(TAG, "rename", e);
-                }
-
-            });
-            builder.setNegativeButton(R.string.action_cancel, (dialog, which) -> {
-            });
+            AlertDialog.Builder builder = getRenameDialogBuilder();
             builder.show();
             return true;
         }
         if (id == R.id.action_delete) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage(R.string.remove_current_monitor);
-            builder.setPositiveButton(R.string.action_delete, (dialog, which) -> {
-                try {
-                    DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
-                    dbSiteSettings.delete(siteSettings.getSiteSettings());
-                    AlarmUtil.instance().stopAlarmIfNeeded(context);
-                } catch (SQLException e) {
-                    Log.e(TAG, "remove", e);
-                }
-                WidgetManager.refresh(context);
-                finish();
-            });
-
-            builder.setNegativeButton(R.string.action_cancel, (dialog, which) -> {
-            });
+            AlertDialog.Builder builder = getDeleteDialogBuilder();
             builder.show();
             return true;
         }
@@ -196,7 +161,8 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
                     DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
                     dbSiteSettings.update(siteSettings.getSiteSettings());
                     addInternalIpMenuItem.setChecked(!addInternalIpMenuItem.isChecked());
-                    Snackbar.make(this.getCurrentFocus(), R.string.internal_url_removed, Snackbar.LENGTH_SHORT).show();
+                    assert siteSettingsFragment.getView() != null;
+                    Snackbar.make(siteSettingsFragment.getView(), R.string.internal_url_removed, Snackbar.LENGTH_SHORT).show();
                     siteSettingsFragment.setSiteSettings(siteSettings);
                 } catch (SQLException e) {
                     Log.e(TAG, "update", e);
@@ -218,7 +184,7 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
                         DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
                         dbSiteSettings.update(siteSettings.getSiteSettings());
                         addInternalIpMenuItem.setChecked(!addInternalIpMenuItem.isChecked());
-                        Snackbar.make(context.getCurrentFocus(), R.string.internal_url_added, Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(Objects.requireNonNull(input), R.string.internal_url_added, Snackbar.LENGTH_SHORT).show();
                         siteSettingsFragment.setSiteSettings(siteSettings);
                     } catch (SQLException e) {
                         Log.e(TAG, "update", e);
@@ -231,6 +197,55 @@ public class SiteSettingsActivity extends AppCompatActivity implements SiteSetti
             return true;
         }
         return false;
+    }
+
+    private AlertDialog.Builder getRenameDialogBuilder() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle(R.string.action_rename);
+        final EditText input = new EditText(context);
+        input.setHint(R.string.hint_rename_site);
+        input.setText(siteSettings.getName());
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
+        builder.setView(input);
+        builder.setPositiveButton(R.string.action_rename, (dialog, which) -> {
+            String name = input.getText().toString().trim();
+            if (name.isEmpty()) {
+                name = getString(R.string.no_name);
+            }
+            siteSettings.getSiteSettings().setName(name);
+            setTitle(siteSettings.getName());
+            try {
+                DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                dbSiteSettings.update(siteSettings.getSiteSettings());
+                WidgetManager.refresh(context);
+            } catch (SQLException e) {
+                Log.e(TAG, "rename", e);
+            }
+
+        });
+        builder.setNegativeButton(R.string.action_cancel, (dialog, which) -> {
+        });
+        return builder;
+    }
+
+    private AlertDialog.Builder getDeleteDialogBuilder() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.remove_current_monitor);
+        builder.setPositiveButton(R.string.action_delete, (dialog, which) -> {
+            try {
+                DBSiteSettings dbSiteSettings = dbHelper.getDBSiteSettings();
+                dbSiteSettings.delete(siteSettings.getSiteSettings());
+                AlarmUtil.instance().stopAlarmIfNeeded(context);
+            } catch (SQLException e) {
+                Log.e(TAG, "remove", e);
+            }
+            WidgetManager.refresh(context);
+            finish();
+        });
+
+        builder.setNegativeButton(R.string.action_cancel, (dialog, which) -> {
+        });
+        return builder;
     }
 
     @Override

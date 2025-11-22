@@ -59,7 +59,7 @@ public class SiteSettingsBusiness implements Parcelable {
     };
     private final SiteSettings siteSettings;
     private boolean isChecking;
-    private List<SiteCall> siteCalls;
+    private final List<SiteCall> siteCalls;
     private Bitmap faviconCache;
 
     public SiteSettingsBusiness(SiteSettings siteSettings) {
@@ -112,7 +112,7 @@ public class SiteSettingsBusiness implements Parcelable {
                 continue;
             }
             // when find non fail call get previous it's period start
-            if (start == null && siteCall.getResult() != NetworkCallResult.FAIL) {
+            if (siteCall.getResult() != NetworkCallResult.FAIL) {
                 start = siteCalls.get(i + 1);
                 break;
             }

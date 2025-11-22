@@ -18,6 +18,8 @@ package org.site_monitor.model.bo;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
@@ -139,8 +141,7 @@ public class SiteSettings implements Parcelable {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof SiteSettings) {
-            SiteSettings obj = (SiteSettings) o;
+        if (o instanceof SiteSettings obj) {
             return host.equals(obj.host);
         }
         return false;
@@ -151,6 +152,7 @@ public class SiteSettings implements Parcelable {
         return host.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "SiteSettings{" +
