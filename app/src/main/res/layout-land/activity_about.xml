@@ -58,6 +58,7 @@
         </LinearLayout>
 
         <LinearLayout
+            style="?android:attr/buttonBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/size_medium"
@@ -67,15 +68,17 @@
 
             <Button
                 android:id="@+id/trelloButton"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:onClick="goTo"
                 android:text="@string/trello"
-                android:textColor="@color/accent"/>
+                android:textColor="@color/accent" />
 
             <Button
                 android:id="@+id/rateAppButton"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"

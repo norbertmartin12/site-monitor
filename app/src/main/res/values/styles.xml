@@ -16,7 +16,7 @@
 
 <resources>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat">
         <!-- Main theme colors -->
         <!--   your app branding color for the app bar -->
         <item name="colorPrimary">@color/primary</item>
@@ -26,14 +26,8 @@
         <item name="colorAccent">@color/accent</item>
         <item name="colorControlHighlight">@color/accent</item>
 
-        <item name="android:windowBackground">@android:color/white</item>
-        <item name="android:windowTranslucentNavigation">false</item>
         <item name="android:fitsSystemWindows">true</item>
-        <item name="android:actionBarStyle">@style/ActionBar.Solid.KitKat</item>
-    </style>
-
-    <style name="ActionBar.Solid.KitKat" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
-        <item name="android:background">@color/primary</item>
+        <item name="statusBarBackground">@color/primary</item>
     </style>
 
 </resources>

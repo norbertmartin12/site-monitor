@@ -22,8 +22,8 @@ android {
         applicationId = "org.site_monitor"
         minSdkVersion 21
         targetSdkVersion 36
-        versionCode 33
-        versionName = "1.0.2"
+        versionCode 34
+        versionName = "1.0.3"
     }
     buildTypes {
         debug {
