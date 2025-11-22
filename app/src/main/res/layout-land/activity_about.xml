@@ -47,14 +47,14 @@
             android:textSize="24sp"
             android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="_1.2.3"
-            android:textColor="@color/primary"
-            android:textSize="14sp"
-            android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="_1.2.3"
+                android:textColor="@color/primary"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
         </LinearLayout>
 
         <LinearLayout

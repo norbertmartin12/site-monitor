@@ -90,6 +90,7 @@
         android:layout_marginBottom="@dimen/size_medium"
         android:layout_marginEnd="@dimen/size_medium"
         android:clickable="true"
+        android:contentDescription="@string/action_add"
         android:focusable="true"
         android:onClick="floatingAddSite"
         android:src="@drawable/ic_add"
@@ -98,6 +99,5 @@
         app:fabSize="normal"
         app:rippleColor="@color/ripple_fab"
         />
-
 
 </RelativeLayout>

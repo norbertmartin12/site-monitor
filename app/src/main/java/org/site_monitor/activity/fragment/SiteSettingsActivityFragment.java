@@ -41,6 +41,8 @@ import org.site_monitor.service.NetworkService;
 import androidx.annotation.NonNull;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import java.util.Objects;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -55,7 +57,6 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
     private ListView callListView;
     private ProgressBar progressBar;
     private ImageView faviconView;
-    private View view;
 
     private Callback callback;
     private SiteSettingsBusiness siteSettings;
@@ -75,7 +76,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view = inflater.inflate(R.layout.fragment_site_settings, container, false);
+        View view = inflater.inflate(R.layout.fragment_site_settings, container, false);
         notificationCheckable = (Switch) view.findViewById(R.id.notificationSwitch);
         trustCertificateCheckable = (Switch) view.findViewById(R.id.trustCertificateSwitch);
         trustCertificateView = view.findViewById(R.id.trustCertificateView);
@@ -104,9 +105,9 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         if (networkBroadcastReceiver == null && siteCallAdapter != null) {
             networkBroadcastReceiver = new NetworkBroadcastReceiver(this);
         }
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_START_REFRESH));
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_END_REFRESH));
-        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(FavIconService.ACTION_FAVICON_UPDATED));
+        LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_START_REFRESH));
+        LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(NetworkService.ACTION_SITE_END_REFRESH));
+        LocalBroadcastManager.getInstance(requireActivity()).registerReceiver(networkBroadcastReceiver, new IntentFilter(FavIconService.ACTION_FAVICON_UPDATED));
     }
 
     @Override
@@ -115,7 +116,7 @@ public class SiteSettingsActivityFragment extends TaskFragment implements Networ
         notificationCheckable.setOnCheckedChangeListener(null);
         trustCertificateCheckable.setOnCheckedChangeListener(null);
         if (networkBroadcastReceiver != null) {
-            LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(networkBroadcastReceiver);
+            LocalBroadcastManager.getInstance(requireActivity()).unregisterReceiver(networkBroadcastReceiver);
         }
     }
 

@@ -17,13 +17,10 @@ package org.site_monitor.activity;
 
 import android.app.AlertDialog;
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Parcelable;
@@ -288,26 +285,6 @@ public class MainActivity extends AppCompatActivity implements SiteSettingsAdapt
             siteSettingsView.getCalls().add(siteCall);
             siteSettingsAdapter.notifyDataSetChanged();
         }
-
-        this.startNewActivity(context);
-    }
-
-    public void startNewActivity(Context context) {
-        String packageName = "org.ntj_workout";
-        Intent intent = getPackageManager().getLaunchIntentForPackage(packageName);
-        if (intent == null) {
-            // Bring user to the market if app not found on device
-            intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("market://details?id=" + packageName));
-        }
-        // prepare arguments
-        intent.setAction(Intent.ACTION_SYNC);
-        intent.addCategory(Intent.CATEGORY_DEFAULT);
-        intent.setType("text/plain");
-        intent.putExtra("CODE", "81521ED"); // CODE TO DEFINE FOR THE SEASON
-        intent.putExtra("VALIDITY_DATE", "2024-11-01"); // FORMAT YYYY-MM-DD TO CHANGE EACH SEASON
-        // open app
-        context.startActivity(intent);
     }
 
     @Override
